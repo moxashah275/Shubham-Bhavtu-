@@ -1,0 +1,416 @@
+<!-- Icon + label - value line, used inside coloured panels. -->
+<ng-template #iconList let-fields="fields" let-onPanel="onPanel">
+  <ul class="mt-3 space-y-2.5">
+    @for (field of fields; track field.label) {
+      <li class="flex items-start gap-2.5 text-[14px] leading-snug">
+        <span
+          class="mt-0.5 flex h-6 w-6 shrink-0 items-center justify-center rounded-md"
+          [style.background]="onPanel ? 'rgba(255,255,255,0.22)' : theme().accent"
+          [style.color]="onPanel ? theme().panelText : theme().accentText"
+        >
+          @if (field.icon) {
+            <svg [lucideIcon]="field.icon" [size]="13" aria-hidden="true"></svg>
+          }
+        </span>
+        <span class="flex-1">
+          <span [style.color]="onPanel ? theme().panelMuted : theme().text" style="opacity: 0.85">
+            {{ field.label }} -
+          </span>
+          <span
+            class="font-semibold"
+            [class.whitespace-nowrap]="field.noWrap"
+            [class.text-[13px]]="field.noWrap"
+            [style.color]="onPanel ? theme().panelText : theme().text"
+          >
+            {{ field.value }}
+          </span>
+        </span>
+      </li>
+    }
+  </ul>
+</ng-template>
+
+<!-- Plain label : value rows, used on the white part of the sheet. -->
+<ng-template #rowList let-fields="fields">
+  <dl class="mt-3 space-y-2">
+    @for (field of fields; track field.label) {
+      <div class="flex gap-3 text-[14px] leading-snug" [style.color]="theme().text">
+        <dt class="w-[45%] shrink-0 font-semibold">{{ field.label }}</dt>
+        <dd class="flex-1"><span class="mr-1 opacity-60">:</span>{{ field.value }}</dd>
+      </div>
+    }
+  </dl>
+</ng-template>
+
+<!-- Section title in the style the template asks for. -->
+<ng-template #sectionHeading let-title="title">
+  @switch (heading()) {
+    @case ('bar') {
+      <div class="px-4 py-2" [style.background]="theme().accent">
+        <span
+          class="text-[13px] font-semibold tracking-[0.14em] uppercase"
+          [style.color]="theme().accentText"
+          [class.font-serif]="serif()"
+        >
+          {{ title }}
+        </span>
+      </div>
+    }
+    @case ('pill') {
+      <span
+        class="inline-block rounded-full px-5 py-1.5 text-[13px] font-semibold tracking-[0.14em] uppercase"
+        [style.background]="theme().accent"
+        [style.color]="theme().accentText"
+        [class.font-serif]="serif()"
+      >
+        {{ title }}
+      </span>
+    }
+    @default {
+      <span class="block">
+        <span
+          class="text-[14px] font-semibold tracking-[0.16em] uppercase"
+          [style.color]="theme().accent"
+          [class.font-serif]="serif()"
+        >
+          {{ title }}
+        </span>
+        <span class="mt-1 block h-[2px] w-full" [style.background]="theme().accent" style="opacity: 0.4"></span>
+      </span>
+    }
+  }
+</ng-template>
+
+<!-- Photo frame. Falls back to initials when no photo is uploaded yet. -->
+<ng-template #photo let-height="height" let-round="round" let-onPanel="onPanel">
+  <div
+    class="flex w-full items-center justify-center overflow-hidden border-2"
+    [class.rounded-full]="round"
+    [class.rounded-xl]="!round"
+    [style.height]="height"
+    [style.border-color]="onPanel ? theme().panelMuted : theme().accent"
+    [style.background]="onPanel ? 'rgba(255,255,255,0.16)' : 'rgba(0,0,0,0.04)'"
+  >
+    @if (content().photoSrc) {
+      <img [src]="content().photoSrc" [alt]="content().name" class="h-full w-full object-cover" />
+    } @else {
+      <span
+        class="text-4xl font-semibold tracking-wide"
+        [style.color]="onPanel ? theme().panelText : theme().accent"
+      >
+        {{ content().initials }}
+      </span>
+    }
+  </div>
+</ng-template>
+
+<!-- Coloured side panel: photo, profile info and contact. -->
+<ng-template #panelBlock>
+  <div class="flex w-[36%] shrink-0 flex-col p-7" [style.background]="theme().panel">
+    <ng-container
+      [ngTemplateOutlet]="photo"
+      [ngTemplateOutletContext]="{ height: '15rem', round: false, onPanel: !lightPanel() }"
+    />
+
+    <p
+      class="mt-7 text-center text-[15px] font-semibold tracking-[0.2em] uppercase"
+      [style.color]="lightPanel() ? theme().accent : theme().panelText"
+    >
+      Profile info
+    </p>
+    <ng-container
+      [ngTemplateOutlet]="iconList"
+      [ngTemplateOutletContext]="{ fields: content().profileInfo, onPanel: !lightPanel() }"
+    />
+
+    <p
+      class="mt-6 text-center text-[15px] font-semibold tracking-[0.2em] uppercase"
+      [style.color]="lightPanel() ? theme().accent : theme().panelText"
+    >
+      Contact
+    </p>
+    <ng-container
+      [ngTemplateOutlet]="iconList"
+      [ngTemplateOutletContext]="{ fields: content().contact, onPanel: !lightPanel() }"
+    />
+  </div>
+</ng-template>
+
+<!-- White main column: name, about, professional and detail sections. -->
+<ng-template #mainBlock let-showName="showName">
+  <div class="flex flex-1 flex-col p-9">
+    @if (showName) {
+      <h2 class="text-5xl leading-tight font-bold" [style.color]="theme().accent" [class.font-serif]="serif()">
+        {{ content().name }}
+      </h2>
+      <p class="mt-1.5 text-[15px]" [style.color]="theme().text" style="opacity: 0.75">{{ content().headline }}</p>
+    }
+
+    <div [class.mt-6]="showName">
+      <ng-container [ngTemplateOutlet]="sectionHeading" [ngTemplateOutletContext]="{ title: 'About me' }" />
+      <p class="mt-2.5 text-[14px] leading-6" [style.color]="theme().text">{{ content().about }}</p>
+    </div>
+
+    <div class="mt-6">
+      <ng-container [ngTemplateOutlet]="sectionHeading" [ngTemplateOutletContext]="{ title: 'Professional' }" />
+      <p class="mt-2.5 text-[14px] leading-6" [style.color]="theme().text">{{ content().profession }}</p>
+    </div>
+
+    @for (section of content().sections; track section.id) {
+      <div class="mt-6">
+        <ng-container [ngTemplateOutlet]="sectionHeading" [ngTemplateOutletContext]="{ title: section.title }" />
+        <ng-container [ngTemplateOutlet]="rowList" [ngTemplateOutletContext]="{ fields: section.fields }" />
+      </div>
+    }
+
+    <div class="mt-auto pt-8">
+      <span class="block h-1.5 w-full rounded-full" [style.background]="theme().accent" style="opacity: 0.25"></span>
+      <p class="mt-3 text-[12px] tracking-[0.24em] uppercase" [style.color]="theme().accent">
+        Gathbandhan · marriage biodata
+      </p>
+    </div>
+  </div>
+</ng-template>
+
+<!-- Corner flourish drawn for the corner and floral frames. -->
+<ng-template #cornerArt let-rotate="rotate">
+  <svg
+    class="absolute h-16 w-16"
+    [style.transform]="rotate"
+    viewBox="0 0 64 64"
+    fill="none"
+    [attr.stroke]="theme().accent"
+    stroke-width="1.6"
+    aria-hidden="true"
+  >
+    <path d="M0 10h46M10 0v46" stroke-opacity="0.55" />
+    <path d="M0 20c14 0 20-6 20-20" stroke-opacity="0.85" />
+    <path d="M0 30c22 0 30-8 30-30" stroke-opacity="0.4" />
+  </svg>
+</ng-template>
+
+<!-- Traditional framed sheet: decorative border, photo, name and all sections. -->
+<ng-template #framedSheet let-centred="centred">
+  <div class="relative flex flex-1 flex-col p-5">
+    @if (templeFrame()) {
+      <span
+        class="absolute inset-x-0 top-0 h-4"
+        [style.background]="theme().accent"
+        style="clip-path: polygon(0 0, 100% 0, 100% 40%, 97% 100%, 94% 40%, 91% 100%, 88% 40%, 85% 100%, 82% 40%, 79% 100%, 76% 40%, 73% 100%, 70% 40%, 67% 100%, 64% 40%, 61% 100%, 58% 40%, 55% 100%, 52% 40%, 49% 100%, 46% 40%, 43% 100%, 40% 40%, 37% 100%, 34% 40%, 31% 100%, 28% 40%, 25% 100%, 22% 40%, 19% 100%, 16% 40%, 13% 100%, 10% 40%, 7% 100%, 4% 40%, 1% 100%, 0 40%)"
+      ></span>
+      <span
+        class="absolute inset-x-0 bottom-0 h-4 rotate-180"
+        [style.background]="theme().accent"
+        style="clip-path: polygon(0 0, 100% 0, 100% 40%, 97% 100%, 94% 40%, 91% 100%, 88% 40%, 85% 100%, 82% 40%, 79% 100%, 76% 40%, 73% 100%, 70% 40%, 67% 100%, 64% 40%, 61% 100%, 58% 40%, 55% 100%, 52% 40%, 49% 100%, 46% 40%, 43% 100%, 40% 40%, 37% 100%, 34% 40%, 31% 100%, 28% 40%, 25% 100%, 22% 40%, 19% 100%, 16% 40%, 13% 100%, 10% 40%, 7% 100%, 4% 40%, 1% 100%, 0 40%)"
+      ></span>
+    }
+
+    <div
+      class="relative flex flex-1 flex-col border-[3px] px-9 py-8"
+      [style.border-color]="theme().accent"
+      [style.outline]="'1px solid ' + theme().accent"
+      style="outline-offset: 5px"
+    >
+      @if (cornerOrnaments()) {
+        <span class="pointer-events-none absolute top-1.5 left-1.5">
+          <ng-container [ngTemplateOutlet]="cornerArt" [ngTemplateOutletContext]="{ rotate: 'none' }" />
+        </span>
+        <span class="pointer-events-none absolute top-1.5 right-1.5">
+          <ng-container [ngTemplateOutlet]="cornerArt" [ngTemplateOutletContext]="{ rotate: 'scaleX(-1)' }" />
+        </span>
+        <span class="pointer-events-none absolute bottom-1.5 left-1.5">
+          <ng-container [ngTemplateOutlet]="cornerArt" [ngTemplateOutletContext]="{ rotate: 'scaleY(-1)' }" />
+        </span>
+        <span class="pointer-events-none absolute bottom-1.5 right-1.5">
+          <ng-container [ngTemplateOutlet]="cornerArt" [ngTemplateOutletContext]="{ rotate: 'scale(-1)' }" />
+        </span>
+      }
+
+      <!-- Header: centred for one family of designs, photo beside the name for the other. -->
+      @if (centred) {
+        <div class="flex flex-col items-center text-center">
+          <div class="w-40">
+            <ng-container
+              [ngTemplateOutlet]="photo"
+              [ngTemplateOutletContext]="{ height: '10rem', round: true, onPanel: false }"
+            />
+          </div>
+          <h2 class="mt-4 text-4xl leading-tight font-bold" [style.color]="theme().accent" [class.font-serif]="serif()">
+            {{ content().name }}
+          </h2>
+          <p class="mt-1 text-[14px]" [style.color]="theme().text" style="opacity: 0.75">{{ content().headline }}</p>
+          <span class="mt-4 block h-[3px] w-24 rounded-full" [style.background]="theme().accent"></span>
+        </div>
+      } @else {
+        <div class="flex items-start gap-7">
+          <div class="flex-1">
+            <h2 class="text-4xl leading-tight font-bold" [style.color]="theme().accent" [class.font-serif]="serif()">
+              {{ content().name }}
+            </h2>
+            <p class="mt-1.5 text-[14px]" [style.color]="theme().text" style="opacity: 0.75">
+              {{ content().headline }}
+            </p>
+            <p class="mt-4 text-[14px] leading-6" [style.color]="theme().text">{{ content().about }}</p>
+          </div>
+          <div class="w-40 shrink-0">
+            <ng-container
+              [ngTemplateOutlet]="photo"
+              [ngTemplateOutletContext]="{ height: '13rem', round: false, onPanel: false }"
+            />
+          </div>
+        </div>
+      }
+
+      @if (centred) {
+        <div class="mt-6">
+          <ng-container [ngTemplateOutlet]="sectionHeading" [ngTemplateOutletContext]="{ title: 'About me' }" />
+          <p class="mt-2.5 text-[14px] leading-6" [style.color]="theme().text">{{ content().about }}</p>
+        </div>
+      }
+
+      <div class="mt-6">
+        <ng-container [ngTemplateOutlet]="sectionHeading" [ngTemplateOutletContext]="{ title: 'Personal details' }" />
+        <div class="mt-1 grid grid-cols-2 gap-x-8">
+          <ng-container
+            [ngTemplateOutlet]="rowList"
+            [ngTemplateOutletContext]="{ fields: profileInfoLeft() }"
+          />
+          <ng-container
+            [ngTemplateOutlet]="rowList"
+            [ngTemplateOutletContext]="{ fields: profileInfoRight() }"
+          />
+        </div>
+      </div>
+
+      @for (section of content().sections; track section.id) {
+        <div class="mt-6">
+          <ng-container [ngTemplateOutlet]="sectionHeading" [ngTemplateOutletContext]="{ title: section.title }" />
+          <ng-container [ngTemplateOutlet]="rowList" [ngTemplateOutletContext]="{ fields: section.fields }" />
+        </div>
+      }
+
+      <div class="mt-6">
+        <ng-container [ngTemplateOutlet]="sectionHeading" [ngTemplateOutletContext]="{ title: 'Contact details' }" />
+        <ng-container [ngTemplateOutlet]="rowList" [ngTemplateOutletContext]="{ fields: content().contact }" />
+      </div>
+
+      <div class="mt-auto pt-8 text-center">
+        <span class="mx-auto block h-[3px] w-24 rounded-full" [style.background]="theme().accent"></span>
+        <p class="mt-3 text-[12px] tracking-[0.24em] uppercase" [style.color]="theme().accent">
+          Gathbandhan · marriage biodata
+        </p>
+      </div>
+    </div>
+  </div>
+</ng-template>
+
+<div
+  class="flex w-[794px] flex-col overflow-hidden"
+  style="min-height: 1123px"
+  [style.background]="theme().page"
+  [style.color]="theme().text"
+>
+  @switch (layout()) {
+    @case ('framed-center') {
+      <ng-container [ngTemplateOutlet]="framedSheet" [ngTemplateOutletContext]="{ centred: true }" />
+    }
+
+    @case ('framed-side') {
+      <ng-container [ngTemplateOutlet]="framedSheet" [ngTemplateOutletContext]="{ centred: false }" />
+    }
+
+    @case ('header-curve') {
+      <div class="relative">
+        <div class="px-9 pt-9 pb-16" [style.background]="theme().panel">
+          <h2
+            class="max-w-[60%] text-5xl leading-tight font-bold"
+            [style.color]="theme().panelText"
+            [class.font-serif]="serif()"
+          >
+            {{ content().name }}
+          </h2>
+          <p class="mt-2 text-[15px]" [style.color]="theme().panelMuted">{{ content().headline }}</p>
+        </div>
+        <div
+          class="absolute top-6 right-9 z-20 h-52 w-44 overflow-hidden rounded-2xl border-4"
+          [style.border-color]="theme().panelMuted"
+          [style.background]="'rgba(255,255,255,0.18)'"
+        >
+          @if (content().photoSrc) {
+            <img [src]="content().photoSrc" [alt]="content().name" class="h-full w-full object-cover" />
+          } @else {
+            <span class="flex h-full w-full items-center justify-center text-4xl font-semibold" [style.color]="theme().panelText">
+              {{ content().initials }}
+            </span>
+          }
+        </div>
+        <div class="h-10 w-[64%] rounded-tr-[3rem]" [style.background]="theme().page" style="margin-top: -2.5rem"></div>
+      </div>
+
+      <div class="flex flex-1">
+        <ng-container [ngTemplateOutlet]="mainBlock" [ngTemplateOutletContext]="{ showName: false }" />
+        <div class="w-[36%] shrink-0 px-7 pt-24 pb-7" [style.background]="theme().panel">
+          <p class="text-center text-[15px] font-semibold tracking-[0.2em] uppercase" [style.color]="theme().panelText">
+            Profile info
+          </p>
+          <ng-container
+            [ngTemplateOutlet]="iconList"
+            [ngTemplateOutletContext]="{ fields: content().profileInfo, onPanel: true }"
+          />
+          <p class="mt-8 text-center text-[15px] font-semibold tracking-[0.2em] uppercase" [style.color]="theme().panelText">
+            Contact
+          </p>
+          <ng-container
+            [ngTemplateOutlet]="iconList"
+            [ngTemplateOutletContext]="{ fields: content().contact, onPanel: true }"
+          />
+        </div>
+      </div>
+    }
+
+    @case ('light-left') {
+      <div class="flex flex-1">
+        <div class="flex w-[36%] shrink-0 flex-col p-7" [style.background]="theme().panel">
+          <ng-container
+            [ngTemplateOutlet]="photo"
+            [ngTemplateOutletContext]="{ height: '15rem', round: false, onPanel: false }"
+          />
+          <h2
+            class="mt-6 text-center text-3xl leading-tight font-bold"
+            [style.color]="theme().accent"
+            [class.font-serif]="serif()"
+          >
+            {{ content().name }}
+          </h2>
+          <p class="mt-6 text-[15px] font-semibold tracking-[0.16em] uppercase" [style.color]="theme().accent">
+            Profile info
+          </p>
+          <ng-container
+            [ngTemplateOutlet]="iconList"
+            [ngTemplateOutletContext]="{ fields: content().profileInfo, onPanel: false }"
+          />
+          <p class="mt-auto pt-7 text-[15px] font-semibold tracking-[0.16em] uppercase" [style.color]="theme().accent">
+            Contact
+          </p>
+          <ng-container
+            [ngTemplateOutlet]="iconList"
+            [ngTemplateOutletContext]="{ fields: content().contact, onPanel: false }"
+          />
+        </div>
+        <ng-container [ngTemplateOutlet]="mainBlock" [ngTemplateOutletContext]="{ showName: false }" />
+      </div>
+    }
+
+    @default {
+      <div class="flex flex-1">
+        @if (panelFirst()) {
+          <ng-container [ngTemplateOutlet]="panelBlock" />
+          <ng-container [ngTemplateOutlet]="mainBlock" [ngTemplateOutletContext]="{ showName: true }" />
+        } @else {
+          <ng-container [ngTemplateOutlet]="mainBlock" [ngTemplateOutletContext]="{ showName: true }" />
+          <ng-container [ngTemplateOutlet]="panelBlock" />
+        }
+      </div>
+    }
+  }
+</div>

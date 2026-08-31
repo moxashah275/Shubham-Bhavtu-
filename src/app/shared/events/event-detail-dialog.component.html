@@ -1,0 +1,135 @@
+<div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
+  <button
+    type="button"
+    class="absolute inset-0 bg-charcoal/45 backdrop-blur-sm"
+    aria-label="Close event details"
+    (click)="closed.emit()"
+  ></button>
+
+  <div
+    role="dialog"
+    aria-modal="true"
+    [attr.aria-labelledby]="'event-title-' + event().id"
+    class="relative w-full max-w-3xl overflow-hidden rounded-2xl border border-gold/15 bg-white shadow-2xl"
+  >
+    <button
+      type="button"
+      class="absolute top-3 right-3 z-10 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white text-charcoal shadow transition hover:bg-blush"
+      aria-label="Close"
+      (click)="closed.emit()"
+    >
+      <svg lucideX [size]="18" aria-hidden="true"></svg>
+    </button>
+
+    <div class="relative">
+      <img [src]="event().imageSrc" [alt]="event().title" class="h-44 w-full object-cover sm:h-52" />
+      <div class="absolute inset-0 bg-gradient-to-t from-charcoal/75 via-charcoal/25 to-transparent"></div>
+
+      <span
+        class="absolute top-3 left-3 rounded-full px-3 py-1 text-[11px] font-semibold tracking-[0.1em] uppercase shadow"
+        [class]="free() ? 'bg-gold text-charcoal' : 'bg-burgundy text-ivory'"
+      >
+        {{ free() ? 'Free' : 'Paid' }}
+      </span>
+
+      <div class="absolute bottom-3 left-4 right-4">
+        <p class="text-[11px] font-semibold tracking-[0.18em] text-gold uppercase">{{ event().category }}</p>
+        <h2 [id]="'event-title-' + event().id" class="mt-1 font-serif text-2xl leading-snug text-ivory">
+          {{ event().title }}
+        </h2>
+      </div>
+    </div>
+
+    <div class="p-5 sm:p-6">
+      <p class="line-clamp-3 text-sm leading-6 text-stone-500">{{ event().summary }}</p>
+
+      <dl class="mt-4 grid gap-x-5 gap-y-3 sm:grid-cols-2">
+        <div class="flex items-start gap-2">
+          <svg lucideCalendar [size]="15" class="mt-0.5 shrink-0 text-gold-deep" aria-hidden="true"></svg>
+          <div>
+            <dt class="text-[10px] font-semibold tracking-[0.14em] text-gold uppercase">Date</dt>
+            <dd class="text-sm font-medium text-charcoal">{{ dateLabel() }}</dd>
+          </div>
+        </div>
+        <div class="flex items-start gap-2">
+          <svg lucideClock [size]="15" class="mt-0.5 shrink-0 text-gold-deep" aria-hidden="true"></svg>
+          <div>
+            <dt class="text-[10px] font-semibold tracking-[0.14em] text-gold uppercase">Time</dt>
+            <dd class="text-sm font-medium text-charcoal">{{ event().time }}</dd>
+          </div>
+        </div>
+        <div class="flex items-start gap-2">
+          <svg lucideMapPin [size]="15" class="mt-0.5 shrink-0 text-gold-deep" aria-hidden="true"></svg>
+          <div>
+            <dt class="text-[10px] font-semibold tracking-[0.14em] text-gold uppercase">Venue</dt>
+            <dd class="text-sm font-medium text-charcoal">{{ location() }}</dd>
+          </div>
+        </div>
+        <div class="flex items-start gap-2">
+          <svg lucideUsers [size]="15" class="mt-0.5 shrink-0 text-gold-deep" aria-hidden="true"></svg>
+          <div>
+            <dt class="text-[10px] font-semibold tracking-[0.14em] text-gold uppercase">Who can join</dt>
+            <dd class="text-sm font-medium text-charcoal">{{ event().forWhom }}</dd>
+          </div>
+        </div>
+        <div class="flex items-start gap-2">
+          <svg lucideShirt [size]="15" class="mt-0.5 shrink-0 text-gold-deep" aria-hidden="true"></svg>
+          <div>
+            <dt class="text-[10px] font-semibold tracking-[0.14em] text-gold uppercase">Dress code</dt>
+            <dd class="text-sm font-medium text-charcoal">{{ dressCode() }}</dd>
+          </div>
+        </div>
+        <div class="flex items-start gap-2">
+          <svg lucideLanguages [size]="15" class="mt-0.5 shrink-0 text-gold-deep" aria-hidden="true"></svg>
+          <div>
+            <dt class="text-[10px] font-semibold tracking-[0.14em] text-gold uppercase">Language</dt>
+            <dd class="text-sm font-medium text-charcoal">{{ language() }}</dd>
+          </div>
+        </div>
+        <div class="flex items-start gap-2">
+          <svg lucideUsers [size]="15" class="mt-0.5 shrink-0 text-gold-deep" aria-hidden="true"></svg>
+          <div>
+            <dt class="text-[10px] font-semibold tracking-[0.14em] text-gold uppercase">Seats</dt>
+            <dd class="text-sm font-medium text-charcoal">
+              {{ event().seatsLeft }} of {{ event().totalSeats }} left · {{ availability() }}
+            </dd>
+          </div>
+        </div>
+        <div class="flex items-start gap-2">
+          <svg lucidePhone [size]="15" class="mt-0.5 shrink-0 text-gold-deep" aria-hidden="true"></svg>
+          <div>
+            <dt class="text-[10px] font-semibold tracking-[0.14em] text-gold uppercase">Event helpdesk</dt>
+            <dd class="text-sm font-medium whitespace-nowrap text-charcoal">{{ helpdesk }}</dd>
+          </div>
+        </div>
+      </dl>
+
+      <div class="mt-4">
+        <p class="text-[10px] font-semibold tracking-[0.16em] text-gold uppercase">What is included</p>
+        <ul class="mt-2 flex flex-wrap gap-1.5">
+          @for (item of event().highlights; track item) {
+            <li class="inline-flex items-center gap-1.5 rounded-full border border-gold/25 bg-ivory px-2.5 py-1 text-xs text-charcoal">
+              <svg lucideCheck [size]="13" class="shrink-0 text-gold-deep" aria-hidden="true"></svg>
+              {{ item }}
+            </li>
+          }
+        </ul>
+      </div>
+
+      <div class="mt-5 flex flex-col gap-3 border-t border-gold/15 pt-4 sm:flex-row sm:items-center sm:justify-between">
+        <div>
+          <p class="font-serif text-lg text-charcoal">{{ feeLabel() }}</p>
+          <p class="text-xs text-stone-500">Hosted by {{ event().host }}</p>
+        </div>
+        <button
+          type="button"
+          class="inline-flex items-center justify-center gap-2 rounded-full bg-burgundy px-5 py-2.5 text-sm font-semibold text-ivory transition hover:bg-burgundy-deep"
+          (click)="booked.emit(event().id)"
+        >
+          <svg lucideTicket [size]="16" aria-hidden="true"></svg>
+          {{ free() ? 'Reserve my seat' : 'Book my seat' }}
+        </button>
+      </div>
+    </div>
+  </div>
+</div>

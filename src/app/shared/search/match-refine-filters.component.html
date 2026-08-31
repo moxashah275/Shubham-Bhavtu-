@@ -1,0 +1,89 @@
+<div class="divide-y divide-gold/15 border-y border-gold/15">
+  @for (group of groups; track group.id) {
+    <app-filter-group [label]="group.label" [open]="isOpen(group.id)" (toggled)="toggleGroup(group.id)">
+      @switch (group.id) {
+        @case ('basics') {
+          <label class="block text-xs font-medium text-stone-500">
+            Looking For
+            <app-search-select name="refineLookingFor" placeholder="Select" [options]="lookingForOptions" [(value)]="lookingFor" />
+          </label>
+          <label class="block text-xs font-medium text-stone-500">
+            Married status
+            <app-search-select name="refineMarital" placeholder="Select" [options]="maritalOptions" [(value)]="maritalStatus" />
+          </label>
+          <label class="block text-xs font-medium text-stone-500">
+            Age from
+            <app-search-select name="ageFrom" placeholder="Min" [options]="ageOptions" [(value)]="ageFrom" />
+          </label>
+          <label class="block text-xs font-medium text-stone-500">
+            Age to
+            <app-search-select name="ageTo" placeholder="Max" [options]="ageOptions" [(value)]="ageTo" />
+          </label>
+        }
+
+        @case ('faith') {
+          <label class="block text-xs font-medium text-stone-500">
+            Religion
+            <app-search-select name="refineReligion" placeholder="Select" [options]="religionOptions" [(value)]="religion" />
+          </label>
+          <label class="block text-xs font-medium text-stone-500">
+            Sub caste
+            <app-search-select name="refineSubCaste" placeholder="Select" [options]="subCasteOptions" [(value)]="subCaste" />
+          </label>
+          <label class="block text-xs font-medium text-stone-500">
+            Mother tongue
+            <app-search-select name="refineTongue" placeholder="Select" [options]="motherTongueOptions()" [(value)]="motherTongue" />
+          </label>
+          <label class="block text-xs font-medium text-stone-500">
+            Manglik / Shani
+            <app-search-select name="refineManglik" placeholder="Select" [options]="manglikOptions" [(value)]="manglik" />
+          </label>
+        }
+
+        @case ('lifestyle') {
+          <label class="block text-xs font-medium text-stone-500">
+            Height
+            <app-search-select name="refineHeight" placeholder="Select" [options]="heightOptions()" [(value)]="height" />
+          </label>
+          <label class="block text-xs font-medium text-stone-500">
+            Diet
+            <app-search-select name="refineDiet" placeholder="Select" [options]="dietOptions" [(value)]="diet" />
+          </label>
+          <label class="block text-xs font-medium text-stone-500">
+            Education
+            <app-search-select name="refineEducation" placeholder="Select" [options]="educationOptions()" [(value)]="education" />
+          </label>
+          <label class="block text-xs font-medium text-stone-500">
+            Annual income
+            <app-search-select name="refineIncome" placeholder="Select" [options]="incomeOptions" [(value)]="income" />
+          </label>
+        }
+
+        @case ('location') {
+          <label class="block text-xs font-medium text-stone-500">
+            State
+            <app-search-select
+              name="refineState"
+              placeholder="Select"
+              [options]="stateOptions()"
+              [value]="state()"
+              (valueChange)="onStateChange($event)"
+            />
+          </label>
+          <label class="block text-xs font-medium text-stone-500">
+            City
+            <app-search-select
+              name="refineCity"
+              [placeholder]="state() ? 'Select' : 'Select a state first'"
+              [options]="cityOptions()"
+              [disabled]="!state()"
+              [(value)]="city"
+            />
+          </label>
+        }
+      }
+    </app-filter-group>
+  }
+</div>
+
+<app-filter-actions [applyLabel]="applyLabel()" (applied)="apply()" (cleared)="clear()" />

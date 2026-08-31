@@ -1,0 +1,21 @@
+<button
+  type="button"
+  class="group relative block overflow-hidden rounded-xl border bg-white transition hover:-translate-y-0.5 hover:shadow-lg"
+  style="width: 221px"
+  [class.border-gold]="selected()"
+  [class.border-stone-200]="!selected()"
+  [attr.aria-label]="'Open biodata design ' + label()"
+  (click)="chosen.emit(template().id)"
+>
+  <div class="relative overflow-hidden bg-stone-100" style="width: 221px; height: 313px">
+    <div class="pointer-events-none absolute top-0 left-0 origin-top-left" style="transform: scale(0.278)">
+      <app-biodata-document [template]="template()" [content]="content()" />
+    </div>
+  </div>
+
+  @if (selected()) {
+    <span class="absolute top-2 right-2 flex h-7 w-7 items-center justify-center rounded-full bg-gold text-white shadow">
+      <svg lucideCheck [size]="16" aria-hidden="true"></svg>
+    </span>
+  }
+</button>

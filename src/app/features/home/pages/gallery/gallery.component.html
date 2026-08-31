@@ -1,0 +1,47 @@
+<section class="bg-burgundy px-5 py-6 text-white lg:px-8">
+  <div class="mx-auto max-w-7xl text-center">
+    <p class="text-xs font-semibold tracking-[0.22em] text-gold uppercase">Gallery</p>
+    <h1 class="mt-1 font-serif text-2xl leading-tight sm:text-3xl">Weddings and community events</h1>
+  </div>
+</section>
+
+<section class="bg-ivory pb-16">
+  <div class="mx-auto max-w-7xl px-5 pt-10 lg:px-8">
+    <div>
+      <div class="w-fit">
+        <h2 class="font-serif text-2xl text-charcoal">Weddings</h2>
+        <span class="mt-1.5 block h-px w-1/2 bg-gold"></span>
+      </div>
+      <p class="mt-3 max-w-2xl text-sm leading-6 text-stone-500">
+        Real families, real beginnings — a few of the weddings that started with a match on Gathbandhan.
+      </p>
+      <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        @for (item of pageWeddings(); track item.src) {
+          <article class="overflow-hidden rounded-2xl border border-gold/15 bg-white shadow-sm">
+            <img [src]="item.src" [alt]="item.alt" class="h-64 w-full object-cover object-[center_20%]" />
+          </article>
+        }
+      </div>
+      <div class="mt-10">
+        <app-pagination [page]="page()" [totalPages]="totalPages()" label="Wedding pages" (changed)="goToPage($event)" />
+      </div>
+    </div>
+
+    <div class="mt-7">
+      <div class="w-fit">
+        <h2 class="font-serif text-2xl text-charcoal">Events</h2>
+        <span class="mt-1.5 block h-px w-1/2 bg-gold"></span>
+      </div>
+      <p class="mt-3 max-w-2xl text-sm leading-6 text-stone-500">
+        Meets, garba nights and family gatherings where our members come together in person.
+      </p>
+      <div class="mt-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+        @for (item of events; track item.src) {
+          <article class="overflow-hidden rounded-2xl border border-gold/15 bg-white shadow-sm">
+            <img [src]="item.src" [alt]="item.alt" class="h-64 w-full object-cover" />
+          </article>
+        }
+      </div>
+    </div>
+  </div>
+</section>

@@ -1,0 +1,154 @@
+<section class="bg-burgundy px-5 py-6 text-white lg:px-8">
+  <div class="mx-auto max-w-7xl text-center">
+    <p class="text-xs font-semibold tracking-[0.22em] text-gold uppercase">Events</p>
+    <h1 class="mt-1 font-serif text-2xl leading-tight sm:text-3xl">Meet families, not just profiles</h1>
+  </div>
+</section>
+
+<section class="bg-ivory pb-16">
+  <div class="mx-auto grid max-w-7xl gap-8 px-5 pt-8 lg:grid-cols-[17rem_1fr] lg:px-8">
+    <aside class="hidden lg:block">
+      <div
+        class="sticky top-24 rounded-2xl border border-gold/15 bg-white px-5 py-4 shadow-[0_12px_32px_rgba(43,36,32,0.06)]"
+        data-select-boundary
+      >
+        <div class="pb-3">
+          <h2 class="font-serif text-lg text-charcoal">Filters</h2>
+        </div>
+        <app-event-filters
+          [events]="events"
+          [resultCount]="filtered().length"
+          [(category)]="category"
+          [(fee)]="fee"
+          [(state)]="state"
+          [(city)]="city"
+          [(when)]="when"
+          [(availability)]="availability"
+          (applied)="onFilterChange()"
+          (cleared)="onFilterChange()"
+        />
+      </div>
+    </aside>
+
+    <div class="min-w-0">
+      <div class="flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <div class="w-fit">
+            <h2 class="font-serif text-2xl text-charcoal">Upcoming events</h2>
+            <span class="mt-1.5 block h-px w-1/2 bg-gold"></span>
+          </div>
+          <p class="mt-2 text-sm text-stone-500">{{ rangeLabel() }}</p>
+        </div>
+        <button
+          type="button"
+          class="inline-flex h-11 items-center gap-2 rounded-lg border border-gold/30 bg-white px-4 text-sm font-semibold text-charcoal transition hover:border-burgundy/40 lg:hidden"
+          (click)="filtersOpen.set(true)"
+        >
+          <svg lucideSlidersHorizontal [size]="16" aria-hidden="true"></svg>
+          Filters
+        </button>
+      </div>
+
+      @if (pageEvents().length) {
+        <div class="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          @for (event of pageEvents(); track event.id) {
+            <app-event-card [event]="event" (opened)="open($event)" />
+          }
+        </div>
+
+        <div class="mt-8">
+          <app-pagination [page]="page()" [totalPages]="totalPages()" label="Event pages" (changed)="goToPage($event)" />
+        </div>
+      } @else {
+        <article class="mt-6 rounded-2xl border border-gold/15 bg-white p-8 text-center shadow-sm">
+          <p class="text-xs font-semibold tracking-[0.18em] text-gold uppercase">Widen your search</p>
+          <h3 class="mt-2 font-serif text-2xl text-charcoal">No events for these filters</h3>
+          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-stone-500">
+            Try another city or event type — or clear filters to see every upcoming gathering.
+          </p>
+          <div class="mt-5 flex flex-wrap justify-center gap-2">
+            <button
+              type="button"
+              class="inline-flex h-11 items-center justify-center rounded-lg bg-burgundy px-5 text-sm font-semibold text-white"
+              (click)="clearFilters()"
+            >
+              Show events
+            </button>
+          </div>
+        </article>
+      }
+
+      <div class="mt-7">
+        <div class="w-fit">
+          <h2 class="font-serif text-2xl text-charcoal">Past events</h2>
+          <span class="mt-1.5 block h-px w-1/2 bg-gold"></span>
+        </div>
+        <p class="mt-2 text-sm text-stone-500">A look at the gatherings our families have already been part of.</p>
+
+        <div class="mt-6 grid gap-5 sm:grid-cols-2 xl:grid-cols-3">
+          @for (event of pastEvents; track event.id) {
+            <article
+              class="flex h-full flex-col overflow-hidden rounded-2xl border border-gold/15 bg-white shadow-sm transition hover:-translate-y-0.5 hover:shadow-lg"
+            >
+              <div class="relative">
+                <img [src]="event.imageSrc" [alt]="event.title" class="h-40 w-full object-cover" />
+                <div class="absolute inset-0 bg-gradient-to-t from-charcoal/55 to-transparent"></div>
+                <span
+                  class="absolute top-3 left-3 rounded-full bg-white/95 px-3 py-1 text-[11px] font-semibold tracking-[0.12em] text-burgundy uppercase shadow"
+                >
+                  {{ event.held }}
+                </span>
+                <p class="absolute bottom-2 left-3 text-[11px] font-semibold tracking-[0.16em] text-ivory uppercase">
+                  {{ event.city }}
+                </p>
+              </div>
+              <div class="flex flex-1 flex-col p-5">
+                <h3 class="font-serif text-xl leading-snug text-charcoal">{{ event.title }}</h3>
+                <p class="mt-1 text-sm font-medium text-burgundy">{{ event.attendees }}</p>
+                <p class="mt-2 text-sm leading-6 text-stone-500">{{ event.note }}</p>
+              </div>
+            </article>
+          }
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+@if (filtersOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 lg:hidden">
+    <button type="button" class="absolute inset-0 bg-charcoal/35 backdrop-blur-md" aria-label="Close filters" (click)="filtersOpen.set(false)"></button>
+    <article class="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-gold/15 bg-white p-5 shadow-2xl sm:p-7" data-select-boundary>
+      <div class="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <p class="text-xs font-semibold tracking-[0.18em] text-gold uppercase">Refine</p>
+          <h3 class="mt-1 font-serif text-2xl text-charcoal">Filter events</h3>
+        </div>
+        <button
+          type="button"
+          class="inline-flex h-9 w-9 items-center justify-center rounded-full text-charcoal transition hover:bg-blush"
+          aria-label="Close"
+          (click)="filtersOpen.set(false)"
+        >
+          <svg lucideX [size]="18" aria-hidden="true"></svg>
+        </button>
+      </div>
+      <app-event-filters
+        [events]="events"
+        [resultCount]="filtered().length"
+        [(category)]="category"
+        [(fee)]="fee"
+        [(state)]="state"
+        [(city)]="city"
+        [(when)]="when"
+        [(availability)]="availability"
+        (applied)="applyFilters()"
+        (cleared)="onFilterChange()"
+      />
+    </article>
+  </div>
+}
+
+@if (openEvent(); as event) {
+  <app-event-detail-dialog [event]="event" (closed)="close()" (booked)="book($event)" />
+}

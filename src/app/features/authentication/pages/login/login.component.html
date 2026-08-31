@@ -1,0 +1,96 @@
+<app-auth-brand-panel
+  imageSrc="/assets/images/authentication/login-couple.webp"
+  imageAlt="A couple sharing a warm, quiet moment together"
+>
+  <div>
+    <h1 class="font-serif text-[28px] leading-tight text-charcoal lg:text-[32px]">Welcome Back</h1>
+    <p class="mt-1.5 text-sm text-stone-500">Login to continue your journey.</p>
+  </div>
+
+  @if (successMessage(); as success) {
+    <p class="mt-4 rounded-lg border border-gold/35 bg-blush px-3 py-2 text-sm text-burgundy" role="status">
+      {{ success }}
+    </p>
+  }
+
+  <form class="mt-6 space-y-4" [formGroup]="form" (ngSubmit)="submit()" autocomplete="off" novalidate>
+    <app-auth-input
+      formControlName="identifier"
+      type="text"
+      label="Email or Mobile Number"
+      placeholder="Enter email or mobile number"
+      [icon]="userIcon"
+      [required]="true"
+      [submitted]="submitted()"
+      [errorMessage]="identifierError()"
+      autocomplete="off"
+    />
+
+    <app-password-input
+      formControlName="password"
+      label="Password"
+      placeholder="Enter your password"
+      [required]="true"
+      [submitted]="submitted()"
+      [errorMessage]="passwordError()"
+      autocomplete="off"
+    />
+
+    @if (notRegisteredError()) {
+      <p class="text-xs text-red-600" role="alert">{{ notRegisteredError() }}</p>
+    }
+
+    @if (lockoutError()) {
+      <p class="text-xs text-red-600" role="alert">{{ lockoutError() }}</p>
+    }
+
+    <div class="flex items-center justify-between gap-3">
+      <label class="flex cursor-pointer items-center gap-2.5 text-sm text-stone-600">
+        <input
+          type="checkbox"
+          formControlName="rememberMe"
+          class="h-4 w-4 rounded border-stone-300 text-burgundy accent-burgundy focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy"
+        />
+        Remember Me
+      </label>
+      <a
+        routerLink="/forgot-password"
+        class="text-sm font-medium text-burgundy transition hover:text-burgundy-deep hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy"
+      >
+        Forgot Password?
+      </a>
+    </div>
+
+    <button
+      type="submit"
+      class="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-burgundy text-sm font-semibold text-white transition hover:bg-burgundy-deep focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy disabled:cursor-not-allowed disabled:opacity-60"
+      [disabled]="loading()"
+    >
+      @if (loading()) {
+        <svg lucideLoaderCircle class="animate-spin" [size]="18" aria-hidden="true"></svg>
+        Logging in
+      } @else {
+        Login
+        <svg lucideArrowRight [size]="18" aria-hidden="true"></svg>
+      }
+    </button>
+  </form>
+
+  <div class="mt-5">
+    <app-auth-divider label="OR" />
+  </div>
+
+  <div class="mt-4">
+    <app-social-login [disabled]="loading()" (selected)="loginWithSocial($event)" />
+  </div>
+
+  <p class="mt-6 text-center text-sm text-stone-500">
+    Don't have an account?
+    <a
+      routerLink="/register"
+      class="font-semibold text-burgundy transition hover:text-burgundy-deep hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy"
+    >
+      Register
+    </a>
+  </p>
+</app-auth-brand-panel>

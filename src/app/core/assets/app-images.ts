@@ -1,0 +1,61 @@
+const IMAGES = '/assets/images';
+
+export const AppImages = {
+  authentication: {
+    heartsLogo: `${IMAGES}/authentication/hearts-logo.png`,
+    loginCouple: `${IMAGES}/authentication/login-couple.webp`,
+    registerCouple: `${IMAGES}/authentication/register-couple.webp`,
+  },
+  home: {
+    heroCouple: `${IMAGES}/home/hero-couple.png`,
+    heroSide: `${IMAGES}/home/hero-side.png`,
+    matchAanya: `${IMAGES}/members/member-aanya.png`,
+    matchKabir: `${IMAGES}/members/member-kabir.png`,
+    matchArjun: `${IMAGES}/members/member-arjun.png`,
+    matchRohan: `${IMAGES}/members/member-rohan.png`,
+  },
+  members: {
+    aanya: `${IMAGES}/members/member-aanya.png`,
+    kiara: `${IMAGES}/members/member-kiara.png`,
+    diya: `${IMAGES}/members/member-diya.png`,
+    meera: `${IMAGES}/members/member-meera.png`,
+    isha: `${IMAGES}/members/member-isha.png`,
+    nisha: `${IMAGES}/members/member-nisha.png`,
+    riya: `${IMAGES}/members/member-riya.png`,
+    kabir: `${IMAGES}/members/member-kabir.png`,
+    arjun: `${IMAGES}/members/member-arjun.png`,
+    rohan: `${IMAGES}/members/member-rohan.png`,
+    vihaan: `${IMAGES}/members/member-vihaan.png`,
+    dev: `${IMAGES}/members/member-dev.png`,
+    aarav: `${IMAGES}/members/member-aarav.png`,
+    yash: `${IMAGES}/members/member-yash.png`,
+  },
+  matches: {
+    ahmedabad: `${IMAGES}/matches/match-couple-ahmedabad.png`,
+    jaipur: `${IMAGES}/matches/match-couple-jaipur.png`,
+    mumbai: `${IMAGES}/matches/match-couple-mumbai.png`,
+    surat: `${IMAGES}/matches/match-couple-surat.png`,
+    ajmer: `${IMAGES}/matches/match-couple-ajmer.png`,
+    bhavnagar: `${IMAGES}/matches/match-couple-bhavnagar.png`,
+    gandhinagar: `${IMAGES}/matches/match-couple-gandhinagar.png`,
+    nashik: `${IMAGES}/matches/match-couple-nashik.png`,
+    pune: `${IMAGES}/matches/match-couple-pune.png`,
+    rajkot: `${IMAGES}/matches/match-couple-rajkot.png`,
+    udaipur: `${IMAGES}/matches/match-couple-udaipur.png`,
+    vadodara: `${IMAGES}/matches/match-couple-vadodara.png`,
+  },
+  events: {
+    matrimonyMeet: `${IMAGES}/events/event-matrimony-meet.png`,
+    garbaNight: `${IMAGES}/events/event-garba-night.png`,
+    familyMeet: `${IMAGES}/events/event-family-meet.png`,
+    workshop: `${IMAGES}/events/event-workshop.png`,
+    templeGathering: `${IMAGES}/events/event-temple-gathering.png`,
+    pastGroup: `${IMAGES}/events/event-past-group.png`,
+  },
+  about: {
+    story: `${IMAGES}/about/about-story.png`,
+  },
+  contact: {
+    care: `${IMAGES}/contact/contact-care.png`,
+  },
+} as const;

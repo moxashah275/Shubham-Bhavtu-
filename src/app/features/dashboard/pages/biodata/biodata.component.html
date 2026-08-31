@@ -1,0 +1,59 @@
+<section class="bg-ivory pb-16">
+  <div class="bg-burgundy px-5 py-6 text-white lg:px-8">
+    <div class="mx-auto max-w-7xl text-center">
+      <p class="text-xs font-semibold tracking-[0.22em] text-gold uppercase">Ready-made biodata</p>
+      <h1 class="mt-1 font-serif text-2xl leading-tight sm:text-3xl">Your marriage biodata, in one click</h1>
+    </div>
+  </div>
+
+  <div class="mx-auto w-full max-w-6xl px-4 pt-8 sm:px-6">
+    <div class="flex items-center gap-2">
+      <svg lucideSparkles [size]="18" class="text-gold-deep" aria-hidden="true"></svg>
+      <h2 class="font-serif text-2xl text-charcoal">Choose a design</h2>
+    </div>
+    <p class="mt-1 text-sm text-stone-500">
+      Tap any design to open it full size with your own details filled in.
+    </p>
+
+    <div class="mt-6 grid grid-cols-1 justify-items-start gap-5 sm:grid-cols-2 lg:grid-cols-4">
+      @for (template of pageTemplates(); track template.id) {
+        <app-biodata-template-card
+          [template]="template"
+          [content]="content()"
+          [label]="templateNumber(template.id)"
+          [selected]="template.id === selectedId()"
+          (chosen)="select($event)"
+        />
+      }
+    </div>
+
+    <div class="mt-8">
+      <app-pagination
+        [page]="page()"
+        [totalPages]="totalPages"
+        label="Biodata design pages"
+        (changed)="goToPage($event)"
+      />
+    </div>
+  </div>
+</section>
+
+@if (previewOpen()) {
+  <div class="fixed inset-0 z-50 overflow-y-auto bg-charcoal/70 px-3 py-8" (click)="closePreview()">
+    <div class="mx-auto w-fit" (click)="keepOpen($event)">
+      <div class="overflow-x-auto">
+        <div class="relative w-[794px] shadow-2xl">
+          <button
+            type="button"
+            class="absolute top-4 right-4 z-30 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-charcoal shadow-lg transition hover:bg-blush"
+            aria-label="Close biodata"
+            (click)="closePreview()"
+          >
+            <svg lucideX [size]="18" aria-hidden="true"></svg>
+          </button>
+          <app-biodata-document [template]="selectedTemplate()" [content]="content()" />
+        </div>
+      </div>
+    </div>
+  </div>
+}

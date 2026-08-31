@@ -1,0 +1,183 @@
+<section class="bg-burgundy px-5 py-6 text-white lg:px-8">
+  <div class="mx-auto max-w-7xl text-center">
+    <p class="text-xs font-semibold tracking-[0.22em] text-gold uppercase">Matches</p>
+    <h1 class="mt-1 font-serif text-2xl leading-tight sm:text-3xl">Profiles chosen with care</h1>
+  </div>
+</section>
+
+<section class="bg-ivory pb-16">
+  <div class="mx-auto grid max-w-7xl gap-8 px-5 pt-8 lg:grid-cols-[17rem_1fr] lg:px-8">
+    <aside class="hidden lg:block">
+      <div class="sticky top-24 rounded-2xl border border-gold/15 bg-white px-5 py-4 shadow-[0_12px_32px_rgba(43,36,32,0.06)]">
+        <div class="pb-3">
+          <h2 class="font-serif text-lg text-charcoal">Filters</h2>
+        </div>
+        <app-match-refine-filters
+          [members]="members"
+          [(lookingFor)]="lookingFor"
+          [(ageFrom)]="ageFrom"
+          [(ageTo)]="ageTo"
+          [(religion)]="religion"
+          [(maritalStatus)]="maritalStatus"
+          [(height)]="height"
+          [(diet)]="diet"
+          [(occupation)]="occupation"
+          [(country)]="country"
+          [(state)]="state"
+          [(city)]="city"
+          [(manglik)]="manglik"
+          [(subCaste)]="subCaste"
+          [(income)]="income"
+          [(education)]="education"
+          [(motherTongue)]="motherTongue"
+          (applied)="applyFilters()"
+          (cleared)="clearRefineFilters()"
+        />
+      </div>
+    </aside>
+
+    <div class="min-w-0">
+    <article
+      id="match-results"
+      class="scroll-mt-24 overflow-hidden rounded-2xl border border-gold/15 bg-white shadow-[0_12px_32px_rgba(43,36,32,0.06)]"
+    >
+      <div class="flex flex-wrap items-start justify-between gap-4 border-b border-gold/10 bg-blush/40 px-5 py-4 sm:px-6">
+        <div>
+          <p class="text-xs font-semibold tracking-[0.18em] text-gold uppercase">
+            {{ filteredActive() ? 'Your search' : 'Members' }}
+          </p>
+          <h2 class="mt-1 font-serif text-2xl text-charcoal">{{ heading() }}</h2>
+          <p class="mt-1 text-sm text-stone-500">{{ rangeLabel() }}</p>
+        </div>
+        <div class="flex flex-wrap gap-2 lg:hidden">
+          <button
+            type="button"
+            class="inline-flex h-11 items-center gap-2 rounded-lg border border-gold/30 bg-white px-4 text-sm font-semibold text-charcoal transition hover:border-burgundy/40"
+            (click)="filtersOpen.set(true)"
+          >
+            <svg lucideSlidersHorizontal [size]="16" aria-hidden="true"></svg>
+            Filters
+          </button>
+        </div>
+      </div>
+
+      @if (summary().length) {
+        <dl class="grid gap-4 px-5 py-5 sm:grid-cols-2 sm:px-6 xl:grid-cols-4">
+          @for (item of summary(); track item.label) {
+            <div class="min-w-0">
+              <dt class="text-[11px] font-semibold tracking-[0.16em] text-gold uppercase">{{ item.label }}</dt>
+              <dd class="mt-1 truncate text-sm font-medium text-charcoal">{{ item.value }}</dd>
+            </div>
+          }
+        </dl>
+      }
+    </article>
+
+    <div class="mt-4 flex flex-col gap-3">
+      @if (pageItems().length) {
+        @for (member of pageItems(); track member.id) {
+          <app-match-listing-card
+            [member]="member"
+            [shortlisted]="isShortlisted(member.id)"
+            [interested]="isInterested(member.id)"
+            (viewProfile)="selected.set($event)"
+            (toggleShortlist)="toggleShortlist($event)"
+            (expressInterest)="expressInterest($event)"
+            (withdrawInterest)="withdrawInterest($event)"
+            (message)="openMessage($event)"
+          />
+        }
+
+        <div class="pt-2">
+          <app-pagination
+            [page]="page()"
+            [totalPages]="totalPages()"
+            label="Match pages"
+            (changed)="goToPage($event)"
+          />
+        </div>
+      } @else {
+        <article class="rounded-2xl border border-gold/15 bg-white p-8 text-center shadow-sm">
+          <p class="text-xs font-semibold tracking-[0.18em] text-gold uppercase">Widen your search</p>
+          <h3 class="mt-2 font-serif text-2xl text-charcoal">No profiles for these filters</h3>
+          <p class="mx-auto mt-2 max-w-md text-sm leading-6 text-stone-500">
+            Clear filters to see the default members list again — your profiles stay here.
+          </p>
+          <div class="mt-5 flex flex-wrap justify-center gap-2">
+            <button
+              type="button"
+              class="inline-flex h-11 items-center justify-center rounded-lg bg-burgundy px-5 text-sm font-semibold text-white"
+              (click)="clearRefineFilters()"
+            >
+              Show members
+            </button>
+            <button
+              type="button"
+              class="inline-flex h-11 items-center justify-center rounded-lg border border-gold/30 px-5 text-sm font-semibold text-charcoal"
+              (click)="filtersOpen.set(true)"
+            >
+              Open filters
+            </button>
+          </div>
+        </article>
+      }
+    </div>
+    </div>
+  </div>
+</section>
+
+@if (filtersOpen()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 lg:hidden">
+    <button type="button" class="absolute inset-0 bg-charcoal/35 backdrop-blur-md" aria-label="Close filters" (click)="filtersOpen.set(false)"></button>
+    <article class="relative max-h-[85vh] w-full max-w-2xl overflow-y-auto rounded-2xl border border-gold/15 bg-white p-5 shadow-2xl sm:p-7">
+      <div class="mb-4 flex items-start justify-between gap-3">
+        <div>
+          <p class="text-xs font-semibold tracking-[0.18em] text-gold uppercase">Refine</p>
+          <h3 class="mt-1 font-serif text-2xl text-charcoal">Filter matches</h3>
+        </div>
+        <button
+          type="button"
+          class="inline-flex h-9 w-9 items-center justify-center rounded-full text-charcoal transition hover:bg-blush"
+          aria-label="Close"
+          (click)="filtersOpen.set(false)"
+        >
+          <svg lucideX [size]="18" aria-hidden="true"></svg>
+        </button>
+      </div>
+      <app-match-refine-filters
+        [members]="members"
+        [(lookingFor)]="lookingFor"
+        [(ageFrom)]="ageFrom"
+        [(ageTo)]="ageTo"
+        [(religion)]="religion"
+        [(maritalStatus)]="maritalStatus"
+        [(height)]="height"
+        [(diet)]="diet"
+        [(occupation)]="occupation"
+        [(country)]="country"
+        [(state)]="state"
+        [(city)]="city"
+        [(manglik)]="manglik"
+        [(subCaste)]="subCaste"
+        [(income)]="income"
+        [(education)]="education"
+        [(motherTongue)]="motherTongue"
+        (applied)="applyFilters()"
+        (cleared)="clearRefineFilters()"
+      />
+    </article>
+  </div>
+}
+
+@if (selected(); as member) {
+  <app-member-profile-dialog
+    [member]="member"
+    [shortlisted]="isShortlisted(member.id)"
+    [interested]="isInterested(member.id)"
+    (closed)="selected.set(null)"
+    (toggleShortlist)="toggleShortlist($event)"
+    (expressInterest)="expressInterest($event)"
+    (withdrawInterest)="withdrawInterest($event)"
+    (message)="openMessage($event); selected.set(null)"
+  />
+}

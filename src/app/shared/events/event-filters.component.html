@@ -1,0 +1,65 @@
+<div class="divide-y divide-gold/15 border-y border-gold/15">
+  @for (group of groups; track group.id) {
+    <app-filter-group [label]="group.label" [open]="isOpen(group.id)" (toggled)="toggleGroup(group.id)">
+      @switch (group.id) {
+        @case ('type') {
+          <label class="block text-xs font-medium text-stone-500">
+            Event type
+            <app-search-select name="eventCategory" placeholder="Select" [options]="categoryOptions" [(value)]="category" />
+          </label>
+        }
+
+        @case ('location') {
+          <label class="block text-xs font-medium text-stone-500">
+            State
+            <app-search-select
+              name="eventState"
+              placeholder="Select"
+              [options]="stateOptions()"
+              [value]="state()"
+              (valueChange)="onStateChange($event)"
+            />
+          </label>
+          <label class="block text-xs font-medium text-stone-500">
+            City
+            <app-search-select
+              name="eventCity"
+              [placeholder]="state() ? 'Select' : 'Select a state first'"
+              [options]="cityOptions()"
+              [disabled]="!state()"
+              [(value)]="city"
+            />
+          </label>
+        }
+
+        @case ('price') {
+          <label class="block text-xs font-medium text-stone-500">
+            Event price
+            <app-search-select name="eventFee" placeholder="Select" [options]="feeOptions" [(value)]="fee" />
+          </label>
+        }
+
+        @case ('date') {
+          <label class="block text-xs font-medium text-stone-500">
+            Date
+            <app-search-select name="eventWhen" placeholder="Select" [options]="whenOptions" [(value)]="when" />
+          </label>
+        }
+
+        @case ('availability') {
+          <label class="block text-xs font-medium text-stone-500">
+            Availability
+            <app-search-select
+              name="eventAvailability"
+              placeholder="Select"
+              [options]="availabilityOptions"
+              [(value)]="availability"
+            />
+          </label>
+        }
+      }
+    </app-filter-group>
+  }
+</div>
+
+<app-filter-actions [applyLabel]="applyLabel()" (applied)="applied.emit()" (cleared)="clear()" />

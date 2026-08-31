@@ -1,0 +1,68 @@
+<app-auth-brand-panel [imageSrc]="imageSrc()" [imageAlt]="imageAlt()">
+  <div>
+    <h1 class="font-serif text-[28px] leading-tight text-charcoal lg:text-[32px]">{{ heading() }}</h1>
+    <p class="mt-1.5 text-sm text-stone-500">{{ subtitle() }}</p>
+  </div>
+
+  @if (challenge(); as current) {
+    <p class="mt-4 rounded-lg border border-gold/35 bg-blush px-3 py-2 text-sm text-burgundy" role="status">
+      For this preview, your OTP is {{ current.previewOtp }}
+    </p>
+  }
+
+  <form class="mt-6 space-y-4" [formGroup]="form" (ngSubmit)="submit()" autocomplete="off" novalidate>
+    <app-auth-input
+      formControlName="otp"
+      type="text"
+      label="Enter OTP"
+      placeholder="6-digit OTP"
+      [icon]="otpIcon"
+      [required]="true"
+      [submitted]="submitted()"
+      [errorMessage]="otpError()"
+      [maxLength]="6"
+      inputMode="numeric"
+      [digitsOnly]="true"
+      autocomplete="one-time-code"
+    />
+
+    <button
+      type="submit"
+      class="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-burgundy text-sm font-semibold text-white transition hover:bg-burgundy-deep focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy disabled:cursor-not-allowed disabled:opacity-60"
+      [disabled]="loading()"
+    >
+      @if (loading()) {
+        <svg lucideLoaderCircle class="animate-spin" [size]="18" aria-hidden="true"></svg>
+        Verifying
+      } @else {
+        Verify OTP
+        <svg lucideArrowRight [size]="18" aria-hidden="true"></svg>
+      }
+    </button>
+  </form>
+
+  <p class="mt-4 text-center text-sm text-stone-500">
+    @if (resendIn() > 0) {
+      Resend OTP in {{ resendIn() }}s
+    } @else {
+      Didn't receive the OTP?
+      <button
+        type="button"
+        class="font-semibold text-burgundy transition hover:text-burgundy-deep hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy disabled:cursor-not-allowed disabled:opacity-60"
+        [disabled]="resending()"
+        (click)="resend()"
+      >
+        Resend OTP
+      </button>
+    }
+  </p>
+
+  <p class="mt-6 text-center text-sm text-stone-500">
+    <a
+      [routerLink]="backLink()"
+      class="font-semibold text-burgundy transition hover:text-burgundy-deep focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy"
+    >
+      {{ backLabel() }}
+    </a>
+  </p>
+</app-auth-brand-panel>

@@ -1,0 +1,413 @@
+<header class="border-b border-white/10 bg-charcoal/95 text-white shadow-[0_8px_30px_rgba(43,36,32,0.18)] backdrop-blur-md">
+  <div class="mx-auto flex h-[72px] max-w-7xl items-center justify-between gap-3 px-4 sm:px-5 lg:px-8">
+    <app-brand-mark class="-ml-6 block sm:-ml-8" [homeLink]="homeLink()" />
+
+    <nav class="hidden items-center gap-6 text-sm font-medium lg:gap-8 md:flex" aria-label="Primary">
+        <a
+          [routerLink]="homeLink()"
+          routerLinkActive="text-gold after:opacity-100"
+          [routerLinkActiveOptions]="{ exact: homeLink() === '/' }"
+          class="relative inline-flex items-center pb-0.5 transition hover:text-gold after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:bg-gold after:opacity-0 after:transition-opacity"
+          (click)="closeMenus()"
+        >
+          Home
+        </a>
+        @if (isAuthenticated()) {
+          <a
+            routerLink="/matches"
+            routerLinkActive="text-gold after:opacity-100"
+            class="relative inline-flex items-center pb-0.5 transition hover:text-gold after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:bg-gold after:opacity-0 after:transition-opacity"
+            (click)="closeMenus()"
+          >
+            Matches
+          </a>
+          <a
+            routerLink="/biodata"
+            routerLinkActive="text-gold after:opacity-100"
+            class="relative inline-flex items-center pb-0.5 transition hover:text-gold after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:bg-gold after:opacity-0 after:transition-opacity"
+            (click)="closeMenus()"
+          >
+            Biodata Maker
+          </a>
+        }
+        <a
+          routerLink="/events"
+          routerLinkActive="text-gold after:opacity-100"
+          class="relative inline-flex items-center pb-0.5 transition hover:text-gold after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:bg-gold after:opacity-0 after:transition-opacity"
+          (click)="closeMenus()"
+        >
+          Events
+        </a>
+        <a
+          routerLink="/about"
+          routerLinkActive="text-gold after:opacity-100"
+          class="relative inline-flex items-center pb-0.5 transition hover:text-gold after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:bg-gold after:opacity-0 after:transition-opacity"
+          (click)="closeMenus()"
+        >
+          About Us
+        </a>
+        <a
+          routerLink="/gallery"
+          routerLinkActive="text-gold after:opacity-100"
+          class="relative inline-flex items-center pb-0.5 transition hover:text-gold after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:bg-gold after:opacity-0 after:transition-opacity"
+          (click)="closeMenus()"
+        >
+          Gallery
+        </a>
+        @if (isAuthenticated()) {
+          <button
+            type="button"
+            class="relative inline-flex cursor-pointer items-center pb-0.5 transition hover:text-gold after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:bg-gold after:opacity-0 after:transition-opacity"
+            (click)="openActivity($event, 'interest')"
+          >
+            My Interest
+          </button>
+        }
+        <a
+          routerLink="/contact"
+          routerLinkActive="text-gold after:opacity-100"
+          class="relative inline-flex items-center pb-0.5 transition hover:text-gold after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:bg-gold after:opacity-0 after:transition-opacity"
+          (click)="closeMenus()"
+        >
+          Contact Us
+        </a>
+      </nav>
+
+      @if (isAuthenticated()) {
+        <div class="-mr-5 hidden items-center gap-3 md:flex lg:-mr-6">
+          <div class="relative">
+            <button
+              type="button"
+              class="relative inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-white transition hover:text-gold"
+              [attr.aria-expanded]="messagesOpen()"
+              aria-label="Messages"
+              (click)="toggleMessages($event)"
+            >
+              <svg lucideMessageCircle [size]="20" aria-hidden="true"></svg>
+              @if (unreadMessages()) {
+                <span
+                  class="absolute top-0.5 right-0.5 inline-flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-gold px-1 text-[8px] font-semibold text-charcoal"
+                >
+                  {{ unreadMessages() }}
+                </span>
+              }
+            </button>
+            @if (messagesOpen()) {
+              <div
+                class="absolute right-0 z-50 mt-2 w-[21rem] overflow-hidden rounded-xl border border-gold/20 bg-white text-charcoal shadow-[0_18px_40px_rgba(43,36,32,0.16)]"
+                (click)="keepOpen($event)"
+              >
+                <div class="flex items-center justify-between gap-3 px-3.5 py-2">
+                  <div>
+                    <p class="text-sm font-semibold text-charcoal">Messages</p>
+                    @if (newMessageFrom(); as name) {
+                      <p class="text-[11px] font-medium text-burgundy">
+                        {{ unreadMessages() === 1 ? '1 new message from ' + name : unreadMessages() + ' new messages' }}
+                      </p>
+                    } @else {
+                      <p class="text-[11px] text-stone-500">Who wrote to you — and who you can write to</p>
+                    }
+                  </div>
+                  <button
+                    type="button"
+                    class="cursor-pointer text-[12px] font-semibold text-burgundy underline-offset-4 transition hover:underline"
+                    (click)="openInbox($event)"
+                  >
+                    Open
+                  </button>
+                </div>
+                <div class="h-px bg-stone-300"></div>
+                <ul class="max-h-72 overflow-y-auto">
+                  @for (thread of inbox.conversations(); track thread.memberId) {
+                    <li class="border-b border-stone-200 last:border-b-0 hover:bg-blush">
+                      <button
+                        type="button"
+                        class="flex w-full cursor-pointer items-start gap-2.5 bg-transparent px-3.5 py-2.5 text-left"
+                        (click)="openInbox($event, thread.memberId)"
+                      >
+                        <img [src]="thread.imageSrc" [alt]="thread.name" class="h-9 w-9 shrink-0 rounded-full object-cover object-top" />
+                        <span class="min-w-0 flex-1">
+                          <span class="flex items-center justify-between gap-2">
+                            <span class="truncate text-[13px] font-semibold text-charcoal">{{ thread.name }}</span>
+                            <span class="shrink-0 text-[10px] text-stone-400">{{ thread.time }}</span>
+                          </span>
+                          <span class="mt-0.5 line-clamp-2 block text-[11px] leading-4 text-stone-500">{{ thread.lastText }}</span>
+                        </span>
+                        @if (thread.unread) {
+                          <span
+                            class="mt-0.5 inline-flex h-5 min-w-5 shrink-0 items-center justify-center rounded-full bg-burgundy px-1 text-[10px] font-semibold text-white"
+                          >
+                            {{ thread.unread }}
+                          </span>
+                        }
+                      </button>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+
+          <div class="relative">
+            <button
+              type="button"
+              class="relative inline-flex h-9 w-9 cursor-pointer items-center justify-center rounded-full text-white transition hover:text-gold"
+              [attr.aria-expanded]="noticesOpen()"
+              aria-label="Notifications"
+              (click)="toggleNotices($event)"
+            >
+              <svg lucideBell [size]="20" aria-hidden="true"></svg>
+              @if (unreadCount()) {
+                <span
+                  class="absolute top-0.5 right-0.5 inline-flex h-3.5 min-w-3.5 items-center justify-center rounded-full bg-gold px-1 text-[8px] font-semibold text-charcoal"
+                >
+                  {{ unreadCount() }}
+                </span>
+              }
+            </button>
+            @if (noticesOpen()) {
+              <div
+                class="absolute right-0 z-50 mt-2 w-[20rem] overflow-hidden rounded-xl border border-gold/20 bg-white text-charcoal shadow-[0_18px_40px_rgba(43,36,32,0.16)]"
+                (click)="keepOpen($event)"
+              >
+                <div class="flex items-center justify-between gap-3 px-3.5 py-2">
+                  <div class="flex items-center gap-2">
+                    <p class="text-sm font-semibold text-charcoal">Notifications</p>
+                    @if (unreadCount()) {
+                      <span
+                        class="inline-flex h-4 min-w-4 items-center justify-center rounded-full bg-burgundy px-1 text-[9px] font-semibold text-white"
+                      >
+                        {{ unreadCount() }}
+                      </span>
+                    }
+                  </div>
+                  <button
+                    type="button"
+                    class="inline-flex cursor-pointer items-center gap-1.5 text-[13px] font-semibold text-stone-600 transition hover:text-burgundy"
+                    (click)="markAllRead($event)"
+                  >
+                    Mark all read
+                    <span class="relative inline-block h-4 w-[21px] shrink-0 text-gold-deep" aria-hidden="true">
+                      <svg lucideCheck [size]="15" [strokeWidth]="2.6" class="absolute top-0 left-0"></svg>
+                      <svg lucideCheck [size]="15" [strokeWidth]="2.6" class="absolute top-0 left-[6px]"></svg>
+                    </span>
+                  </button>
+                </div>
+                <div class="h-px bg-stone-300"></div>
+                <ul class="max-h-60 overflow-y-auto">
+                  @for (notice of notifications(); track notice.id) {
+                    <li class="border-b border-stone-300 last:border-b-0 hover:bg-blush">
+                      <button
+                        type="button"
+                        class="flex w-full cursor-pointer items-center gap-2.5 bg-transparent px-3.5 py-2 text-left"
+                        (click)="markOneRead($event, notice.id)"
+                      >
+                        <span
+                          class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-md border border-gold/25 bg-blush text-burgundy"
+                        >
+                          <svg [lucideIcon]="notice.icon" [size]="14" aria-hidden="true"></svg>
+                        </span>
+                        <span class="min-w-0 flex-1">
+                          <span class="block text-[13px] leading-4 font-semibold text-charcoal">{{ notice.title }}</span>
+                          <span class="mt-0.5 line-clamp-1 block text-[11px] leading-4 text-stone-500">{{ notice.text }}</span>
+                          <span class="mt-0.5 block text-[10px] leading-3 text-stone-400">{{ notice.time }}</span>
+                        </span>
+                        <svg
+                          lucideCheck
+                          [size]="13"
+                          [strokeWidth]="2.6"
+                          class="shrink-0 text-gold-deep"
+                          [class.opacity-30]="notice.read"
+                          aria-hidden="true"
+                        ></svg>
+                      </button>
+                    </li>
+                  }
+                </ul>
+              </div>
+            }
+          </div>
+
+          @if (!profileComplete()) {
+            <div class="relative -mr-2.5">
+              <button
+                type="button"
+                class="inline-flex h-10 cursor-pointer items-center text-sm font-semibold text-gold transition hover:text-gold-deep"
+                [attr.aria-expanded]="healthOpen()"
+                (click)="toggleHealth($event)"
+              >
+                <span class="animate-pulse">Complete profile · {{ completion().percent }}%</span>
+              </button>
+
+              @if (healthOpen()) {
+                <div
+                  class="absolute right-0 z-50 mt-3 w-[19rem] overflow-hidden rounded-2xl border border-gold/25 bg-white text-charcoal shadow-[0_22px_50px_rgba(43,36,32,0.20)]"
+                  (click)="keepOpen($event)"
+                >
+                  <div class="flex items-center gap-3 bg-gradient-to-r from-burgundy to-burgundy-deep px-4 py-3">
+                    <span
+                      class="inline-flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-white/10 font-serif text-sm font-bold text-white ring-1 ring-gold/40"
+                    >
+                      {{ completion().percent }}%
+                    </span>
+                    <div class="min-w-0">
+                      <p class="text-[11px] font-semibold tracking-[0.16em] text-gold uppercase">Your profile</p>
+                      <p class="mt-0.5 font-serif text-base text-white">
+                        {{ completion().filled }} of {{ completion().total }} details added
+                      </p>
+                    </div>
+                  </div>
+
+                  <div class="px-4 py-3.5">
+                    <div class="h-2 overflow-hidden rounded-full bg-blush">
+                      <div
+                        class="h-full rounded-full bg-gradient-to-r from-gold to-burgundy transition-[width] duration-700 ease-out"
+                        [style.width.%]="completion().percent"
+                      ></div>
+                    </div>
+                    <p class="mt-2.5 text-[13px] leading-5 text-stone-500">
+                      Complete your profile to get better matches.
+                    </p>
+                    <a
+                      routerLink="/profile"
+                      class="mt-3.5 inline-flex h-10 w-full items-center justify-center rounded-lg bg-burgundy text-sm font-semibold text-white transition hover:bg-burgundy-deep"
+                      (click)="closeMenus()"
+                    >
+                      Complete profile
+                    </a>
+                  </div>
+                </div>
+              }
+            </div>
+          }
+
+          <div class="relative">
+            <button
+              type="button"
+              class="relative h-11 w-11 cursor-pointer"
+              [attr.aria-expanded]="profileOpen()"
+              [attr.aria-label]="fullName()"
+              (click)="toggleProfile($event)"
+            >
+              <span
+                class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-burgundy-deep font-serif text-xs font-bold tracking-wide text-white"
+              >
+                {{ initials() }}
+              </span>
+              <span
+                class="absolute top-1/2 right-0 inline-flex h-4 w-4 -translate-y-1/2 translate-x-[9px] items-center justify-center"
+              >
+                <svg lucideChevronDown [size]="17" [strokeWidth]="3" class="text-gold-deep" aria-hidden="true"></svg>
+              </span>
+            </button>
+            @if (profileOpen()) {
+              <div
+                class="absolute right-0 mt-3 w-52 overflow-hidden rounded-lg border border-stone-200/70 bg-white text-charcoal shadow-lg"
+                (click)="keepOpen($event)"
+              >
+                <a routerLink="/profile" class="block px-4 py-2.5 text-sm hover:bg-blush" (click)="closeMenus()">
+                  Profile
+                </a>
+                <div class="h-px bg-stone-200"></div>
+                <button
+                  type="button"
+                  class="flex w-full cursor-pointer items-center justify-between px-4 py-2.5 text-left text-sm hover:bg-blush"
+                  (click)="openActivity($event, 'shortlist')"
+                >
+                  Shortlist
+                  @if (shortlistCount()) {
+                    <span
+                      class="inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-burgundy px-1.5 text-[10px] font-semibold text-white"
+                    >
+                      {{ shortlistCount() }}
+                    </span>
+                  }
+                </button>
+                <div class="h-px bg-stone-200"></div>
+                <a routerLink="/settings" class="block px-4 py-2.5 text-sm hover:bg-blush" (click)="closeMenus()">
+                  Settings
+                </a>
+                <div class="h-px bg-stone-200"></div>
+                <button
+                  type="button"
+                  class="flex w-full cursor-pointer items-center gap-2 px-4 py-2.5 text-left text-sm text-burgundy hover:bg-blush"
+                  (click)="logout()"
+                >
+                  <svg lucideLogOut [size]="16" aria-hidden="true"></svg>
+                  Logout
+                </button>
+              </div>
+            }
+          </div>
+        </div>
+      } @else {
+        <div class="hidden items-center gap-4 md:flex">
+          <a routerLink="/login" class="text-sm font-medium transition hover:text-gold">Login</a>
+          <a
+            routerLink="/register"
+            class="inline-flex h-10 items-center rounded-lg bg-gold px-4 text-sm font-semibold text-charcoal transition hover:bg-gold-deep hover:text-white"
+          >
+            Register
+          </a>
+        </div>
+      }
+
+    <button
+      type="button"
+      class="inline-flex h-10 w-10 shrink-0 cursor-pointer items-center justify-center rounded-lg text-white md:hidden"
+      [attr.aria-expanded]="menuOpen()"
+      aria-label="Open menu"
+      (click)="toggleMenu($event)"
+    >
+      @if (menuOpen()) {
+        <svg lucideX [size]="22" aria-hidden="true"></svg>
+      } @else {
+        <svg lucideMenu [size]="22" aria-hidden="true"></svg>
+      }
+    </button>
+  </div>
+
+  @if (menuOpen()) {
+    <div class="border-t border-white/10 bg-charcoal px-4 py-4 sm:px-5 md:hidden" (click)="keepOpen($event)">
+      <nav class="flex flex-col gap-3 text-sm font-medium" aria-label="Mobile">
+        <a [routerLink]="homeLink()" class="py-1" (click)="closeMenus()">Home</a>
+        @if (isAuthenticated()) {
+          <a routerLink="/matches" class="py-1" (click)="closeMenus()">Matches</a>
+          <a routerLink="/biodata" class="py-1" (click)="closeMenus()">Biodata Maker</a>
+        }
+        <a routerLink="/events" class="py-1" (click)="closeMenus()">Events</a>
+        <a routerLink="/about" class="py-1" (click)="closeMenus()">About Us</a>
+        <a routerLink="/gallery" class="py-1" (click)="closeMenus()">Gallery</a>
+        @if (isAuthenticated()) {
+          <button type="button" class="py-1 text-left" (click)="openActivity($event, 'interest')">
+            My Interest
+            @if (interestCount()) {
+              <span class="ml-1 text-gold">({{ interestCount() }})</span>
+            }
+          </button>
+        }
+        <a routerLink="/contact" class="py-1" (click)="closeMenus()">Contact Us</a>
+        @if (isAuthenticated()) {
+          @if (!profileComplete()) {
+            <a routerLink="/profile" class="py-1 text-gold" (click)="closeMenus()">
+              Profile {{ completion().percent }}% · Complete
+            </a>
+          }
+          <a routerLink="/profile" class="py-1" (click)="closeMenus()">Profile</a>
+          <button type="button" class="py-1 text-left" (click)="openActivity($event, 'shortlist')">
+            Shortlist
+            @if (shortlistCount()) {
+              <span class="ml-1 text-gold">({{ shortlistCount() }})</span>
+            }
+          </button>
+          <button type="button" class="py-1 text-left" (click)="openInbox($event)">Messages</button>
+          <a routerLink="/settings" class="py-1" (click)="closeMenus()">Settings</a>
+          <button type="button" class="py-1 text-left text-gold" (click)="logout()">Logout</button>
+        } @else {
+          <a routerLink="/login" class="py-1" (click)="closeMenus()">Login</a>
+          <a routerLink="/register" class="py-1 text-gold" (click)="closeMenus()">Register</a>
+        }
+      </nav>
+    </div>
+  }
+</header>

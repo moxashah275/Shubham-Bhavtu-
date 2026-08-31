@@ -1,0 +1,44 @@
+<section class="relative isolate overflow-hidden bg-burgundy">
+  <img
+    [src]="imageSrc()"
+    alt="A couple beginning their journey together"
+    class="absolute inset-0 h-full w-full object-cover object-[center_18%]"
+  />
+  <div class="absolute inset-0 bg-gradient-to-r from-charcoal/78 via-burgundy/45 to-transparent"></div>
+
+  <div class="relative mx-auto flex min-h-[560px] max-w-7xl items-center px-5 py-20 lg:min-h-[620px] lg:px-8 lg:py-24">
+    <div class="grid w-full items-center gap-10 lg:grid-cols-[1fr_auto]">
+      <div class="max-w-xl">
+        <p class="text-xs font-semibold tracking-[0.22em] text-gold uppercase">{{ eyebrow() }}</p>
+        <h1 class="mt-4 font-serif text-[34px] leading-tight text-white sm:text-5xl">
+          {{ title() }}
+        </h1>
+        <p class="mt-4 max-w-lg text-sm leading-7 text-white/80 sm:text-base">
+          {{ subtitle() }}
+        </p>
+        <a
+          [routerLink]="ctaLink()"
+          [queryParams]="ctaQuery()"
+          class="mt-8 inline-flex h-12 items-center gap-2 rounded-lg bg-gold px-5 text-sm font-semibold text-charcoal"
+          (click)="onCta($event)"
+        >
+          <svg lucideHeart [size]="18" aria-hidden="true"></svg>
+          {{ ctaLabel() }}
+        </a>
+      </div>
+
+      <div class="hidden items-start gap-3 -mt-10 lg:flex">
+        <img
+          [src]="imageSrc()"
+          alt=""
+          class="h-52 w-40 rounded-2xl object-cover shadow-2xl ring-1 ring-white/20"
+        />
+        <img
+          [src]="sideImageSrc()"
+          alt=""
+          class="mt-25 mr-2 h-56 w-44 rounded-2xl object-cover shadow-2xl ring-1 ring-white/20"
+        />
+      </div>
+    </div>
+  </div>
+</section>

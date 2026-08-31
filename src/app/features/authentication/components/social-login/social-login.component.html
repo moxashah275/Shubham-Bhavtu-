@@ -1,0 +1,43 @@
+<div class="grid grid-cols-2 gap-3">
+  <button
+    type="button"
+    class="inline-flex h-12 items-center justify-center gap-2.5 rounded-lg border border-stone-300 bg-white text-sm font-medium text-charcoal transition hover:bg-stone-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy disabled:cursor-not-allowed disabled:opacity-60"
+    [disabled]="disabled()"
+    (click)="choose('google')"
+  >
+    <svg viewBox="0 0 24 24" class="h-[18px] w-[18px]" aria-hidden="true">
+      <path
+        fill="#4285F4"
+        d="M23.49 12.27c0-.82-.07-1.64-.23-2.43H12v4.6h6.46a5.52 5.52 0 0 1-2.4 3.63v3h3.86c2.26-2.08 3.57-5.15 3.57-8.8Z"
+      />
+      <path
+        fill="#34A853"
+        d="M12 24c3.24 0 5.97-1.07 7.96-2.93l-3.86-3c-1.07.73-2.45 1.17-4.1 1.17-3.15 0-5.82-2.12-6.78-4.97H1.23v3.09A12 12 0 0 0 12 24Z"
+      />
+      <path
+        fill="#FBBC05"
+        d="M5.22 14.27A7.2 7.2 0 0 1 4.84 12c0-.79.14-1.56.38-2.27V6.64H1.23A12 12 0 0 0 0 12c0 1.94.46 3.77 1.23 5.36l3.99-3.09Z"
+      />
+      <path
+        fill="#EA4335"
+        d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.43-3.43C17.96 1.14 15.24 0 12 0 7.31 0 3.2 2.69 1.23 6.64l3.99 3.09C6.18 6.88 8.85 4.75 12 4.75Z"
+      />
+    </svg>
+    Google
+  </button>
+
+  <button
+    type="button"
+    class="inline-flex h-12 items-center justify-center gap-2.5 rounded-lg border border-stone-300 bg-white text-sm font-medium text-charcoal transition hover:bg-stone-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy disabled:cursor-not-allowed disabled:opacity-60"
+    [disabled]="disabled()"
+    (click)="choose('facebook')"
+  >
+    <svg viewBox="0 0 24 24" class="h-[18px] w-[18px]" aria-hidden="true">
+      <path
+        fill="#1877F2"
+        d="M24 12.07C24 5.41 18.63 0 12 0S0 5.41 0 12.07C0 18.1 4.39 23.09 10.13 24v-8.44H7.08v-3.49h3.05v-2.66c0-3.02 1.79-4.7 4.53-4.7 1.31 0 2.68.24 2.68.24v2.96h-1.51c-1.49 0-1.95.93-1.95 1.89v2.27h3.32l-.53 3.49h-2.79V24C19.61 23.09 24 18.1 24 12.07Z"
+      />
+    </svg>
+    Facebook
+  </button>
+</div>

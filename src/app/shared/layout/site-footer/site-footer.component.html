@@ -1,0 +1,67 @@
+<footer class="bg-charcoal text-white">
+  <div class="mx-auto max-w-7xl px-5 py-12 sm:py-16 lg:px-8">
+    <app-brand-mark [homeLink]="homeLink()" />
+
+    <div class="mt-5 grid grid-cols-2 items-start gap-8 sm:gap-10 lg:grid-cols-5">
+      <div class="col-span-2 lg:col-span-1">
+        <p class="max-w-xs text-sm leading-6 text-white/70">
+          India's trusted matrimonial house. Find a genuine match with verified profiles and family-first introductions.
+        </p>
+        <div class="mt-5">
+          <app-social-links align="start" />
+        </div>
+      </div>
+
+      <div>
+        <h2 class="text-xs font-semibold tracking-[0.22em] text-gold uppercase">Company</h2>
+        <span class="mt-2 block h-px w-8 bg-gold/40"></span>
+        <ul class="mt-5 space-y-3 text-sm text-white/75">
+          @for (link of companyLinks; track link.label) {
+            <li>
+              <a [routerLink]="link.path" class="transition hover:text-gold">{{ link.label }}</a>
+            </li>
+          }
+        </ul>
+      </div>
+      <div>
+        <h2 class="text-xs font-semibold tracking-[0.22em] text-gold uppercase">Resources</h2>
+        <span class="mt-2 block h-px w-8 bg-gold/40"></span>
+        <ul class="mt-5 space-y-3 text-sm text-white/75">
+          @for (link of resourceLinks(); track link.label) {
+            <li>
+              <a [routerLink]="link.path" class="transition hover:text-gold">{{ link.label }}</a>
+            </li>
+          }
+        </ul>
+      </div>
+      <div>
+        <h2 class="text-xs font-semibold tracking-[0.22em] text-gold uppercase">Support</h2>
+        <span class="mt-2 block h-px w-8 bg-gold/40"></span>
+        <ul class="mt-5 space-y-3 text-sm text-white/75">
+          @for (link of supportLinks; track link.label) {
+            <li>
+              <a
+                [routerLink]="link.path"
+                [fragment]="link.fragment"
+                class="transition hover:text-gold"
+              >
+                {{ link.label }}
+              </a>
+            </li>
+          }
+        </ul>
+      </div>
+      <div>
+        <h2 class="text-xs font-semibold tracking-[0.22em] text-gold uppercase">Legal</h2>
+        <span class="mt-2 block h-px w-8 bg-gold/40"></span>
+        <ul class="mt-5 space-y-3 text-sm text-white/75">
+          @for (link of legalLinks; track link.label) {
+            <li>
+              <a [routerLink]="link.path" class="transition hover:text-gold">{{ link.label }}</a>
+            </li>
+          }
+        </ul>
+      </div>
+    </div>
+  </div>
+</footer>

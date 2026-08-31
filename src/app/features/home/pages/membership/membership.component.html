@@ -1,0 +1,75 @@
+<app-page-hero
+  align="center"
+  eyebrow="Membership"
+  title="Membership"
+  [showLine]="false"
+/>
+
+<section class="bg-blush/40 py-12 sm:py-16">
+  <div class="mx-auto max-w-7xl px-5 lg:px-8">
+    <div class="mx-auto max-w-2xl text-center">
+      <p class="text-xs font-semibold tracking-[0.18em] text-gold uppercase">Subscription plans</p>
+      <div class="mx-auto w-fit max-w-full">
+        <h2 class="mt-3 font-serif text-2xl leading-tight text-charcoal sm:text-3xl lg:text-4xl">
+          Simple plans, the same warmth
+        </h2>
+        <span class="mx-auto mt-1.5 block h-px w-1/2 bg-gold"></span>
+      </div>
+      <p class="mt-4 text-sm leading-7 text-stone-500">
+        Every plan includes verified profiles and private introductions. Gold and Premium add the extra care families often
+        ask for.
+      </p>
+    </div>
+
+    <div class="mt-10 grid items-stretch gap-5 lg:grid-cols-3 lg:gap-6">
+      @for (plan of plans; track plan.name) {
+        <article
+          class="relative flex h-full flex-col rounded-2xl border bg-white p-6 shadow-sm sm:p-8"
+          [class.border-gold/50]="plan.featured"
+          [class.bg-ivory]="plan.featured"
+          [class.shadow-[0_22px_50px_rgba(107,24,49,0.1)]]="plan.featured"
+          [class.lg:-translate-y-2]="plan.featured"
+          [class.border-gold/15]="!plan.featured"
+        >
+          @if (plan.featured) {
+            <span
+              class="absolute top-5 right-5 rounded-full bg-burgundy px-2.5 py-1 text-[10px] font-semibold tracking-[0.16em] text-white uppercase"
+            >
+              Most chosen
+            </span>
+          }
+          <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-blush text-burgundy">
+            <svg [lucideIcon]="plan.icon" [size]="20" aria-hidden="true"></svg>
+          </span>
+          <h3
+            class="mt-5 font-serif text-2xl text-charcoal"
+            [class.pr-24]="plan.featured"
+          >{{ plan.name }}</h3>
+          <p class="mt-2 font-serif text-2xl text-burgundy">{{ plan.price }}</p>
+          <p class="mt-3 text-sm leading-6 text-stone-500">{{ plan.copy }}</p>
+          <ul class="mt-5 flex-1 space-y-2.5 text-sm leading-6 text-stone-500">
+            @for (feature of plan.features; track feature) {
+              <li class="flex gap-2">
+                <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-gold"></span>
+                <span>{{ feature }}</span>
+              </li>
+            }
+          </ul>
+          <a
+            [routerLink]="startLink()"
+            class="mt-7 inline-flex h-11 cursor-pointer items-center justify-center rounded-lg px-5 text-sm font-semibold transition"
+            [class.bg-burgundy]="plan.featured"
+            [class.text-white]="plan.featured"
+            [class.hover:bg-burgundy-deep]="plan.featured"
+            [class.border]="!plan.featured"
+            [class.border-gold/30]="!plan.featured"
+            [class.text-charcoal]="!plan.featured"
+            [class.hover:bg-blush]="!plan.featured"
+          >
+            Begin with {{ plan.name }}
+          </a>
+        </article>
+      }
+    </div>
+  </div>
+</section>

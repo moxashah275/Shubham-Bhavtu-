@@ -1,0 +1,27 @@
+export const INDIA_LOCATIONS: Record<string, string[]> = {
+  Gujarat: ['Ahmedabad', 'Surat', 'Vadodara', 'Rajkot', 'Bhavnagar', 'Jamnagar', 'Gandhinagar', 'Anand'],
+  Maharashtra: ['Mumbai', 'Pune', 'Nagpur', 'Nashik', 'Thane', 'Aurangabad'],
+  Rajasthan: ['Jaipur', 'Udaipur', 'Jodhpur', 'Kota', 'Ajmer'],
+  Delhi: ['New Delhi', 'North Delhi', 'South Delhi', 'East Delhi', 'West Delhi'],
+  'Uttar Pradesh': ['Lucknow', 'Noida', 'Kanpur', 'Varanasi', 'Agra'],
+  Punjab: ['Chandigarh', 'Ludhiana', 'Amritsar', 'Jalandhar', 'Patiala'],
+  Haryana: ['Gurugram', 'Faridabad', 'Panipat', 'Karnal'],
+  Karnataka: ['Bengaluru', 'Mysuru', 'Mangaluru', 'Hubballi'],
+  'Tamil Nadu': ['Chennai', 'Coimbatore', 'Madurai', 'Tiruchirappalli'],
+  Kerala: ['Kochi', 'Thiruvananthapuram', 'Kozhikode', 'Thrissur'],
+  Telangana: ['Hyderabad', 'Warangal', 'Nizamabad'],
+  'Andhra Pradesh': ['Visakhapatnam', 'Vijayawada', 'Tirupati'],
+  'West Bengal': ['Kolkata', 'Howrah', 'Durgapur', 'Siliguri'],
+  'Madhya Pradesh': ['Indore', 'Bhopal', 'Jabalpur', 'Gwalior'],
+  Bihar: ['Patna', 'Gaya', 'Bhagalpur'],
+  Odisha: ['Bhubaneswar', 'Cuttack', 'Puri'],
+  Assam: ['Guwahati', 'Dibrugarh', 'Silchar'],
+  Goa: ['Panaji', 'Margao', 'Vasco'],
+  Jharkhand: ['Ranchi', 'Jamshedpur', 'Dhanbad'],
+  Chhattisgarh: ['Raipur', 'Bilaspur', 'Durg'],
+  Uttarakhand: ['Dehradun', 'Haridwar', 'Nainital'],
+  'Himachal Pradesh': ['Shimla', 'Dharamshala', 'Mandi'],
+  'Jammu and Kashmir': ['Srinagar', 'Jammu'],
+};
+
+export const STATE_OPTIONS = Object.keys(INDIA_LOCATIONS);

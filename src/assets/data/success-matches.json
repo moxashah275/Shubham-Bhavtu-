@@ -1,0 +1,134 @@
+[
+  {
+    "id": "s1",
+    "names": "Aanya & Vihaan",
+    "city": "Ahmedabad",
+    "story": "Matched through family values, faith, and a shared love for quiet weekends at home.",
+    "imageSrc": "/assets/images/matches/match-couple-ahmedabad.png",
+    "religion": "Hindu",
+    "community": "Gujarati",
+    "matchedOn": "March 2025",
+    "details": "Aanya and Vihaan met after both families reviewed verified profiles on Gathbandhan. Shared faith, similar education, and a preference for a calm home life made the introduction feel familiar from the first call. Their parents stayed involved through every conversation, and the wedding was planned with both homes, both traditions, and a quiet confidence that this was the right beginning."
+  },
+  {
+    "id": "s2",
+    "names": "Kabir & Meera",
+    "city": "Jaipur",
+    "story": "Two families met on Gathbandhan and found a partnership that felt familiar from the first call.",
+    "imageSrc": "/assets/images/matches/match-couple-jaipur.png",
+    "religion": "Hindu",
+    "community": "Rajasthani",
+    "matchedOn": "January 2025",
+    "details": "Kabir and Meera were introduced after a careful search by community, city, and family values. The first conversation was with both sets of parents on the call. What followed was a partnership that felt known rather than new — respect for elders, a love for Jaipur, and a shared wish for a wedding that honoured both families equally."
+  },
+  {
+    "id": "s3",
+    "names": "Arjun & Diya",
+    "city": "Mumbai",
+    "story": "A verified introduction led to a wedding planned with both homes, both traditions.",
+    "imageSrc": "/assets/images/matches/match-couple-mumbai.png",
+    "religion": "Hindu",
+    "community": "Marathi",
+    "matchedOn": "November 2024",
+    "details": "Arjun and Diya connected through a verified introduction in Mumbai. Both families wanted a match that respected career, culture, and the pace of city life without losing warmth. After a few guided conversations, they chose a wedding that brought both homes together — modern in spirit, traditional in blessing."
+  },
+  {
+    "id": "s4",
+    "names": "Rohan & Kiara",
+    "city": "Surat",
+    "story": "They began with a profile, continued with respect, and chose a life together.",
+    "imageSrc": "/assets/images/matches/match-couple-surat.png",
+    "religion": "Hindu",
+    "community": "Gujarati",
+    "matchedOn": "February 2025",
+    "details": "Rohan and Kiara began with two carefully written profiles and a family-first introduction. They took time, asked the right questions, and let respect lead every step. The match felt complete when both families met in Surat — and they chose a life that holds work, faith, and home with equal care."
+  },
+  {
+    "id": "s5",
+    "names": "Ishaan & Sanya",
+    "city": "Pune",
+    "story": "A shared love for music and simple living turned a first call into a lifetime.",
+    "imageSrc": "/assets/images/matches/match-couple-pune.png",
+    "religion": "Hindu",
+    "community": "Marathi",
+    "matchedOn": "April 2025",
+    "details": "Ishaan and Sanya were matched on community and lifestyle preferences. Both wanted a partner who valued family time over long social evenings. Their families met in Pune within a month, and the engagement followed soon after — unhurried, warm, and fully supported by both homes."
+  },
+  {
+    "id": "s6",
+    "names": "Dev & Anika",
+    "city": "Vadodara",
+    "story": "Both families wanted the same things — faith first, career next, home always.",
+    "imageSrc": "/assets/images/matches/match-couple-vadodara.png",
+    "religion": "Hindu",
+    "community": "Gujarati",
+    "matchedOn": "December 2024",
+    "details": "Dev and Anika found each other after a search filtered by religion, community, and education. The conversations began with both mothers and slowly became their own. In Vadodara, the two families celebrated a wedding that felt like a meeting of equals."
+  },
+  {
+    "id": "s7",
+    "names": "Yash & Riya",
+    "city": "Rajkot",
+    "story": "A quiet introduction, honest conversations, and a family that felt like home.",
+    "imageSrc": "/assets/images/matches/match-couple-rajkot.png",
+    "religion": "Hindu",
+    "community": "Gujarati",
+    "matchedOn": "June 2025",
+    "details": "Yash and Riya were introduced through verified profiles and a mutual preference for a partner from the same city. They spoke for weeks before meeting, and both families appreciated how openly questions about work, home, and future plans were answered."
+  },
+  {
+    "id": "s8",
+    "names": "Aditya & Nisha",
+    "city": "Udaipur",
+    "story": "Two careers, one shared idea of family — the match made sense to everyone.",
+    "imageSrc": "/assets/images/matches/match-couple-udaipur.png",
+    "religion": "Hindu",
+    "community": "Rajasthani",
+    "matchedOn": "August 2025",
+    "details": "Aditya and Nisha matched on education, community, and a wish to stay close to their parents. What sealed it was how easily both families spoke to each other. The wedding in Udaipur was small, traditional, and full of relatives on both sides."
+  },
+  {
+    "id": "s9",
+    "names": "Manav & Tanvi",
+    "city": "Nashik",
+    "story": "They met through preferences and stayed for the warmth of both families.",
+    "imageSrc": "/assets/images/matches/match-couple-nashik.png",
+    "religion": "Hindu",
+    "community": "Marathi",
+    "matchedOn": "May 2025",
+    "details": "Manav and Tanvi began with a partner-preference match and continued with long calls about faith, food, and family routines. Their parents met halfway in Nashik, and the decision was mutual and unhurried."
+  },
+  {
+    "id": "s10",
+    "names": "Karan & Pooja",
+    "city": "Bhavnagar",
+    "story": "A family-first introduction that grew into an easy, lasting partnership.",
+    "imageSrc": "/assets/images/matches/match-couple-bhavnagar.png",
+    "religion": "Hindu",
+    "community": "Gujarati",
+    "matchedOn": "July 2025",
+    "details": "Karan and Pooja were introduced by their families after both shortlisted each other on Gathbandhan. Similar upbringing, same mother tongue, and a shared preference for a joint family made the match feel natural from the start."
+  },
+  {
+    "id": "s11",
+    "names": "Nikhil & Shreya",
+    "city": "Ajmer",
+    "story": "Verified profiles, patient conversations, and a wedding both homes planned together.",
+    "imageSrc": "/assets/images/matches/match-couple-ajmer.png",
+    "religion": "Hindu",
+    "community": "Rajasthani",
+    "matchedOn": "September 2025",
+    "details": "Nikhil and Shreya matched on age, community, and city preference. They spent months getting to know each other with families present in every important conversation, and the wedding was planned jointly by both homes."
+  },
+  {
+    "id": "s12",
+    "names": "Harsh & Naina",
+    "city": "Gandhinagar",
+    "story": "Same values, same city, and a shared wish for a calm, simple home.",
+    "imageSrc": "/assets/images/matches/match-couple-gandhinagar.png",
+    "religion": "Hindu",
+    "community": "Gujarati",
+    "matchedOn": "October 2025",
+    "details": "Harsh and Naina found each other through a search by city and community. Both wanted a quiet home life close to their parents. After a handful of family meetings in Gandhinagar, the match was settled with everyone's blessing."
+  }
+]

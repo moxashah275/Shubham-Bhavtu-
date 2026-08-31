@@ -1,0 +1,22 @@
+<section class="bg-burgundy px-5 py-6 text-white lg:px-8">
+  <div
+    class="mx-auto max-w-7xl"
+    [class.text-center]="align() === 'center'"
+  >
+    <p class="text-xs font-semibold tracking-[0.22em] text-gold uppercase">{{ eyebrow() }}</p>
+    <h1 class="mt-1 w-fit font-serif text-2xl leading-tight sm:text-3xl" [class.mx-auto]="align() === 'center'">
+      {{ title() }}
+    </h1>
+    @if (showLine()) {
+      <span
+        class="mt-1.5 block h-px w-1/2 max-w-md bg-gold"
+        [class.mx-auto]="align() === 'center'"
+      ></span>
+    }
+    @if (subtitle()) {
+      <p class="mt-2 max-w-2xl text-sm leading-6 text-white/75" [class.mx-auto]="align() === 'center'">
+        {{ subtitle() }}
+      </p>
+    }
+  </div>
+</section>

@@ -1,0 +1,91 @@
+<section class="flex h-dvh overflow-hidden bg-ivory max-md:flex-col md:flex-row">
+  <header class="shrink-0 bg-burgundy px-5 py-4 text-white md:hidden">
+    <div class="flex items-center gap-0.5">
+      <img
+        src="/assets/images/authentication/hearts-logo.png"
+        alt=""
+        width="60"
+        height="40"
+        class="-mt-0.5 h-10 w-auto bg-transparent object-contain"
+        aria-hidden="true"
+      />
+      <p class="font-serif text-xl leading-none tracking-wide">
+        <span class="text-white">Gath</span><span class="text-gold">bandhan</span>
+      </p>
+    </div>
+    <p class="mt-2 truncate text-[12px] text-white/75">Where hearts connect, and journeys begin.</p>
+  </header>
+
+  <aside class="relative hidden h-full w-1/2 min-w-0 overflow-hidden bg-burgundy text-white md:flex md:flex-col">
+    <div class="relative z-10 flex h-full min-h-0 flex-col px-8 pt-5 pr-14 pb-0 lg:px-12 lg:pt-6 lg:pr-[72px]">
+      <div class="flex shrink-0 flex-nowrap items-center gap-0.5">
+        <img
+          src="/assets/images/authentication/hearts-logo.png"
+          alt=""
+          width="84"
+          height="56"
+          class="-mt-1 h-14 w-auto bg-transparent object-contain"
+          aria-hidden="true"
+        />
+        <p class="font-serif text-[28px] leading-none tracking-wide lg:text-[32px]">
+          <span class="text-white">Gath</span><span class="text-gold">bandhan</span>
+        </p>
+      </div>
+
+      <p class="mt-4 shrink-0 whitespace-nowrap text-[clamp(12px,1.05vw,15px)] text-white/80">
+        Where hearts connect, and journeys begin.
+      </p>
+
+      <div class="mt-5 shrink-0 lg:mt-6">
+        <h2 class="whitespace-nowrap font-serif text-[clamp(22px,2.5vw,34px)] leading-none text-white">
+          Two hearts. One forever.
+        </h2>
+        <p class="mt-3 max-w-[22rem] text-[13px] leading-6 text-white/70 lg:text-sm">
+          Meaningful matches built on trust, shared values, and the promise of a beautiful beginning.
+        </p>
+      </div>
+
+      <div class="relative mt-6 min-h-0 flex-1">
+        <div class="pointer-events-none absolute inset-x-0 top-0 z-10 h-20 bg-gradient-to-b from-burgundy to-transparent"></div>
+        <img
+          [src]="imageSrc()"
+          [alt]="imageAlt()"
+          class="h-full w-full object-cover object-[center_20%]"
+        />
+      </div>
+    </div>
+
+    <svg
+      class="pointer-events-none absolute inset-y-0 right-0 z-20 hidden h-full w-[72px] md:block lg:w-20"
+      viewBox="0 0 80 800"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+    >
+      <path d="M80 0 C28 220 28 580 80 800 L80 800 L80 0 Z" fill="#FAF7F2" />
+      <path
+        d="M80 0 C28 220 28 580 80 800"
+        fill="none"
+        stroke="#C9A45C"
+        stroke-width="2.8"
+        stroke-linecap="round"
+      />
+    </svg>
+  </aside>
+
+  <div
+    class="flex min-h-0 min-w-0 w-full items-center justify-center bg-ivory md:w-1/2"
+    [class.overflow-y-auto]="!wide()"
+    [class.max-md:overflow-y-auto]="wide()"
+    [class.md:overflow-visible]="wide()"
+    [class.px-5]="true"
+    [class.py-5]="!wide()"
+    [class.py-3]="wide()"
+    [class.sm:px-8]="true"
+    [class.lg:px-12]="!wide()"
+    [class.lg:px-8]="wide()"
+  >
+    <div class="w-full" [class.max-w-[400px]]="!wide()" [class.max-w-[520px]]="wide()">
+      <ng-content />
+    </div>
+  </div>
+</section>

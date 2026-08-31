@@ -1,0 +1,168 @@
+<app-auth-brand-panel
+  imageSrc="/assets/images/authentication/register-couple.webp"
+  imageAlt="Joined hands with henna and gold bangles, a quiet promise of togetherness"
+>
+  <div>
+    <h1 class="font-serif text-[28px] leading-tight text-charcoal lg:text-[32px]">Create Your Profile</h1>
+    <p class="mt-1.5 text-sm text-stone-500">A few details, and your journey begins.</p>
+  </div>
+
+  @if (formError()) {
+    <p class="mt-4 rounded-lg border border-solid border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700" role="alert">
+      {{ formError() }}
+    </p>
+  }
+
+  <form class="mt-6 space-y-4" [formGroup]="form" (ngSubmit)="submit()" autocomplete="off" novalidate>
+    <app-auth-input
+      formControlName="fullName"
+      label="Full Name"
+      placeholder="Enter your full name"
+      [icon]="userIcon"
+      [required]="true"
+      [submitted]="submitted()"
+      autocomplete="off"
+    />
+
+    <app-auth-input
+      formControlName="email"
+      type="email"
+      label="Email"
+      placeholder="Enter your email"
+      [icon]="mailIcon"
+      [required]="true"
+      [submitted]="submitted()"
+      autocomplete="off"
+    />
+
+    <div class="relative" [class.z-50]="countryMenuOpen()">
+      <span class="mb-1.5 block text-sm font-medium leading-5 text-charcoal/80">
+        Mobile Number
+        <span class="text-burgundy" aria-hidden="true">*</span>
+      </span>
+      <div
+        class="relative flex h-12 items-center rounded-lg border border-solid bg-white transition-colors"
+        [class.border-stone-500]="!(submitted() && form.controls.mobile.invalid)"
+        [class.border-red-400]="submitted() && form.controls.mobile.invalid"
+        [class.focus-within:border-burgundy]="!(submitted() && form.controls.mobile.invalid)"
+        [class.focus-within:ring-1]="!(submitted() && form.controls.mobile.invalid)"
+        [class.focus-within:ring-burgundy/20]="!(submitted() && form.controls.mobile.invalid)"
+      >
+        <button
+          type="button"
+          class="flex h-full w-[4.75rem] shrink-0 items-center justify-between gap-1 bg-transparent py-0 pl-3 pr-1.5 text-sm leading-5 text-charcoal outline-none"
+          [attr.aria-expanded]="countryMenuOpen()"
+          aria-haspopup="listbox"
+          aria-label="Country code"
+          (click)="toggleCountryMenu($event)"
+        >
+          <span>{{ form.controls.countryCode.value }}</span>
+          <svg
+            lucideChevronDown
+            [size]="14"
+            class="shrink-0 text-stone-500 transition-transform"
+            [class.rotate-180]="countryMenuOpen()"
+            aria-hidden="true"
+          ></svg>
+        </button>
+        <span class="h-5 w-px shrink-0 bg-stone-400" aria-hidden="true"></span>
+        <input
+          formControlName="mobile"
+          type="tel"
+          inputmode="numeric"
+          [attr.maxlength]="mobileMaxLength()"
+          placeholder="Enter mobile number"
+          class="h-full min-w-0 flex-1 bg-transparent px-3 py-0 text-sm leading-5 text-charcoal outline-none placeholder:text-sm placeholder:leading-5 placeholder:text-stone-400"
+          (input)="onMobileInput($event)"
+        />
+
+        @if (countryMenuOpen()) {
+          <ul
+            role="listbox"
+            class="absolute top-[calc(100%+4px)] left-0 z-[70] max-h-48 w-28 overflow-y-auto rounded-lg border border-solid border-stone-500 bg-white py-1 shadow-lg"
+            (click)="$event.stopPropagation()"
+          >
+            @for (option of countryCodes; track option.code) {
+              <li>
+                <button
+                  type="button"
+                  role="option"
+                  class="flex w-full px-3 py-1.5 text-left text-sm text-charcoal hover:bg-blush"
+                  [class.bg-blush]="option.code === form.controls.countryCode.value"
+                  [class.font-medium]="option.code === form.controls.countryCode.value"
+                  (click)="selectCountryCode(option.code)"
+                >
+                  {{ option.label }}
+                </button>
+              </li>
+            }
+          </ul>
+        }
+      </div>
+      @if (submitted() && form.controls.mobile.invalid) {
+        <p class="mt-1 text-xs text-red-600" role="alert">Enter a valid mobile number.</p>
+      }
+    </div>
+
+    <app-password-input
+      formControlName="password"
+      label="Password"
+      placeholder="Create a password"
+      [required]="true"
+      [submitted]="submitted()"
+      autocomplete="off"
+    />
+
+    <app-password-input
+      formControlName="confirmPassword"
+      label="Confirm Password"
+      placeholder="Re-enter your password"
+      [required]="true"
+      [submitted]="submitted()"
+      autocomplete="off"
+    />
+
+    <div>
+      <label class="flex cursor-pointer items-start gap-2.5 text-sm text-stone-600">
+        <input
+          type="checkbox"
+          formControlName="acceptTerms"
+          class="mt-0.5 h-4 w-4 shrink-0 rounded border-stone-300 text-burgundy accent-burgundy focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy"
+        />
+        <span class="leading-5">
+          I agree to the
+          <a routerLink="/about" class="font-medium text-burgundy hover:underline">Terms and conditions</a>,
+          <a routerLink="/about" class="font-medium text-burgundy hover:underline">Privacy Policy</a>, and Weekly
+          WhatsApp Posting.
+        </span>
+      </label>
+      @if (submitted() && form.controls.acceptTerms.invalid) {
+        <p class="mt-1 text-xs text-red-600" role="alert">Please accept the terms to continue.</p>
+      }
+    </div>
+
+    <button
+      type="submit"
+      class="inline-flex h-12 w-full items-center justify-center gap-2 rounded-lg bg-burgundy text-sm font-semibold text-white transition hover:bg-burgundy-deep focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy disabled:cursor-not-allowed disabled:opacity-60"
+      [disabled]="loading()"
+    >
+      @if (loading()) {
+        <svg lucideLoaderCircle class="animate-spin" [size]="18" aria-hidden="true"></svg>
+        Creating account
+      } @else {
+        Register
+        <svg lucideArrowRight [size]="18" aria-hidden="true"></svg>
+      }
+    </button>
+  </form>
+
+  <p class="mt-6 text-center text-sm text-stone-500">
+    Already have an account?
+    <a
+      routerLink="/login"
+      class="font-semibold text-burgundy transition hover:text-burgundy-deep hover:underline focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-burgundy"
+    >
+      Login
+    </a>
+  </p>
+</app-auth-brand-panel>

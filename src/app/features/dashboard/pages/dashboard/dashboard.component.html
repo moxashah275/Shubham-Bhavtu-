@@ -1,0 +1,56 @@
+<app-hero-banner
+  subtitle="Choose who you are looking for, then open matching families."
+  ctaLabel="AI Matches"
+  ctaLink="/matches"
+  [imageSrc]="images.heroCouple"
+  [sideImageSrc]="images.heroSide"
+/>
+<app-partner-search />
+<app-site-highlights />
+
+<section class="mx-auto max-w-7xl px-5 py-12 sm:py-16 lg:px-8">
+  <div class="max-w-2xl">
+    <p class="text-xs font-semibold tracking-[0.18em] text-gold uppercase">Matches made</p>
+    <div class="w-fit">
+      <h2 class="mt-3 font-serif text-2xl leading-tight text-charcoal sm:text-3xl lg:text-4xl">Couples who found each other here</h2>
+      <span class="mt-1.5 block h-px w-1/2 bg-gold"></span>
+    </div>
+    <p class="mt-4 text-sm leading-7 text-stone-500 sm:text-base">
+      Real journeys that began on Gathbandhan — two families, one match, a life together.
+    </p>
+  </div>
+  <div class="mt-10 overflow-hidden">
+    <div
+      class="flex transition-transform duration-700 ease-out"
+      [style.transform]="'translateX(-' + slideIndex() * 100 + '%)'"
+    >
+      @for (slide of slides(); track $index) {
+        <div class="grid w-full shrink-0 gap-5 sm:grid-cols-2 lg:grid-cols-4">
+          @for (story of slide; track story.id) {
+            <app-success-match-card [story]="story" (viewMore)="openMatch($event)" />
+          }
+        </div>
+      }
+    </div>
+  </div>
+
+  @if (slides().length > 1) {
+    <div class="mt-8 flex items-center justify-center gap-3">
+      @for (slide of slides(); track $index) {
+        <button
+          type="button"
+          class="h-4 w-4 cursor-pointer rounded-full border-2 border-burgundy/40 transition"
+          [class.bg-burgundy]="slideIndex() === $index"
+          [class.border-burgundy]="slideIndex() === $index"
+          [class.bg-transparent]="slideIndex() !== $index"
+          [attr.aria-label]="'Go to slide ' + ($index + 1)"
+          (click)="goToSlide($index)"
+        ></button>
+      }
+    </div>
+  }
+</section>
+
+@if (selectedMatch(); as match) {
+  <app-success-match-dialog [story]="match" (closed)="closeMatch()" />
+}

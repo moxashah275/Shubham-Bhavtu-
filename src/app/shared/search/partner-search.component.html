@@ -1,0 +1,58 @@
+<section
+  class="relative z-20 mx-auto max-w-6xl px-5 lg:px-8"
+  [class.-mt-16]="overlap()"
+  [class.mt-5]="!overlap()"
+>
+  <form
+    class="overflow-visible rounded-2xl border border-gold/20 bg-white p-5 shadow-[0_18px_50px_rgba(43,36,32,0.12)] sm:p-6"
+    (submit)="$event.preventDefault(); search()"
+  >
+    <div class="grid items-start gap-3 overflow-visible md:grid-cols-5">
+      <label class="block overflow-visible text-xs font-medium text-stone-500">
+        Looking For
+        <app-search-select
+          name="lookingFor"
+          placeholder="Select"
+          [options]="lookingForOptions"
+          [(value)]="lookingFor"
+        />
+        @if (fieldError.lookingFor) {
+          <span class="mt-1.5 block text-[11px] font-medium text-burgundy">Please choose who you are looking for.</span>
+        }
+      </label>
+      <label class="block overflow-visible text-xs font-medium text-stone-500">
+        Age
+        <app-search-select name="age" placeholder="Select" [options]="ageOptions" [(value)]="age" />
+        @if (fieldError.age) {
+          <span class="mt-1.5 block text-[11px] font-medium text-burgundy">Please choose an age.</span>
+        }
+      </label>
+      <label class="block overflow-visible text-xs font-medium text-stone-500">
+        Religion
+        <app-search-select name="religion" placeholder="Select" [options]="religionOptions" [(value)]="religion" />
+        @if (fieldError.religion) {
+          <span class="mt-1.5 block text-[11px] font-medium text-burgundy">Please choose a religion.</span>
+        }
+      </label>
+      <label class="block overflow-visible text-xs font-medium text-stone-500">
+        Married Status
+        <app-search-select
+          name="maritalStatus"
+          placeholder="Select"
+          [options]="maritalOptions"
+          [(value)]="maritalStatus"
+        />
+        @if (fieldError.maritalStatus) {
+          <span class="mt-1.5 block text-[11px] font-medium text-burgundy">Please choose married status.</span>
+        }
+      </label>
+      <button
+        type="submit"
+        class="mt-5 inline-flex h-11 items-center justify-center gap-2 rounded-lg bg-burgundy text-sm font-semibold text-white md:mt-[22px]"
+      >
+        <svg lucideSearch [size]="18" aria-hidden="true"></svg>
+        Search
+      </button>
+    </div>
+  </form>
+</section>
