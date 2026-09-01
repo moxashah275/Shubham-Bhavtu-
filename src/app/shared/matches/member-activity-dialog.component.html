@@ -1,94 +1,119 @@
-<div class="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6">
-  <button
-    type="button"
-    class="fixed inset-0 bg-charcoal/40 backdrop-blur-md"
-    aria-label="Close panel"
-    (click)="closed.emit()"
-  ></button>
+@if (!selected()) {
+  <div class="fixed inset-0 z-50 flex items-center justify-center overflow-hidden p-3 sm:p-6">
+    <button
+      type="button"
+      class="fixed inset-0 bg-charcoal/45 backdrop-blur-sm"
+      aria-label="Close panel"
+      (click)="closed.emit()"
+    ></button>
 
-  <article
-    role="dialog"
-    aria-modal="true"
-    class="relative w-full max-w-2xl overflow-hidden rounded-2xl border border-gold/15 bg-ivory shadow-2xl"
-  >
-    <header class="flex items-start justify-between gap-3 border-b border-gold/15 bg-white px-5 py-4">
-      <div>
-        <p class="text-[11px] font-semibold tracking-[0.16em] text-gold uppercase">{{ title() }}</p>
-        <h2 class="mt-0.5 font-serif text-xl leading-tight text-charcoal">{{ caption() }}</h2>
-      </div>
-      <button
-        type="button"
-        class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-charcoal transition hover:bg-blush"
-        aria-label="Close"
-        (click)="closed.emit()"
-      >
-        <svg lucideX [size]="18" aria-hidden="true"></svg>
-      </button>
-    </header>
-
-    <div class="max-h-[70vh] overflow-y-auto px-5 py-4">
-      @if (notice(); as message) {
-        <div class="mb-3 flex items-start gap-2.5 rounded-xl border border-gold/25 bg-blush/60 px-3.5 py-3">
-          <span
-            class="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-burgundy"
-          >
-            <svg lucideCheck [size]="14" aria-hidden="true"></svg>
-          </span>
-          <p class="text-sm leading-6 text-charcoal">{{ message }}</p>
-        </div>
-      }
-
-      @if (members().length) {
-        <ul class="grid gap-3">
-          @for (member of members(); track member.id) {
-            <li class="flex items-center gap-3 rounded-2xl border border-gold/15 bg-white p-3">
-              <img
-                [src]="member.imageSrc"
-                [alt]="member.name"
-                class="h-16 w-16 shrink-0 rounded-lg object-cover object-top"
-              />
-              <div class="min-w-0 flex-1">
-                <div class="flex flex-wrap items-center gap-x-2 gap-y-0.5">
-                  <span class="font-serif text-lg leading-tight text-charcoal">{{ member.name }}</span>
-                  <span class="text-[11px] font-medium tracking-wide text-stone-400">{{ member.memberId }}</span>
-                </div>
-                <p class="mt-0.5 text-sm text-stone-500">
-                  {{ member.age }} yrs · {{ member.height }} · {{ member.city }}, {{ member.state }}
-                </p>
-                <p class="mt-0.5 text-sm font-medium text-burgundy">
-                  {{ member.profession }} · {{ member.education }}
-                </p>
-              </div>
-              <div class="flex shrink-0 items-center gap-2">
-                <button
-                  type="button"
-                  class="cursor-pointer rounded-lg border border-gold/40 bg-white px-3.5 py-1.5 text-sm font-semibold whitespace-nowrap text-burgundy transition hover:border-burgundy hover:bg-blush"
-                  (click)="selected.set(member)"
-                >
-                  View
-                </button>
-                <button
-                  type="button"
-                  class="cursor-pointer rounded-lg border border-stone-300 bg-white px-3.5 py-1.5 text-sm font-semibold whitespace-nowrap text-stone-600 transition hover:border-burgundy hover:bg-blush hover:text-burgundy"
-                  (click)="askRemove(member)"
-                >
-                  Remove
-                </button>
-              </div>
-            </li>
+    <article
+      role="dialog"
+      aria-modal="true"
+      class="relative mx-auto flex max-h-[min(44rem,calc(100vh-1.5rem))] w-full max-w-4xl flex-col overflow-hidden rounded-2xl border border-gold/15 bg-ivory shadow-2xl"
+      (click)="$event.stopPropagation()"
+    >
+      <header class="flex shrink-0 items-start justify-between gap-3 border-b border-gold/15 bg-white px-5 pt-4 pb-2.5">
+        <div>
+          <p class="text-[11px] font-semibold tracking-[0.16em] text-gold uppercase">{{ title() }}</p>
+          <h2 class="mt-0.5 font-serif text-xl leading-tight text-charcoal">{{ caption() }}</h2>
+          @if (members().length) {
+            <p class="mt-0.5 text-xs text-stone-500">{{ members().length }} profile{{ members().length === 1 ? '' : 's' }} saved</p>
           }
-        </ul>
-      } @else {
-        <div class="py-10 text-center">
-          <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-blush text-burgundy">
-            <svg lucideHeart [size]="20" aria-hidden="true"></svg>
-          </span>
-          <p class="mx-auto mt-3 max-w-xs text-sm leading-6 text-stone-500">{{ emptyText() }}</p>
         </div>
-      }
-    </div>
-  </article>
-</div>
+        <button
+          type="button"
+          class="inline-flex h-9 w-9 shrink-0 cursor-pointer items-center justify-center rounded-full text-charcoal transition hover:bg-blush"
+          aria-label="Close"
+          (click)="closed.emit()"
+        >
+          <svg lucideX [size]="18" aria-hidden="true"></svg>
+        </button>
+      </header>
+
+      <div class="min-h-0 flex-1 overflow-hidden px-5 pt-3 pb-4">
+        @if (notice(); as message) {
+          <div class="mb-4 flex items-start gap-2.5 rounded-xl border border-gold/25 bg-blush/60 px-3.5 py-3">
+            <span
+              class="mt-0.5 inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-white text-burgundy"
+            >
+              <svg lucideCheck [size]="14" aria-hidden="true"></svg>
+            </span>
+            <p class="text-sm leading-6 text-charcoal">{{ message }}</p>
+          </div>
+        }
+
+        @if (members().length) {
+          <ul
+            class="interest-list grid max-h-[min(32rem,calc(100vh-12rem))] gap-4 overflow-y-auto pr-1 sm:grid-cols-2"
+            role="list"
+            aria-label="Shortlisted profiles"
+          >
+            @for (member of members(); track member.id) {
+              <li class="h-full">
+                <article
+                  class="flex h-full flex-col overflow-hidden rounded-2xl border border-gold/15 bg-white shadow-[0_12px_32px_rgba(43,36,32,0.08)]"
+                >
+                  <div class="relative aspect-[5/4] w-full overflow-hidden bg-blush sm:aspect-[3/2]">
+                    <img
+                      [src]="member.imageSrc"
+                      [alt]="member.name"
+                      class="absolute inset-0 h-full w-full object-cover object-[center_20%]"
+                    />
+                    <div class="absolute inset-0 bg-gradient-to-t from-charcoal/80 via-charcoal/15 to-transparent"></div>
+                    @if (member.premium) {
+                      <span
+                        class="absolute top-3 left-3 rounded-full bg-gold px-3 py-1 text-[11px] font-semibold tracking-[0.1em] text-charcoal uppercase shadow"
+                      >
+                        Premium
+                      </span>
+                    }
+                    @if (member.activeToday) {
+                      <span
+                        class="absolute top-3 right-3 rounded-full bg-white/95 px-3 py-1 text-[11px] font-semibold text-burgundy shadow"
+                      >
+                        Active today
+                      </span>
+                    }
+                    <div class="absolute right-3 bottom-3 left-3">
+                      <p class="text-[11px] font-semibold tracking-[0.16em] text-gold uppercase">{{ member.memberId }}</p>
+                      <h3 class="mt-0.5 font-serif text-lg leading-snug text-white">{{ member.name }}</h3>
+                      <p class="mt-1 text-xs text-white/90">{{ member.age }} yrs · {{ member.city }}</p>
+                    </div>
+                  </div>
+
+                  <div class="mt-auto flex gap-2 border-t border-gold/10 p-3">
+                    <button
+                      type="button"
+                      class="inline-flex h-10 flex-1 cursor-pointer items-center justify-center rounded-lg border border-gold/40 bg-white text-sm font-semibold text-burgundy transition hover:border-burgundy hover:bg-blush"
+                      (click)="openProfile(member)"
+                    >
+                      View
+                    </button>
+                    <button
+                      type="button"
+                      class="inline-flex h-10 flex-1 cursor-pointer items-center justify-center rounded-lg border border-stone-300 bg-white text-sm font-semibold text-stone-600 transition hover:border-burgundy hover:bg-blush hover:text-burgundy"
+                      (click)="askRemove(member)"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                </article>
+              </li>
+            }
+          </ul>
+        } @else {
+          <div class="py-10 text-center">
+            <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-blush text-burgundy">
+              <svg lucideHeart [size]="20" aria-hidden="true"></svg>
+            </span>
+            <p class="mx-auto mt-4 max-w-xs text-sm leading-6 text-stone-500">{{ emptyText() }}</p>
+          </div>
+        }
+      </div>
+    </article>
+  </div>
+}
 
 @if (selected(); as member) {
   <app-member-profile-dialog
@@ -96,13 +121,15 @@
     [shortlisted]="isShortlisted(member.id)"
     [interested]="isInterested(member.id)"
     (closed)="selected.set(null)"
-    (message)="openMessage($event)"
+    (toggleShortlist)="onToggleShortlist($event)"
+    (expressInterest)="onExpressInterest($event)"
     (withdrawInterest)="askRemove($event)"
+    (message)="openMessage($event)"
   />
 }
 
 @if (pendingRemove(); as member) {
-  <div class="fixed inset-0 z-60 flex items-center justify-center bg-charcoal/50 p-4">
+  <div class="fixed inset-0 z-[70] flex items-center justify-center bg-charcoal/50 p-4">
     <div class="w-full max-w-sm rounded-2xl bg-white p-5 text-center shadow-2xl">
       <h3 class="font-serif text-xl text-charcoal">
         {{ kind() === 'shortlist' ? 'Remove from shortlist?' : 'Remove this interest?' }}

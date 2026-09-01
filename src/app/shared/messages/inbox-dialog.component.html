@@ -12,8 +12,8 @@
     class="relative grid h-[min(40rem,calc(100vh-1.5rem))] w-full max-w-4xl overflow-hidden rounded-2xl border border-gold/15 bg-white shadow-2xl sm:grid-cols-[16.5rem_1fr]"
     (click)="$event.stopPropagation()"
   >
-    <aside class="flex min-h-0 flex-col border-b border-gold/10 bg-ivory/80 sm:border-r sm:border-b-0">
-      <div class="flex items-center justify-between px-4 py-3">
+    <aside class="flex min-h-0 flex-col border-b border-gold/10 bg-white sm:border-r sm:border-b-0">
+      <div class="flex items-center justify-between border-b border-gold/10 px-4 py-3">
         <div>
           <p class="text-[11px] font-semibold tracking-[0.16em] text-gold uppercase">Inbox</p>
           <h2 class="font-serif text-xl text-charcoal">Messages</h2>
@@ -28,41 +28,48 @@
         </button>
       </div>
       <ul class="min-h-0 flex-1 overflow-y-auto">
-        @for (item of inbox.conversations(); track item.memberId) {
-          <li>
-            <button
-              type="button"
-              class="flex w-full cursor-pointer items-start gap-3 px-4 py-3 text-left transition"
-              [class.bg-white]="inbox.activeId() === item.memberId"
-              [class.hover:bg-white]="inbox.activeId() !== item.memberId"
-              (click)="inbox.select(item.memberId)"
+        @if (inbox.conversations().length) {
+          @for (item of inbox.conversations(); track item.memberId) {
+            <li
+              class="border-b border-gold/35 last:border-b-0 hover:bg-blush/40"
+              [class.bg-blush]="inbox.activeId() === item.memberId"
             >
-              <img
-                [src]="item.imageSrc"
-                [alt]="item.name"
-                class="h-11 w-11 shrink-0 rounded-full object-cover object-top"
-              />
-              <span class="min-w-0 flex-1">
-                <span class="flex items-center justify-between gap-2">
-                  <span class="truncate text-sm font-semibold text-charcoal">{{ item.name }}</span>
-                  <span class="shrink-0 text-[10px] text-stone-400">{{ item.time }}</span>
+              <button
+                type="button"
+                class="flex w-full cursor-pointer items-start gap-3 px-4 py-3 text-left transition"
+                (click)="inbox.select(item.memberId)"
+              >
+                <img
+                  [src]="item.imageSrc"
+                  [alt]="item.name"
+                  class="h-11 w-11 shrink-0 rounded-full object-cover object-top"
+                />
+                <span class="min-w-0 flex-1">
+                  <span class="flex items-center justify-between gap-2">
+                    <span class="truncate text-sm font-semibold text-charcoal">{{ item.name }}</span>
+                    <span class="shrink-0 text-[10px] text-stone-400">{{ item.time }}</span>
+                  </span>
+                  <span class="mt-0.5 line-clamp-1 block text-[12px] text-stone-500">{{ item.lastText }}</span>
                 </span>
-                <span class="mt-0.5 line-clamp-1 block text-[12px] text-stone-500">{{ item.lastText }}</span>
-              </span>
-              @if (item.unread) {
-                <span
-                  class="mt-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-burgundy px-1 text-[10px] font-semibold text-white"
-                >
-                  {{ item.unread }}
-                </span>
-              }
-            </button>
+                @if (item.unread) {
+                  <span
+                    class="mt-1 inline-flex h-5 min-w-5 items-center justify-center rounded-full bg-burgundy px-1 text-[10px] font-semibold text-white"
+                  >
+                    {{ item.unread }}
+                  </span>
+                }
+              </button>
+            </li>
+          }
+        } @else {
+          <li class="px-4 py-8 text-center text-sm leading-6 text-stone-500">
+            No messages yet. Message a profile from Matches to start a conversation.
           </li>
         }
       </ul>
     </aside>
 
-    <div class="flex min-h-0 flex-col">
+    <div class="flex min-h-0 flex-col bg-white">
       <div class="flex items-center justify-between border-b border-gold/10 px-5 py-3">
         @if (inbox.active(); as thread) {
           <div class="flex min-w-0 items-center gap-3">
@@ -89,9 +96,12 @@
         </button>
       </div>
 
-      <div #chatScroll class="min-h-0 flex-1 space-y-4 overflow-y-auto bg-ivory/40 px-5 py-4">
+      <div #chatScroll class="min-h-0 flex-1 overflow-y-auto bg-white px-5 py-4">
         @if (inbox.active(); as thread) {
-          @for (line of thread.messages; track line.id) {
+          @for (line of thread.messages; track line.id; let index = $index) {
+            @if (index > 0) {
+              <div class="my-4 h-px bg-gold/15" aria-hidden="true"></div>
+            }
             <div class="flex flex-col" [class.items-end]="line.fromMe" [class.items-start]="!line.fromMe">
               <div
                 class="max-w-[80%] rounded-2xl px-4 py-2.5 text-sm leading-6 shadow-sm"
@@ -99,19 +109,22 @@
                 [class.bg-burgundy]="line.fromMe"
                 [class.text-white]="line.fromMe"
                 [class.rounded-bl-sm]="!line.fromMe"
-                [class.bg-white]="!line.fromMe"
-                [class.text-charcoal]="!line.fromMe"
                 [class.border]="!line.fromMe"
+                [class.border-gold/30]="!line.fromMe"
+                [class.bg-ivory]="!line.fromMe"
+                [class.text-charcoal]="!line.fromMe"
               >
                 {{ line.text }}
               </div>
-              <p class="mt-1 px-1 text-[11px] text-stone-400">
-                {{ line.fromMe ? 'You · ' + line.time : line.time }}
+              <p class="mt-1.5 px-1 text-[11px] text-stone-400">
+                {{ line.fromMe ? 'You · ' + line.time : thread.name + ' · ' + line.time }}
               </p>
             </div>
           } @empty {
             <p class="py-10 text-center text-sm text-stone-500">No messages yet. Write a note to this family.</p>
           }
+        } @else {
+          <p class="py-10 text-center text-sm text-stone-500">Choose a conversation from the list.</p>
         }
       </div>
 

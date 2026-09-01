@@ -1,0 +1,189 @@
+<article
+  class="grid h-full min-h-0 min-w-0 overflow-hidden bg-ivory"
+  [class.md:grid-cols-[minmax(14rem,18rem)_minmax(0,1fr)]]="dialog() || (!compact() && !scrollable())"
+  [class.md:grid-cols-[minmax(14rem,17rem)_minmax(0,1fr)]]="!compact() && scrollable() && !dialog()"
+  [class.md:grid-cols-[15rem_minmax(0,1fr)]]="compact()"
+  [class.md:items-stretch]="compact() || dialog()"
+>
+  <div [class]="photoFrameClass()">
+    <img [src]="member().imageSrc" [alt]="member().name" [class]="photoImageClass()" />
+    <div
+      [class]="compact()
+        ? 'absolute inset-x-0 bottom-0 bg-gradient-to-t from-charcoal/75 to-transparent px-3 pt-8 pb-3 text-white'
+        : scrollable() && !dialog()
+          ? 'absolute inset-x-0 bottom-0 bg-gradient-to-t from-charcoal/75 via-charcoal/25 to-transparent px-4 pt-8 pb-3.5 text-white'
+          : 'absolute inset-x-0 bottom-0 bg-gradient-to-t from-charcoal/75 to-transparent px-5 pt-14 pb-5 text-white'"
+    >
+      <p [class]="compact() ? 'text-[10px] font-semibold tracking-[0.18em] text-gold uppercase' : 'text-[11px] font-semibold tracking-[0.18em] text-gold uppercase'">
+        {{ member().memberId }}
+      </p>
+      <p [class]="compact() ? 'mt-0.5 text-xs font-medium' : 'mt-1 text-sm font-medium'">
+        {{ member().city }}, {{ member().state }}
+      </p>
+      <div [class]="compact() ? 'mt-1 flex flex-wrap gap-1' : 'mt-2 flex flex-wrap gap-1.5'">
+        @if (member().premium) {
+          <span class="rounded-md bg-gold px-2 py-0.5 text-[10px] font-semibold tracking-[0.1em] text-charcoal uppercase">Premium</span>
+        }
+        @if (member().activeToday) {
+          <span class="rounded-md bg-white/90 px-2 py-0.5 text-[10px] font-semibold tracking-[0.1em] text-burgundy uppercase">Active today</span>
+        }
+        <span class="rounded-md bg-white/20 px-2 py-0.5 text-[10px] font-semibold tracking-[0.1em] text-white uppercase">
+          {{ member().photoCount }} photos
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div
+    [class]="compact()
+      ? 'flex min-h-0 min-w-0 flex-col overflow-x-hidden overflow-y-auto bg-white p-3.5'
+      : dialog()
+        ? 'flex min-h-0 min-w-0 flex-col overflow-hidden bg-white p-5'
+        : scrollable()
+          ? 'min-h-0 min-w-0 overflow-x-hidden overflow-y-auto bg-white p-4 sm:p-5'
+          : 'min-h-0 min-w-0 overflow-x-hidden bg-white p-5 sm:p-7'"
+  >
+    <div class="flex flex-wrap items-center gap-2" [class.pr-10]="scrollable() || dialog()">
+      <h2
+        [id]="'member-title-' + member().id"
+        class="font-serif leading-tight text-charcoal"
+        [class.text-3xl]="!compact() && !scrollable() && !dialog()"
+        [class.text-2xl]="dialog() || (scrollable() && !compact())"
+        [class.text-xl]="compact()"
+      >
+        {{ member().name }}
+      </h2>
+      <span class="inline-flex items-center gap-1 text-[11px] font-medium text-gold-deep">
+        <svg lucideBadgeCheck [size]="15" aria-hidden="true"></svg>
+        Verified
+      </span>
+    </div>
+    <p class="text-sm font-semibold text-burgundy" [class.mt-2]="!compact() && !dialog()" [class.mt-1]="compact()" [class.mt-1.5]="dialog() || (scrollable() && !compact())">
+      {{ member().profession }} · {{ member().education }}
+    </p>
+    <p class="text-sm text-stone-500" [class.mt-1]="!compact()" [class.mt-0.5]="compact()">
+      {{ member().age }} yrs · {{ member().height }} · {{ member().gender }} · Created by {{ member().profileBy }}
+    </p>
+
+    <p [class]="compact() ? 'mt-3 text-[10px] font-semibold tracking-[0.16em] text-gold uppercase' : dialog() ? 'mt-3 text-[11px] font-semibold tracking-[0.16em] text-gold uppercase' : scrollable() ? 'mt-4 text-[11px] font-semibold tracking-[0.16em] text-gold uppercase' : 'mt-6 text-[11px] font-semibold tracking-[0.16em] text-gold uppercase'">
+      Profile details
+    </p>
+    <dl [class]="compact() || dialog()
+      ? 'mt-2 grid min-w-0 grid-cols-2 gap-x-4 gap-y-2 text-sm sm:grid-cols-3 [&>div]:min-w-0 [&_dd]:break-words'
+      : scrollable()
+        ? 'mt-2 grid min-w-0 gap-x-5 gap-y-2.5 text-sm sm:grid-cols-2 [&>div]:min-w-0 [&_dd]:break-words'
+        : 'mt-3 grid min-w-0 gap-x-6 gap-y-3.5 text-sm sm:grid-cols-2 [&>div]:min-w-0 [&_dd]:break-words'"
+    >
+      <div [class]="fieldClass()">
+        <dt [class]="labelClass()">Marital status</dt>
+        <dd [class]="valueClass()">{{ member().maritalStatus }}</dd>
+      </div>
+      <div [class]="fieldClass()">
+        <dt [class]="labelClass()">Gender</dt>
+        <dd [class]="valueClass()">{{ member().gender }}</dd>
+      </div>
+      <div [class]="fieldClass()">
+        <dt [class]="labelClass()">Religion</dt>
+        <dd [class]="valueClass()">{{ member().religion }}</dd>
+      </div>
+      <div [class]="fieldClass()">
+        <dt [class]="labelClass()">Community</dt>
+        <dd [class]="valueClass()">{{ member().community }}</dd>
+      </div>
+      <div [class]="fieldClass()">
+        <dt [class]="labelClass()">Sub caste</dt>
+        <dd [class]="valueClass()">{{ member().subCaste }}</dd>
+      </div>
+      <div [class]="fieldClass()">
+        <dt [class]="labelClass()">Mother tongue</dt>
+        <dd [class]="valueClass()">{{ member().motherTongue }}</dd>
+      </div>
+      <div [class]="fieldClass()">
+        <dt [class]="labelClass()">Height</dt>
+        <dd [class]="valueClass()">{{ member().height }}</dd>
+      </div>
+      <div [class]="fieldClass()">
+        <dt [class]="labelClass()">Diet</dt>
+        <dd [class]="valueClass()">{{ member().diet }}</dd>
+      </div>
+      <div [class]="fieldClass()">
+        <dt [class]="labelClass()">Manglik</dt>
+        <dd [class]="valueClass()">{{ member().manglik }}</dd>
+      </div>
+      <div [class]="fieldClass()">
+        <dt [class]="labelClass()">Education</dt>
+        <dd [class]="valueClass()">{{ member().education }}</dd>
+      </div>
+      <div [class]="fieldClass()">
+        <dt [class]="labelClass()">Occupation</dt>
+        <dd [class]="valueClass()">{{ member().profession }}</dd>
+      </div>
+      <div [class]="fieldClass()">
+        <dt [class]="labelClass()">Family type</dt>
+        <dd [class]="valueClass()">{{ member().familyType }}</dd>
+      </div>
+      <div [class]="fieldClass()">
+        <dt [class]="labelClass()">Income</dt>
+        <dd [class]="valueClass()">{{ member().income }}</dd>
+      </div>
+      <div [class]="fieldClass()">
+        <dt [class]="labelClass()">Location</dt>
+        <dd [class]="valueClass()">{{ member().city }}, {{ member().state }}, {{ member().country }}</dd>
+      </div>
+      <div [class]="fieldClass()">
+        <dt [class]="labelClass()">Profile by</dt>
+        <dd [class]="valueClass()">{{ member().profileBy }}</dd>
+      </div>
+    </dl>
+
+    <div [class]="compact() ? 'mt-3 rounded-xl border border-gold/10 bg-blush/30 px-3 py-2' : dialog() ? 'mt-3 rounded-xl border border-gold/10 bg-blush/30 px-3.5 py-2.5' : scrollable() ? 'mt-4 rounded-xl border border-gold/10 bg-blush/30 px-3.5 py-2.5' : 'mt-6 rounded-xl border border-gold/10 bg-blush/30 px-4 py-3.5'">
+      <p [class]="compact() ? 'text-[10px] font-semibold tracking-[0.16em] text-gold uppercase' : 'text-[11px] font-semibold tracking-[0.16em] text-gold uppercase'">About</p>
+      <p [class]="compact() ? 'mt-1 text-sm leading-5 text-stone-600' : dialog() ? 'mt-1.5 text-sm leading-6 text-stone-600' : scrollable() ? 'mt-1.5 text-sm leading-6 text-stone-600' : 'mt-2 text-sm leading-7 text-stone-600'">
+        {{ member().about }}
+      </p>
+    </div>
+
+    <div class="mt-auto flex min-w-0 flex-wrap pt-3" [class.mt-6]="!compact() && !scrollable() && !dialog()" [class.gap-2]="!compact()" [class.mt-3]="compact()" [class.gap-1.5]="compact()">
+      <button
+        type="button"
+        class="inline-flex items-center gap-1.5 rounded-lg border px-4 text-sm font-semibold transition"
+        [class.h-11]="!compact() && !scrollable() && !dialog()"
+        [class.h-10]="dialog() || (scrollable() && !compact())"
+        [class.h-9]="compact()"
+        [class.border-gold/30]="!shortlisted()"
+        [class.text-charcoal]="!shortlisted()"
+        [class.hover:bg-blush]="!shortlisted()"
+        [class.border-burgundy/30]="shortlisted()"
+        [class.bg-blush]="shortlisted()"
+        [class.text-burgundy]="shortlisted()"
+        (click)="toggleShortlist.emit(member())"
+      >
+        <svg lucideHeart [size]="15" [class.fill-current]="shortlisted()" aria-hidden="true"></svg>
+        {{ shortlisted() ? 'Shortlisted' : 'Shortlist' }}
+      </button>
+      <button
+        type="button"
+        class="inline-flex items-center rounded-lg px-5 text-sm font-semibold text-white transition"
+        [class.h-11]="!compact() && !scrollable() && !dialog()"
+        [class.h-10]="dialog() || (scrollable() && !compact())"
+        [class.h-9]="compact()"
+        [class.bg-burgundy]="!interested()"
+        [class.hover:bg-burgundy-deep]="!interested()"
+        [class.bg-burgundy/80]="interested()"
+        (click)="interested() ? withdrawInterest.emit(member()) : expressInterest.emit(member())"
+      >
+        {{ interested() ? 'Remove interest' : 'Send interest' }}
+      </button>
+      <button
+        type="button"
+        class="inline-flex items-center rounded-lg border border-gold/30 px-5 text-sm font-semibold text-charcoal transition hover:bg-blush"
+        [class.h-11]="!compact() && !scrollable() && !dialog()"
+        [class.h-10]="dialog() || (scrollable() && !compact())"
+        [class.h-9]="compact()"
+        (click)="message.emit(member())"
+      >
+        Message
+      </button>
+    </div>
+  </div>
+</article>

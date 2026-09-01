@@ -6,6 +6,9 @@
           <label class="block text-xs font-medium text-stone-500">
             Looking For
             <app-search-select name="refineLookingFor" placeholder="Select" [options]="lookingForOptions" [(value)]="lookingFor" />
+            @if (profilesHint()) {
+              <span class="mt-1.5 block text-[11px] font-medium text-gold-deep">{{ profilesHint() }}</span>
+            }
           </label>
           <label class="block text-xs font-medium text-stone-500">
             Married status

@@ -20,7 +20,7 @@ export interface Conversation {
   messages: ChatLine[];
 }
 
-const INBOX_KEY = 'gathbandhan.inbox.v3';
+const INBOX_KEY = 'gathbandhan.inbox.v4';
 
 const REPLIES = [
   'Thank you for writing. Our family will look at the profile and reply soon.',
@@ -154,14 +154,14 @@ export class InboxService {
       const raw = localStorage.getItem(this.scoped());
       if (raw) {
         const parsed = JSON.parse(raw) as Conversation[];
-        if (Array.isArray(parsed) && parsed.length) {
+        if (Array.isArray(parsed)) {
           return parsed;
         }
       }
     } catch {
       // Private browsing can block storage.
     }
-    return this.seed();
+    return [];
   }
 
   private write(): void {
@@ -174,67 +174,5 @@ export class InboxService {
 
   private scoped(): string {
     return `${INBOX_KEY}.${this.auth.user()?.id ?? 'guest'}`;
-  }
-
-  private seed(): Conversation[] {
-    const aanya = this.members.find((item) => item.id === 'm1');
-    const kabir = this.members.find((item) => item.id === 'm2');
-    const diya = this.members.find((item) => item.id === 'm3');
-    const seed: Conversation[] = [];
-    if (aanya) {
-      seed.push({
-        memberId: aanya.id,
-        name: aanya.name,
-        imageSrc: aanya.imageSrc,
-        lastText: 'Our family would like to know more about your education and city.',
-        time: '20 min ago',
-        unread: 1,
-        messages: [
-          {
-            id: 'a1',
-            fromMe: false,
-            text: 'Namaste. Our family would like to know more about your education and city.',
-            time: '20 min ago',
-          },
-        ],
-      });
-    }
-    if (kabir) {
-      seed.push({
-        memberId: kabir.id,
-        name: kabir.name,
-        imageSrc: kabir.imageSrc,
-        lastText: 'Thank you for the interest. Parents would like a call this weekend.',
-        time: '3 hours ago',
-        unread: 0,
-        messages: [
-          {
-            id: 'k1',
-            fromMe: false,
-            text: 'Thank you for the interest. Parents would like a call this weekend.',
-            time: '3 hours ago',
-          },
-        ],
-      });
-    }
-    if (diya) {
-      seed.push({
-        memberId: diya.id,
-        name: diya.name,
-        imageSrc: diya.imageSrc,
-        lastText: 'We saw your profile and would like to exchange biodata.',
-        time: 'Yesterday',
-        unread: 0,
-        messages: [
-          {
-            id: 'd1',
-            fromMe: false,
-            text: 'We saw your profile and would like to exchange biodata.',
-            time: 'Yesterday',
-          },
-        ],
-      });
-    }
-    return seed;
   }
 }

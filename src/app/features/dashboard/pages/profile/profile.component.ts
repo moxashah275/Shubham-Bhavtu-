@@ -1,53 +1,133 @@
-import { Component, computed, inject, signal } from '@angular/core';
-import { FormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Component, computed, effect, ElementRef, inject, signal, untracked, viewChild } from '@angular/core';
+import { FormBuilder, ReactiveFormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import {
+  LucideArrowLeft,
   LucideBriefcase,
+  LucideCamera,
   LucideCheck,
   LucideChevronDown,
-  LucideGraduationCap,
-  LucideHeart,
+  LucideImage,
   LucideMapPin,
-  LucideMessagesSquare,
-  LucidePencil,
-  LucideSparkles,
-  LucideUsers,
+  LucidePlus,
+  LucideUpload,
 } from '@lucide/angular';
 import { COUNTRY_CODES, DEFAULT_COUNTRY_CODE } from '../../../../core/data/country-codes';
 import { INDIA_LOCATIONS, STATE_OPTIONS } from '../../../../core/data/india-locations';
-import { AGE_OPTIONS, LOOKING_FOR_OPTIONS, lookingForLabel } from '../../../../core/data/partner-search-options';
+import { AGE_OPTIONS } from '../../../../core/data/partner-search-options';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ProfileViewService } from '../../../../core/services/profile-view.service';
 import { ToastService } from '../../../../core/services/toast.service';
+import { formatWorkExperienceLabel } from '../../../../core/profile/profile-data';
 import { SearchSelectComponent, SearchSelectOption } from '../../../../shared/search/search-select.component';
+import { ProfileSavedViewComponent } from './profile-saved-view.component';
 import profileOptions from '../../../../../assets/data/profile-options.json';
 
-type ProfileStep = 'basics' | 'life' | 'education' | 'partner' | 'about';
+type ProfileStep = 'personal' | 'family' | 'education' | 'about';
+
+type ProfileStringField =
+  | 'fullName'
+  | 'countryCode'
+  | 'mobile'
+  | 'dateOfBirth'
+  | 'gender'
+  | 'weight'
+  | 'willingToRelocate'
+  | 'bloodGroup'
+  | 'disability'
+  | 'religion'
+  | 'country'
+  | 'state'
+  | 'city'
+  | 'nativePlace'
+  | 'currentAddress'
+  | 'permanentAddress'
+  | 'jainSect'
+  | 'jainCaste'
+  | 'subCaste'
+  | 'gotra'
+  | 'diet'
+  | 'familyType'
+  | 'fatherName'
+  | 'motherName'
+  | 'fatherOccupation'
+  | 'motherOccupation'
+  | 'brothers'
+  | 'sisters'
+  | 'birthTime'
+  | 'birthPlace'
+  | 'rasi'
+  | 'nakshatra'
+  | 'manglik'
+  | 'educationSpec'
+  | 'degree'
+  | 'specialization'
+  | 'university'
+  | 'employmentStatus'
+  | 'occupation'
+  | 'companyName'
+  | 'designation'
+  | 'workExperience'
+  | 'income'
+  | 'workLocation'
+  | 'exerciseFrequency'
+  | 'travelFrequency'
+  | 'hobbies'
+  | 'languagesKnown'
+  | 'about'
+  | 'personality'
+  | 'futureGoals'
+  | 'partnerAgeFrom'
+  | 'partnerAgeTo'
+  | 'partnerHeightFrom'
+  | 'partnerHeightTo'
+  | 'partnerMaritalStatus'
+  | 'partnerEducation'
+  | 'partnerOccupation'
+  | 'jainSectPreference'
+  | 'partnerState'
+  | 'partnerCity'
+  | 'partnerDiet'
+  | 'partnerChildren'
+  | 'horoscopeMatching'
+  | 'partnerDisability'
+  | 'partnerManglik';
+
+type ProfileRadioField =
+  | 'gender'
+  | 'willingToRelocate'
+  | 'exerciseFrequency'
+  | 'travelFrequency'
+  | 'disability'
+  | 'familyType'
+  | 'manglik';
 
 @Component({
   selector: 'app-profile-page',
   imports: [
     ReactiveFormsModule,
     SearchSelectComponent,
+    ProfileSavedViewComponent,
+    LucideArrowLeft,
     LucideBriefcase,
+    LucideCamera,
     LucideCheck,
     LucideChevronDown,
-    LucideGraduationCap,
-    LucideHeart,
+    LucideImage,
     LucideMapPin,
-    LucideMessagesSquare,
-    LucidePencil,
-    LucideSparkles,
-    LucideUsers,
+    LucidePlus,
+    LucideUpload,
   ],
   templateUrl: './profile.component.html',
   host: {
-    '(document:click)': 'countryMenuOpen.set(false)',
+    '(document:click)': 'onDocumentClick()',
   },
 })
 export class ProfilePageComponent {
   private readonly auth = inject(AuthService);
   private readonly toast = inject(ToastService);
   private readonly router = inject(Router);
+  private readonly profileView = inject(ProfileViewService);
   private readonly fb = inject(FormBuilder);
 
   readonly user = this.auth.user;
@@ -56,31 +136,24 @@ export class ProfilePageComponent {
   readonly stepIndex = signal(0);
   readonly stepError = signal('');
   readonly countryMenuOpen = signal(false);
-  readonly initials = computed(() => {
-    const parts = (this.user()?.fullName ?? 'Member').trim().split(/\s+/).filter(Boolean);
-    const first = parts[0]?.charAt(0) ?? 'G';
-    const second = parts[1]?.charAt(0) ?? parts[0]?.charAt(1) ?? '';
-    return `${first}${second}`.toUpperCase();
-  });
-  readonly profileId = computed(() => {
-    const id = this.user()?.id ?? 'member';
-    const digits = id.replace(/\D/g, '').slice(-6).padStart(6, '0');
-    const prefix = (this.user()?.fullName ?? 'GB')
-      .replace(/[^a-zA-Z]/g, '')
-      .slice(0, 2)
-      .toUpperCase()
-      .padEnd(2, 'G');
-    return `${prefix}-${digits}`;
-  });
+  readonly photoUploadMenuOpen = signal(false);
+  readonly maxProfilePhotos = 6;
+  readonly profilePhotoInput = viewChild<ElementRef<HTMLInputElement>>('profilePhotoInput');
+  readonly aboutGalleryInput = viewChild<ElementRef<HTMLInputElement>>('aboutGalleryInput');
+  readonly aboutCameraInput = viewChild<ElementRef<HTMLInputElement>>('aboutCameraInput');
+  readonly profilePhotoUrl = computed(() => this.user()?.profilePhoto?.trim() || '');
+  readonly todayMax = new Date().toISOString().split('T')[0];
+
   readonly cityOptions = signal<SearchSelectOption[]>([]);
   readonly partnerCityOptions = signal<SearchSelectOption[]>([]);
-  readonly steps: { id: ProfileStep; label: string; caption: string }[] = [
-    { id: 'basics', label: 'Basic', caption: 'Who you are' },
-    { id: 'life', label: 'Family', caption: 'Where you live' },
-    { id: 'education', label: 'Education', caption: 'Study and work' },
-    { id: 'partner', label: 'Partner', caption: 'Who you seek' },
-    { id: 'about', label: 'About', caption: 'Your story' },
+
+  readonly steps: { id: ProfileStep; label: string }[] = [
+    { id: 'personal', label: 'Personal' },
+    { id: 'family', label: 'Family' },
+    { id: 'education', label: 'Education & Lifestyle' },
+    { id: 'about', label: 'About & Partner' },
   ];
+
   readonly currentStep = computed(() => this.steps[this.stepIndex()]);
   readonly isLastStep = computed(() => this.stepIndex() === this.steps.length - 1);
   readonly linePercent = computed(() => (this.stepIndex() / (this.steps.length - 1)) * 100);
@@ -90,80 +163,115 @@ export class ProfilePageComponent {
     if (!user) {
       return '';
     }
-    const parts = [user.city, user.state, user.city || user.state ? 'India' : ''].filter(Boolean);
+    const parts = [user.city, user.state, user.country || (user.city || user.state ? 'India' : '')].filter(Boolean);
     return parts.join(', ');
   });
 
   readonly countryCodes = COUNTRY_CODES;
-  readonly ageOptions: SearchSelectOption[] = [
-    { value: 'below-18', label: 'Below 18' },
-    ...Array.from({ length: 43 }, (_, index) => {
-      const year = String(18 + index);
-      return { value: year, label: year };
-    }),
-  ];
-  readonly genderOptions = this.toOptions(profileOptions.genders);
-  readonly maritalOptions = this.toOptions(profileOptions.maritalStatuses);
+  readonly genderRadioOptions = profileOptions.genders;
+  readonly willingToRelocateOptions = profileOptions.willingToRelocate;
+  readonly exerciseFrequencyOptions = profileOptions.exerciseFrequencies;
+  readonly travelFrequencyOptions = profileOptions.travelFrequencies;
+  readonly disabilityRadioOptions = profileOptions.disabilityOptions;
+  readonly familyTypeRadioOptions = profileOptions.familyTypes;
+  readonly manglikRadioOptions = profileOptions.manglikOptions;
+  readonly languageOptions = profileOptions.languages;
+
   readonly religionOptions = this.toOptions(profileOptions.religions);
-  readonly motherTongueOptions = this.toOptions(profileOptions.motherTongues);
-  readonly educationOptions = this.toOptions(profileOptions.educations);
-  readonly heightOptions = this.toOptions(profileOptions.heights);
-  readonly communityOptions = this.toOptions(profileOptions.communities);
-  readonly subCasteOptions = this.toOptions(profileOptions.subCastes);
-  readonly dietOptions = this.toOptions(profileOptions.diets);
-  readonly manglikOptions = this.toOptions(profileOptions.manglikOptions);
-  readonly incomeOptions = this.toOptions(profileOptions.incomes);
-  readonly familyTypeOptions = this.toOptions(profileOptions.familyTypes);
-  readonly stateOptions = this.toOptions(STATE_OPTIONS);
-  readonly lookingForOptions = LOOKING_FOR_OPTIONS;
-  readonly partnerAgeOptions = AGE_OPTIONS;
-  readonly educationSpecOptions = this.toOptions(profileOptions.educationSpecs);
+  readonly weightOptions = this.toOptions(profileOptions.weights);
+  readonly bloodGroupOptions = this.toOptions(profileOptions.bloodGroups);
   readonly yesNoOptions = this.toOptions(profileOptions.yesNo);
+  readonly countryOptions = this.toOptions(profileOptions.countries);
+  readonly stateOptions = this.toOptions([...STATE_OPTIONS, 'Other']);
+  readonly jainSectOptions = this.toOptions(profileOptions.jainSects);
+  readonly jainCasteOptions = this.toOptions(profileOptions.jainCastes);
+  readonly subCasteOptions = this.toOptions(profileOptions.subCastes);
+  readonly gotraOptions = this.toOptions(profileOptions.gotras);
+  readonly dietOptions = this.toOptions(profileOptions.diets);
+  readonly siblingCountOptions = this.toOptions(profileOptions.siblingCounts);
+  readonly rasiOptions = this.toOptions(profileOptions.rasiOptions);
+  readonly nakshatraOptions = this.toOptions(profileOptions.nakshatraOptions);
+  readonly manglikOptions = this.toOptions(profileOptions.manglikOptions);
+  readonly educationSpecOptions = this.toOptions(profileOptions.educationSpecs);
+  readonly employmentStatusOptions = this.toOptions(profileOptions.employmentStatuses);
+  readonly workExperienceOptions = profileOptions.workExperienceYears.map((value) => ({
+    value,
+    label: formatWorkExperienceLabel(value),
+  }));
+  readonly incomeOptions = this.toOptions(profileOptions.incomes);
+  readonly partnerAgeOptions = AGE_OPTIONS;
+  readonly heightOptions = this.toOptions(profileOptions.heights);
+  readonly maritalOptions = this.toOptions(profileOptions.maritalStatuses);
 
   readonly form = this.fb.nonNullable.group({
-    fullName: [this.auth.user()?.fullName ?? '', Validators.required],
+    fullName: [this.auth.user()?.fullName ?? ''],
     email: [{ value: this.auth.user()?.email ?? '', disabled: true }],
     countryCode: [this.auth.user()?.countryCode || DEFAULT_COUNTRY_CODE],
-    mobile: [this.auth.user()?.mobile ?? '', [Validators.pattern(/^$|^\d{6,15}$/)]],
-    age: [this.auth.user()?.age ?? ''],
+    mobile: [this.auth.user()?.mobile ?? ''],
+    dateOfBirth: [this.auth.user()?.dateOfBirth ?? ''],
     gender: [this.auth.user()?.gender ?? ''],
-    maritalStatus: [this.auth.user()?.maritalStatus ?? ''],
-    motherTongue: [this.auth.user()?.motherTongue ?? ''],
+    weight: [this.auth.user()?.weight ?? ''],
+    willingToRelocate: [this.auth.user()?.willingToRelocate ?? ''],
+    bloodGroup: [this.auth.user()?.bloodGroup ?? ''],
+    disability: [this.auth.user()?.disability ?? ''],
     religion: [this.auth.user()?.religion ?? ''],
-    education: [this.auth.user()?.education ?? ''],
-    occupation: [this.auth.user()?.occupation ?? ''],
-    hobbies: [this.auth.user()?.hobbies ?? ''],
+    country: [this.auth.user()?.country ?? ''],
     state: [this.auth.user()?.state ?? ''],
     city: [this.auth.user()?.city ?? ''],
-    about: [this.auth.user()?.about ?? ''],
-    height: [this.auth.user()?.height ?? ''],
-    community: [this.auth.user()?.community ?? ''],
+    nativePlace: [this.auth.user()?.nativePlace ?? ''],
+    currentAddress: [this.auth.user()?.currentAddress ?? ''],
+    permanentAddress: [this.auth.user()?.permanentAddress ?? ''],
+    sameAsPermanent: [this.auth.user()?.sameAsPermanent ?? false],
+    jainSect: [this.auth.user()?.jainSect ?? ''],
+    jainCaste: [this.auth.user()?.jainCaste ?? ''],
     subCaste: [this.auth.user()?.subCaste ?? ''],
-    manglik: [this.auth.user()?.manglik ?? ''],
-    income: [this.auth.user()?.income ?? ''],
+    gotra: [this.auth.user()?.gotra ?? ''],
     diet: [this.auth.user()?.diet ?? ''],
     familyType: [this.auth.user()?.familyType ?? ''],
-    partnerLookingFor: [this.auth.user()?.partnerLookingFor ?? ''],
+    fatherName: [this.auth.user()?.fatherName ?? ''],
+    motherName: [this.auth.user()?.motherName ?? ''],
+    fatherOccupation: [this.auth.user()?.fatherOccupation ?? ''],
+    motherOccupation: [this.auth.user()?.motherOccupation ?? ''],
+    brothers: [this.auth.user()?.brothers ?? ''],
+    sisters: [this.auth.user()?.sisters ?? ''],
+    birthTime: [this.auth.user()?.birthTime ?? ''],
+    birthPlace: [this.auth.user()?.birthPlace ?? ''],
+    rasi: [this.auth.user()?.rasi ?? ''],
+    nakshatra: [this.auth.user()?.nakshatra ?? ''],
+    manglik: [this.auth.user()?.manglik ?? ''],
+    educationSpec: [this.auth.user()?.educationSpec ?? ''],
+    degree: [this.auth.user()?.degree ?? ''],
+    specialization: [this.auth.user()?.specialization ?? ''],
+    university: [this.auth.user()?.university ?? ''],
+    employmentStatus: [this.auth.user()?.employmentStatus ?? ''],
+    occupation: [this.auth.user()?.occupation ?? ''],
+    companyName: [this.auth.user()?.companyName ?? ''],
+    designation: [this.auth.user()?.designation ?? ''],
+    workExperience: [this.auth.user()?.workExperience ?? ''],
+    income: [this.auth.user()?.income ?? ''],
+    workLocation: [this.auth.user()?.workLocation ?? ''],
+    exerciseFrequency: [this.auth.user()?.exerciseFrequency ?? ''],
+    travelFrequency: [this.auth.user()?.travelFrequency ?? ''],
+    hobbies: [this.auth.user()?.hobbies ?? ''],
+    languagesKnown: [this.auth.user()?.languagesKnown ?? ''],
+    about: [this.auth.user()?.about ?? ''],
+    personality: [this.auth.user()?.personality ?? ''],
+    futureGoals: [this.auth.user()?.futureGoals ?? ''],
     partnerAgeFrom: [this.auth.user()?.partnerAgeFrom ?? ''],
     partnerAgeTo: [this.auth.user()?.partnerAgeTo ?? ''],
-    partnerReligion: [this.auth.user()?.partnerReligion ?? ''],
-    partnerMaritalStatus: [this.auth.user()?.partnerMaritalStatus ?? ''],
-    partnerEducation: [this.auth.user()?.partnerEducation ?? ''],
-    partnerHeight: [this.auth.user()?.partnerHeight ?? ''],
-    partnerDiet: [this.auth.user()?.partnerDiet ?? ''],
-    partnerManglik: [this.auth.user()?.partnerManglik ?? ''],
-    partnerState: [this.auth.user()?.partnerState ?? ''],
-    partnerCity: [this.auth.user()?.partnerCity ?? ''],
-    educationSpec: [this.auth.user()?.educationSpec ?? ''],
-    otherEducation: [this.auth.user()?.otherEducation ?? ''],
-    occupationDetails: [this.auth.user()?.occupationDetails ?? ''],
-    workAddress: [this.auth.user()?.workAddress ?? ''],
-    religiousEducation: [this.auth.user()?.religiousEducation ?? ''],
-    partnerRequirement: [this.auth.user()?.partnerRequirement ?? ''],
     partnerHeightFrom: [this.auth.user()?.partnerHeightFrom ?? ''],
     partnerHeightTo: [this.auth.user()?.partnerHeightTo ?? ''],
+    partnerMaritalStatus: [this.auth.user()?.partnerMaritalStatus ?? ''],
+    partnerEducation: [this.auth.user()?.partnerEducation ?? ''],
+    partnerOccupation: [this.auth.user()?.partnerOccupation ?? ''],
+    jainSectPreference: [this.auth.user()?.jainSectPreference ?? ''],
+    partnerState: [this.auth.user()?.partnerState ?? ''],
+    partnerCity: [this.auth.user()?.partnerCity ?? ''],
+    partnerDiet: [this.auth.user()?.partnerDiet ?? ''],
     partnerChildren: [this.auth.user()?.partnerChildren ?? ''],
+    horoscopeMatching: [this.auth.user()?.horoscopeMatching ?? ''],
     partnerDisability: [this.auth.user()?.partnerDisability ?? ''],
+    partnerManglik: [this.auth.user()?.partnerManglik ?? ''],
   });
 
   constructor() {
@@ -172,16 +280,27 @@ export class ProfilePageComponent {
     if (!this.hasSavedProfile()) {
       this.startProfile();
     }
+
+    effect(() => {
+      const tick = this.profileView.viewRequested();
+      untracked(() => {
+        if (tick > 0 && this.hasSavedProfile()) {
+          this.exitEditMode();
+        }
+      });
+    });
   }
 
   isStepDone(index: number): boolean {
-    return this.isStepComplete(index);
+    return index < this.stepIndex();
   }
 
-  canOpenStep(index: number): boolean {
-    const firstOpen = this.steps.findIndex((_, step) => !this.isStepComplete(step));
-    const cap = firstOpen === -1 ? this.steps.length - 1 : firstOpen;
-    return index <= cap;
+  canOpenStep(_index: number): boolean {
+    return true;
+  }
+
+  isRadioSelected(field: ProfileRadioField, value: string): boolean {
+    return this.form.controls[field].value === value;
   }
 
   mobileMaxLength(): number {
@@ -209,42 +328,56 @@ export class ProfilePageComponent {
     this.form.controls.mobile.setValue(digits);
   }
 
-  setField(
-    name:
-      | 'age'
-      | 'gender'
-      | 'maritalStatus'
-      | 'motherTongue'
-      | 'religion'
-      | 'education'
-      | 'city'
-      | 'height'
-      | 'community'
-      | 'subCaste'
-      | 'manglik'
-      | 'income'
-      | 'diet'
-      | 'familyType'
-      | 'partnerLookingFor'
-      | 'partnerAgeFrom'
-      | 'partnerAgeTo'
-      | 'partnerReligion'
-      | 'partnerMaritalStatus'
-      | 'partnerEducation'
-      | 'partnerHeight'
-      | 'partnerDiet'
-      | 'partnerManglik'
-      | 'partnerCity'
-      | 'educationSpec'
-      | 'partnerRequirement'
-      | 'partnerHeightFrom'
-      | 'partnerHeightTo'
-      | 'partnerChildren'
-      | 'partnerDisability',
-    value: string,
-  ): void {
+  setField(name: ProfileStringField, value: string): void {
     this.form.controls[name].setValue(value);
     this.stepError.set('');
+  }
+
+  setRadio(field: ProfileRadioField, value: string): void {
+    this.form.controls[field].setValue(value);
+    this.stepError.set('');
+  }
+
+  isLanguageSelected(language: string): boolean {
+    return this.parseLanguages(this.form.controls.languagesKnown.value).includes(language);
+  }
+
+  toggleLanguage(language: string, checked: boolean): void {
+    const current = this.parseLanguages(this.form.controls.languagesKnown.value);
+    const next = checked
+      ? current.includes(language)
+        ? current
+        : [...current, language]
+      : current.filter((item) => item !== language);
+    this.form.controls.languagesKnown.setValue(next.join(', '));
+    this.stepError.set('');
+  }
+
+  selectedLanguages(): string[] {
+    return this.parseLanguages(this.form.controls.languagesKnown.value);
+  }
+
+  removeLanguage(language: string): void {
+    this.toggleLanguage(language, false);
+  }
+
+  displayLanguageList(): string[] {
+    return this.parseLanguages(this.user()?.languagesKnown);
+  }
+
+  onSameAddressChange(checked: boolean): void {
+    this.form.controls.sameAsPermanent.setValue(checked);
+    if (checked) {
+      this.form.controls.permanentAddress.setValue(this.form.controls.currentAddress.value);
+    }
+    this.stepError.set('');
+  }
+
+  onCurrentAddressInput(): void {
+    this.stepError.set('');
+    if (this.form.controls.sameAsPermanent.value) {
+      this.form.controls.permanentAddress.setValue(this.form.controls.currentAddress.value);
+    }
   }
 
   onStateChange(state: string): void {
@@ -265,10 +398,6 @@ export class ProfilePageComponent {
     this.stepError.set('');
   }
 
-  displayLookingFor(): string {
-    return lookingForLabel(this.user()?.partnerLookingFor ?? '') || this.display(this.user()?.partnerLookingFor);
-  }
-
   displayPartnerAge(): string {
     const from = this.user()?.partnerAgeFrom?.trim() ?? '';
     const to = this.user()?.partnerAgeTo?.trim() ?? '';
@@ -279,7 +408,7 @@ export class ProfilePageComponent {
   }
 
   displayPartnerHeight(): string {
-    const from = this.user()?.partnerHeightFrom?.trim() || this.user()?.partnerHeight?.trim() || '';
+    const from = this.user()?.partnerHeightFrom?.trim() ?? '';
     const to = this.user()?.partnerHeightTo?.trim() ?? '';
     if (from && to) {
       return `${from} to ${to}`;
@@ -293,20 +422,193 @@ export class ProfilePageComponent {
     return parts.length ? parts.join(', ') : '—';
   }
 
-  display(value: string | undefined): string {
+  display(value: string | undefined | boolean): string {
+    if (typeof value === 'boolean') {
+      return value ? 'Yes' : 'No';
+    }
     const text = value?.trim() ?? '';
     return text || '—';
   }
 
+  displayReligionChip(): string {
+    return this.heroReligionLabel();
+  }
+
+  heroFullName(): string {
+    const fromUser = this.user()?.fullName?.trim() ?? '';
+    const fromForm = this.form.controls.fullName.value?.trim() ?? '';
+    return this.filling() ? fromForm || fromUser : fromUser || fromForm;
+  }
+
+  heroInitials(): string {
+    return this.initialsFromName(this.heroFullName() || 'Member');
+  }
+
+  heroProfileId(): string {
+    return this.buildProfileId(this.heroFullName() || this.user()?.fullName || 'GB', this.user()?.id ?? 'member');
+  }
+
+  heroAgeWeightChip(): string {
+    const dob = this.heroDateOfBirth();
+    const weight = this.heroWeight();
+    const age = this.ageTextFromDob(dob) || this.ageTextFromStoredAge(this.user()?.age);
+    if (age && weight) {
+      return `${age} · ${weight}`;
+    }
+    return age || weight;
+  }
+
+  heroReligionLabel(): string {
+    const religion = (this.filling() ? this.form.controls.religion.value : this.user()?.religion)?.trim() ?? '';
+    return religion;
+  }
+
+  heroRelocateLabel(): string {
+    const fromUser = this.user()?.willingToRelocate?.trim() ?? '';
+    const fromForm = this.form.controls.willingToRelocate.value?.trim() ?? '';
+    return this.filling() ? fromForm || fromUser : fromUser || fromForm;
+  }
+
+  heroLocationLine(): string {
+    if (this.filling()) {
+      const city = this.form.controls.city.value?.trim() ?? '';
+      const state = this.form.controls.state.value?.trim() ?? '';
+      const fromForm = [city, state].filter(Boolean).join(', ');
+      if (fromForm) {
+        return fromForm;
+      }
+    }
+    const user = this.user();
+    return [user?.city, user?.state].filter(Boolean).join(', ');
+  }
+
+  heroOccupationLabel(): string {
+    const fromUser = this.user()?.occupation?.trim() ?? '';
+    const fromForm = this.form.controls.occupation.value?.trim() ?? '';
+    return this.filling() ? fromForm || fromUser : fromUser || fromForm;
+  }
+
+  triggerPhotoUpload(event: Event): void {
+    event.stopPropagation();
+    this.profilePhotoInput()?.nativeElement.click();
+  }
+
+  profilePhotos(): string[] {
+    const user = this.user();
+    if (!user) {
+      return [];
+    }
+    return (user.profilePhotos ?? []).map((photo) => photo.trim()).filter(Boolean);
+  }
+
+  mainProfilePhoto(): string {
+    return this.profilePhotos()[0] ?? '';
+  }
+
+  otherProfilePhotos(): string[] {
+    return this.profilePhotos().slice(1);
+  }
+
+  canAddProfilePhoto(): boolean {
+    return this.profilePhotos().length < this.maxProfilePhotos;
+  }
+
+  togglePhotoUploadMenu(event: Event): void {
+    event.stopPropagation();
+    this.photoUploadMenuOpen.update((open) => !open);
+  }
+
+  openGalleryUpload(event: Event): void {
+    event.stopPropagation();
+    this.photoUploadMenuOpen.set(false);
+    this.aboutGalleryInput()?.nativeElement.click();
+  }
+
+  openCameraUpload(event: Event): void {
+    event.stopPropagation();
+    this.photoUploadMenuOpen.set(false);
+    this.aboutCameraInput()?.nativeElement.click();
+  }
+
+  onGalleryPhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) {
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      this.toast.show('Please choose a JPG, PNG, or WebP image.');
+      return;
+    }
+    void this.addProfilePhoto(file);
+  }
+
+  setMainProfilePhoto(index: number, event?: Event): void {
+    event?.stopPropagation();
+    const photos = [...this.profilePhotos()];
+    if (index < 1 || index >= photos.length) {
+      return;
+    }
+    const [selected] = photos.splice(index, 1);
+    photos.unshift(selected);
+    this.persistProfilePhotos(photos);
+  }
+
+  removeProfilePhotoAt(index: number, event: Event): void {
+    event.stopPropagation();
+    const photos = [...this.profilePhotos()];
+    if (index < 0 || index >= photos.length) {
+      return;
+    }
+    photos.splice(index, 1);
+    this.persistProfilePhotos(photos);
+    this.toast.show('Photo removed.');
+  }
+
+  onDocumentClick(): void {
+    this.countryMenuOpen.set(false);
+    this.photoUploadMenuOpen.set(false);
+  }
+
+  onProfilePhotoSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    const file = input.files?.[0];
+    input.value = '';
+    if (!file) {
+      return;
+    }
+    if (!file.type.startsWith('image/')) {
+      this.toast.show('Please choose a JPG, PNG, or WebP image.');
+      return;
+    }
+    void this.applyProfilePhoto(file);
+  }
+
+  removeProfilePhoto(event: Event): void {
+    event.stopPropagation();
+    const current = this.auth.user();
+    if (!current?.profilePhoto?.trim()) {
+      return;
+    }
+    const stayInEdit = this.filling();
+    this.auth.updateProfile({
+      ...current,
+      profilePhoto: '',
+    });
+    if (stayInEdit) {
+      this.filling.set(true);
+    }
+    this.toast.show('Profile photo removed.');
+  }
+
   displayAge(): string {
-    const age = this.user()?.age;
-    if (!age) {
-      return '—';
+    const dob = this.user()?.dateOfBirth?.trim();
+    const fromDob = this.ageTextFromDob(dob);
+    if (fromDob) {
+      return fromDob;
     }
-    if (age === 'below-18') {
-      return 'Below 18';
-    }
-    return `${age} yrs`;
+    return this.ageTextFromStoredAge(this.user()?.age) || '—';
   }
 
   displayMobile(): string {
@@ -321,53 +623,7 @@ export class ProfilePageComponent {
   startProfile(): void {
     const user = this.user();
     if (user) {
-      this.form.patchValue({
-        fullName: user.fullName ?? '',
-        email: user.email ?? '',
-        countryCode: user.countryCode || DEFAULT_COUNTRY_CODE,
-        mobile: user.mobile ?? '',
-        age: user.age ?? '',
-        gender: user.gender ?? '',
-        maritalStatus: user.maritalStatus ?? '',
-        motherTongue: user.motherTongue ?? '',
-        religion: user.religion ?? '',
-        education: user.education ?? '',
-        occupation: user.occupation ?? '',
-        hobbies: user.hobbies ?? '',
-        state: user.state ?? '',
-        city: user.city ?? '',
-        about: user.about ?? '',
-        height: user.height ?? '',
-        community: user.community ?? '',
-        subCaste: user.subCaste ?? '',
-        manglik: user.manglik ?? '',
-        income: user.income ?? '',
-        diet: user.diet ?? '',
-        familyType: user.familyType ?? '',
-        partnerLookingFor: user.partnerLookingFor ?? '',
-        partnerAgeFrom: user.partnerAgeFrom ?? '',
-        partnerAgeTo: user.partnerAgeTo ?? '',
-        partnerReligion: user.partnerReligion ?? '',
-        partnerMaritalStatus: user.partnerMaritalStatus ?? '',
-        partnerEducation: user.partnerEducation ?? '',
-        partnerHeight: user.partnerHeight ?? '',
-        partnerDiet: user.partnerDiet ?? '',
-        partnerManglik: user.partnerManglik ?? '',
-        partnerState: user.partnerState ?? '',
-        partnerCity: user.partnerCity ?? '',
-        educationSpec: user.educationSpec ?? '',
-        otherEducation: user.otherEducation ?? '',
-        occupationDetails: user.occupationDetails ?? '',
-        workAddress: user.workAddress ?? '',
-        religiousEducation: user.religiousEducation ?? '',
-        partnerRequirement: user.partnerRequirement ?? '',
-        partnerHeightFrom: user.partnerHeightFrom ?? '',
-        partnerHeightTo: user.partnerHeightTo ?? '',
-        partnerChildren: user.partnerChildren ?? '',
-        partnerDisability: user.partnerDisability ?? '',
-      });
-      this.cityOptions.set(this.citiesFor(user.state));
-      this.partnerCityOptions.set(this.citiesFor(user.partnerState));
+      this.patchFormFromUser(user);
     }
     this.stepError.set('');
     this.stepIndex.set(0);
@@ -379,11 +635,18 @@ export class ProfilePageComponent {
     this.startProfile();
   }
 
+  backToProfileView(): void {
+    if (!this.hasSavedProfile()) {
+      return;
+    }
+    this.exitEditMode();
+  }
+
   goBack(): void {
     this.stepError.set('');
     if (this.stepIndex() === 0) {
       if (this.hasSavedProfile()) {
-        this.filling.set(false);
+        this.exitEditMode();
         return;
       }
       void this.router.navigateByUrl('/dashboard');
@@ -393,19 +656,11 @@ export class ProfilePageComponent {
   }
 
   goNext(): void {
-    if (!this.isStepComplete(this.stepIndex())) {
-      this.stepError.set('Please fill this section before going next.');
-      return;
-    }
     this.stepError.set('');
     this.stepIndex.update((index) => Math.min(index + 1, this.steps.length - 1));
   }
 
   goToStep(index: number): void {
-    if (!this.canOpenStep(index)) {
-      this.stepError.set('Please fill the earlier section first.');
-      return;
-    }
     this.stepError.set('');
     this.stepIndex.set(index);
   }
@@ -416,65 +671,25 @@ export class ProfilePageComponent {
       return;
     }
 
-    const incomplete = this.steps.findIndex((_, index) => !this.isStepComplete(index));
-    if (incomplete !== -1) {
-      this.stepIndex.set(incomplete);
-      this.stepError.set('Please fill every section before saving.');
+    const current = this.auth.user();
+    if (!current) {
       return;
     }
 
-    if (this.form.invalid) {
-      this.form.markAllAsTouched();
-      this.stepError.set('Please check the contact details.');
-      this.stepIndex.set(0);
-      return;
-    }
-
-    const firstSave = !this.auth.user()?.profileSaved;
-    const value = this.form.getRawValue();
+    const firstSave = !current.profileSaved;
+    const { email: _email, ...value } = this.form.getRawValue();
+    const { id: _id, email: _userEmail, username: _username, ...currentProfile } = current;
+    const storedAge = this.ageForStorage(value.dateOfBirth) || current.age;
     this.auth.updateProfile({
+      ...currentProfile,
+      ...value,
       fullName: value.fullName.trim(),
-      countryCode: value.countryCode,
       mobile: value.mobile.trim(),
-      age: value.age,
-      gender: value.gender,
-      maritalStatus: value.maritalStatus,
-      motherTongue: value.motherTongue,
-      education: value.education,
-      hobbies: value.hobbies.trim(),
-      state: value.state,
-      city: value.city,
-      religion: value.religion,
-      occupation: value.occupation.trim(),
       about: value.about.trim(),
-      height: value.height,
-      community: value.community,
-      subCaste: value.subCaste,
-      manglik: value.manglik,
-      diet: value.diet,
-      familyType: value.familyType,
-      income: value.income,
-      partnerLookingFor: value.partnerLookingFor,
-      partnerAgeFrom: value.partnerAgeFrom,
-      partnerAgeTo: value.partnerAgeTo,
-      partnerReligion: value.partnerReligion,
-      partnerMaritalStatus: value.partnerMaritalStatus,
-      partnerEducation: value.partnerEducation,
-      partnerHeight: value.partnerHeight,
-      partnerDiet: value.partnerDiet,
-      partnerManglik: value.partnerManglik,
-      partnerState: value.partnerState,
-      partnerCity: value.partnerCity,
-      educationSpec: value.educationSpec,
-      otherEducation: value.otherEducation.trim(),
-      occupationDetails: value.occupationDetails.trim(),
-      workAddress: value.workAddress.trim(),
-      religiousEducation: value.religiousEducation.trim(),
-      partnerRequirement: value.partnerRequirement.trim(),
-      partnerHeightFrom: value.partnerHeightFrom,
-      partnerHeightTo: value.partnerHeightTo,
-      partnerChildren: value.partnerChildren,
-      partnerDisability: value.partnerDisability,
+      hobbies: value.hobbies.trim(),
+      occupation: value.occupation.trim(),
+      education: value.educationSpec,
+      age: storedAge,
       profileSaved: true,
     });
     this.filling.set(false);
@@ -486,42 +701,272 @@ export class ProfilePageComponent {
     }
   }
 
-  private isStepComplete(index: number): boolean {
-    switch (this.steps[index]?.id) {
-      case 'basics':
-        return (
-          this.filled('fullName') &&
-          this.form.controls.mobile.valid &&
-          this.filledAll(['age', 'gender', 'maritalStatus', 'religion', 'motherTongue'])
-        );
-      case 'life':
-        return this.filledAll(['state', 'city']);
-      case 'education':
-        return this.filledAll(['education', 'occupation']);
-      case 'partner':
-        return this.filledAll([
-          'partnerRequirement',
-          'partnerAgeFrom',
-          'partnerAgeTo',
-          'partnerHeightFrom',
-          'partnerHeightTo',
-          'partnerMaritalStatus',
-          'partnerEducation',
-          'partnerDiet',
-        ]);
-      case 'about':
-        return this.filled('about');
-      default:
-        return false;
+  private async addProfilePhoto(file: File): Promise<void> {
+    const current = this.auth.user();
+    if (!current) {
+      return;
+    }
+    if (!this.canAddProfilePhoto()) {
+      this.toast.show(`You can upload up to ${this.maxProfilePhotos} photos.`);
+      return;
+    }
+
+    const stayInEdit = this.filling();
+
+    try {
+      const photo = await this.resizeProfilePhoto(file);
+      const next = [...this.profilePhotos(), photo].slice(0, this.maxProfilePhotos);
+      this.persistProfilePhotos(next, stayInEdit);
+      this.toast.show('Photo added.');
+    } catch {
+      this.toast.show('Could not upload photo. Try a smaller image.');
     }
   }
 
-  private filledAll(names: Array<keyof typeof this.form.controls>): boolean {
-    return names.every((name) => this.filled(name));
+  private async applyProfilePhoto(file: File): Promise<void> {
+    const current = this.auth.user();
+    if (!current) {
+      return;
+    }
+
+    const stayInEdit = this.filling();
+
+    try {
+      const profilePhoto = await this.resizeProfilePhoto(file);
+      this.auth.updateProfile({
+        ...current,
+        profilePhoto,
+      });
+      if (stayInEdit) {
+        this.filling.set(true);
+      }
+      this.toast.show('Profile photo updated.');
+    } catch {
+      this.toast.show('Could not upload photo. Try a smaller image.');
+    }
   }
 
-  private filled(name: keyof typeof this.form.controls): boolean {
-    return Boolean(this.form.controls[name].getRawValue()?.toString().trim());
+  private persistProfilePhotos(photos: string[], stayInEdit = this.filling()): void {
+    const current = this.auth.user();
+    if (!current) {
+      return;
+    }
+
+    const filtered = photos.map((photo) => photo.trim()).filter(Boolean).slice(0, this.maxProfilePhotos);
+    this.auth.updateProfile({
+      ...current,
+      profilePhotos: filtered,
+    });
+    if (stayInEdit) {
+      this.filling.set(true);
+    }
+  }
+
+  private resizeProfilePhoto(file: File): Promise<string> {
+    const maxBytes = 900_000;
+    const outputSize = 320;
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('read failed'));
+      reader.onload = () => {
+        const image = new Image();
+        image.onerror = () => reject(new Error('image failed'));
+        image.onload = () => {
+          const canvas = document.createElement('canvas');
+          canvas.width = outputSize;
+          canvas.height = outputSize;
+          const context = canvas.getContext('2d');
+          if (!context) {
+            reject(new Error('canvas failed'));
+            return;
+          }
+
+          const scale = Math.max(outputSize / image.width, outputSize / image.height);
+          const width = image.width * scale;
+          const height = image.height * scale;
+          const offsetX = (outputSize - width) / 2;
+          const offsetY = (outputSize - height) / 2;
+          context.drawImage(image, offsetX, offsetY, width, height);
+
+          let quality = 0.88;
+          let dataUrl = canvas.toDataURL('image/jpeg', quality);
+          while (dataUrl.length > maxBytes && quality > 0.45) {
+            quality -= 0.08;
+            dataUrl = canvas.toDataURL('image/jpeg', quality);
+          }
+          if (dataUrl.length > maxBytes) {
+            reject(new Error('too large'));
+            return;
+          }
+          resolve(dataUrl);
+        };
+        image.src = reader.result as string;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  private exitEditMode(): void {
+    const user = this.user();
+    if (user) {
+      this.patchFormFromUser(user);
+    }
+    this.filling.set(false);
+    this.stepIndex.set(0);
+    this.stepError.set('');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  private heroDateOfBirth(): string {
+    const fromUser = this.user()?.dateOfBirth?.trim() ?? '';
+    const fromForm = this.form.controls.dateOfBirth.value?.trim() ?? '';
+    return this.filling() ? fromForm || fromUser : fromUser || fromForm;
+  }
+
+  private heroWeight(): string {
+    const fromUser = this.user()?.weight?.trim() ?? '';
+    const fromForm = this.form.controls.weight.value?.trim() ?? '';
+    return this.filling() ? fromForm || fromUser : fromUser || fromForm;
+  }
+
+  private ageForStorage(dob: string | undefined | null): string {
+    const ageText = this.ageTextFromDob(dob);
+    if (!ageText) {
+      return '';
+    }
+    if (ageText === 'Below 18') {
+      return 'below-18';
+    }
+    return ageText.replace(/\s*yrs$/i, '').trim();
+  }
+
+  private patchFormFromUser(user: NonNullable<ReturnType<typeof this.user>>): void {
+    this.form.patchValue({
+      fullName: user.fullName ?? '',
+      email: user.email ?? '',
+      countryCode: user.countryCode || DEFAULT_COUNTRY_CODE,
+      mobile: user.mobile ?? '',
+      dateOfBirth: user.dateOfBirth ?? '',
+      gender: user.gender ?? '',
+      weight: user.weight ?? '',
+      willingToRelocate: user.willingToRelocate ?? '',
+      bloodGroup: user.bloodGroup ?? '',
+      disability: user.disability ?? '',
+      religion: user.religion ?? '',
+      country: user.country ?? '',
+      state: user.state ?? '',
+      city: user.city ?? '',
+      nativePlace: user.nativePlace ?? '',
+      currentAddress: user.currentAddress ?? '',
+      permanentAddress: user.permanentAddress ?? '',
+      sameAsPermanent: user.sameAsPermanent ?? false,
+      jainSect: user.jainSect ?? '',
+      jainCaste: user.jainCaste ?? '',
+      subCaste: user.subCaste ?? '',
+      gotra: user.gotra ?? '',
+      diet: user.diet ?? '',
+      familyType: user.familyType ?? '',
+      fatherName: user.fatherName ?? '',
+      motherName: user.motherName ?? '',
+      fatherOccupation: user.fatherOccupation ?? '',
+      motherOccupation: user.motherOccupation ?? '',
+      brothers: user.brothers ?? '',
+      sisters: user.sisters ?? '',
+      birthTime: user.birthTime ?? '',
+      birthPlace: user.birthPlace ?? '',
+      rasi: user.rasi ?? '',
+      nakshatra: user.nakshatra ?? '',
+      manglik: user.manglik ?? '',
+      educationSpec: user.educationSpec ?? '',
+      degree: user.degree ?? '',
+      specialization: user.specialization ?? '',
+      university: user.university ?? '',
+      employmentStatus: user.employmentStatus ?? '',
+      occupation: user.occupation ?? '',
+      companyName: user.companyName ?? '',
+      designation: user.designation ?? '',
+      workExperience: user.workExperience ?? '',
+      income: user.income ?? '',
+      workLocation: user.workLocation ?? '',
+      exerciseFrequency: user.exerciseFrequency ?? '',
+      travelFrequency: user.travelFrequency ?? '',
+      hobbies: user.hobbies ?? '',
+      languagesKnown: user.languagesKnown ?? '',
+      about: user.about ?? '',
+      personality: user.personality ?? '',
+      futureGoals: user.futureGoals ?? '',
+      partnerAgeFrom: user.partnerAgeFrom ?? '',
+      partnerAgeTo: user.partnerAgeTo ?? '',
+      partnerHeightFrom: user.partnerHeightFrom ?? '',
+      partnerHeightTo: user.partnerHeightTo ?? '',
+      partnerMaritalStatus: user.partnerMaritalStatus ?? '',
+      partnerEducation: user.partnerEducation ?? '',
+      partnerOccupation: user.partnerOccupation ?? '',
+      jainSectPreference: user.jainSectPreference ?? '',
+      partnerState: user.partnerState ?? '',
+      partnerCity: user.partnerCity ?? '',
+      partnerDiet: user.partnerDiet ?? '',
+      partnerChildren: user.partnerChildren ?? '',
+      horoscopeMatching: user.horoscopeMatching ?? '',
+      partnerDisability: user.partnerDisability ?? '',
+      partnerManglik: user.partnerManglik ?? '',
+    });
+    this.cityOptions.set(this.citiesFor(user.state));
+    this.partnerCityOptions.set(this.citiesFor(user.partnerState));
+  }
+
+  private parseLanguages(value: string | undefined | null): string[] {
+    return (value ?? '')
+      .split(',')
+      .map((item) => item.trim())
+      .filter(Boolean);
+  }
+
+  private initialsFromName(name: string): string {
+    const parts = name.trim().split(/\s+/).filter(Boolean);
+    const first = parts[0]?.charAt(0) ?? 'G';
+    const second = parts[1]?.charAt(0) ?? parts[0]?.charAt(1) ?? '';
+    return `${first}${second}`.toUpperCase();
+  }
+
+  private buildProfileId(fullName: string, id: string): string {
+    const digits = id.replace(/\D/g, '').slice(-6).padStart(6, '0');
+    const prefix = fullName
+      .replace(/[^a-zA-Z]/g, '')
+      .slice(0, 2)
+      .toUpperCase()
+      .padEnd(2, 'G');
+    return `${prefix}-${digits}`;
+  }
+
+  private ageTextFromDob(dob: string | undefined | null): string {
+    const value = dob?.trim();
+    if (!value) {
+      return '';
+    }
+    const birth = new Date(value);
+    if (Number.isNaN(birth.getTime())) {
+      return '';
+    }
+    const today = new Date();
+    let age = today.getFullYear() - birth.getFullYear();
+    const monthDiff = today.getMonth() - birth.getMonth();
+    if (monthDiff < 0 || (monthDiff === 0 && today.getDate() < birth.getDate())) {
+      age -= 1;
+    }
+    return `${age} yrs`;
+  }
+
+  private ageTextFromStoredAge(age: string | undefined | null): string {
+    const value = age?.trim();
+    if (!value) {
+      return '';
+    }
+    if (value === 'below-18') {
+      return 'Below 18';
+    }
+    return `${value} yrs`;
   }
 
   private toOptions(values: string[]): SearchSelectOption[] {
@@ -529,6 +974,7 @@ export class ProfilePageComponent {
   }
 
   private citiesFor(state: string): SearchSelectOption[] {
-    return this.toOptions(INDIA_LOCATIONS[state] ?? []);
+    const cities = [...(INDIA_LOCATIONS[state] ?? []), 'Other'];
+    return this.toOptions(cities);
   }
 }

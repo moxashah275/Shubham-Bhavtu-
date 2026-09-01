@@ -9,6 +9,7 @@ import {
   MARITAL_OPTIONS,
   RELIGION_OPTIONS,
   SUB_CASTE_OPTIONS,
+  profilesTypeForLookingFor,
 } from '../../core/data/partner-search-options';
 import { MemberMatch } from '../matches/match-profile.model';
 import { EMPTY_MATCH_QUERY, MatchQuery, filterMembers, uniqueOptions } from '../../core/data/match-query';
@@ -41,6 +42,7 @@ export class MatchRefineFiltersComponent {
   readonly education = model('');
   readonly motherTongue = model('');
   readonly members = input<MemberMatch[]>([]);
+  readonly resultNoun = input<'match' | 'profile'>('match');
   readonly applied = output<void>();
   readonly cleared = output<void>();
 
@@ -79,10 +81,17 @@ export class MatchRefineFiltersComponent {
   });
 
   readonly previewCount = computed(() => filterMembers(this.members(), this.currentQuery()).length);
+  readonly profilesHint = computed(() => {
+    const type = profilesTypeForLookingFor(this.lookingFor());
+    return type ? `Shows ${type} profiles` : '';
+  });
   readonly applyLabel = computed(() => {
     const count = this.previewCount();
     if (count <= 0) {
       return 'Apply filters';
+    }
+    if (this.resultNoun() === 'profile') {
+      return `Show ${count} ${count === 1 ? 'profile' : 'profiles'}`;
     }
     return `Show ${count} ${count === 1 ? 'match' : 'matches'}`;
   });

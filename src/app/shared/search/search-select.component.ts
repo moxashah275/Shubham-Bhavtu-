@@ -13,7 +13,7 @@ let openSearchSelect: SearchSelectComponent | null = null;
   imports: [LucideChevronDown],
   templateUrl: './search-select.component.html',
   host: {
-    class: 'relative mt-1.5 block',
+    class: 'relative mt-0 block overflow-visible',
     '[class.z-50]': 'open()',
   },
 })

@@ -3,6 +3,8 @@ import { authGuard } from './core/guards/auth.guard';
 import { authenticationRoutes } from './features/authentication/authentication.routes';
 import { BiodataPageComponent } from './features/dashboard/pages/biodata/biodata.component';
 import { DashboardPageComponent } from './features/dashboard/pages/dashboard/dashboard.component';
+import { InterestPageComponent } from './features/dashboard/pages/interest/interest.component';
+import { ShortlistPageComponent } from './features/dashboard/pages/shortlist/shortlist.component';
 import { MatchesPageComponent } from './features/dashboard/pages/matches/matches.component';
 import { ProfilePageComponent } from './features/dashboard/pages/profile/profile.component';
 import { SettingsPageComponent } from './features/dashboard/pages/settings/settings.component';
@@ -59,6 +61,18 @@ export const routes: Routes = [
       {
         path: 'matches',
         component: MatchesPageComponent,
+        title: 'Gathbandhan',
+        canActivate: [authGuard],
+      },
+      {
+        path: 'interest',
+        component: InterestPageComponent,
+        title: 'Gathbandhan',
+        canActivate: [authGuard],
+      },
+      {
+        path: 'shortlist',
+        component: ShortlistPageComponent,
         title: 'Gathbandhan',
         canActivate: [authGuard],
       },

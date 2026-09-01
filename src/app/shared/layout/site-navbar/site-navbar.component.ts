@@ -18,6 +18,7 @@ import { AuthService } from '../../../core/services/auth.service';
 import { InboxService } from '../../../core/services/inbox.service';
 import { MatchActivityService, type MemberActivityKind } from '../../../core/services/match-activity.service';
 import { MatchSearchService } from '../../../core/services/match-search.service';
+import { ProfileViewService } from '../../../core/services/profile-view.service';
 import { BrandMarkComponent } from '../brand-mark/brand-mark.component';
 
 interface NoticeItem {
@@ -54,6 +55,7 @@ export class SiteNavbarComponent {
   private readonly auth = inject(AuthService);
   private readonly router = inject(Router);
   private readonly matchSearch = inject(MatchSearchService);
+  private readonly profileView = inject(ProfileViewService);
   readonly activity = inject(MatchActivityService);
   readonly inbox = inject(InboxService);
 
@@ -65,6 +67,7 @@ export class SiteNavbarComponent {
     const second = parts[1]?.charAt(0) ?? parts[0]?.charAt(1) ?? '';
     return `${first}${second}`.toUpperCase();
   });
+  readonly profilePhotoUrl = computed(() => this.auth.user()?.profilePhoto?.trim() || '');
   readonly homeLink = computed(() => (this.isAuthenticated() ? '/dashboard' : '/'));
   readonly menuOpen = signal(false);
   readonly profileOpen = signal(false);
@@ -150,6 +153,12 @@ export class SiteNavbarComponent {
     event.stopPropagation();
     this.closeMenus();
     this.inbox.openInbox(memberId);
+  }
+
+  openProfileView(event: Event): void {
+    event.stopPropagation();
+    this.closeMenus();
+    this.profileView.showViewMode();
   }
 
   openActivity(event: Event, kind: MemberActivityKind): void {

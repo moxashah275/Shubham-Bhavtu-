@@ -55,13 +55,14 @@
           Gallery
         </a>
         @if (isAuthenticated()) {
-          <button
-            type="button"
-            class="relative inline-flex cursor-pointer items-center pb-0.5 transition hover:text-gold after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:bg-gold after:opacity-0 after:transition-opacity"
-            (click)="openActivity($event, 'interest')"
+          <a
+            routerLink="/interest"
+            routerLinkActive="text-gold after:opacity-100"
+            class="relative inline-flex items-center pb-0.5 transition hover:text-gold after:absolute after:inset-x-0 after:-bottom-1 after:h-px after:bg-gold after:opacity-0 after:transition-opacity"
+            (click)="closeMenus()"
           >
             My Interest
-          </button>
+          </a>
         }
         <a
           routerLink="/contact"
@@ -110,7 +111,7 @@
                   </div>
                   <button
                     type="button"
-                    class="cursor-pointer text-[12px] font-semibold text-burgundy underline-offset-4 transition hover:underline"
+                    class="cursor-pointer text-[12px] font-semibold text-burgundy underline-offset-4 transition"
                     (click)="openInbox($event)"
                   >
                     Open
@@ -118,13 +119,14 @@
                 </div>
                 <div class="h-px bg-stone-300"></div>
                 <ul class="max-h-72 overflow-y-auto">
-                  @for (thread of inbox.conversations(); track thread.memberId) {
-                    <li class="border-b border-stone-200 last:border-b-0 hover:bg-blush">
-                      <button
-                        type="button"
-                        class="flex w-full cursor-pointer items-start gap-2.5 bg-transparent px-3.5 py-2.5 text-left"
-                        (click)="openInbox($event, thread.memberId)"
-                      >
+                  @if (inbox.conversations().length) {
+                    @for (thread of inbox.conversations(); track thread.memberId) {
+                      <li class="border-b border-gold/35 last:border-b-0">
+                        <button
+                          type="button"
+                          class="flex w-full cursor-pointer items-start gap-2.5 bg-transparent px-3.5 py-2.5 text-left"
+                          (click)="openInbox($event, thread.memberId)"
+                        >
                         <img [src]="thread.imageSrc" [alt]="thread.name" class="h-9 w-9 shrink-0 rounded-full object-cover object-top" />
                         <span class="min-w-0 flex-1">
                           <span class="flex items-center justify-between gap-2">
@@ -141,6 +143,11 @@
                           </span>
                         }
                       </button>
+                    </li>
+                    }
+                  } @else {
+                    <li class="px-3.5 py-4 text-center text-[11px] leading-5 text-stone-500">
+                      No messages yet
                     </li>
                   }
                 </ul>
@@ -271,7 +278,7 @@
                     <a
                       routerLink="/profile"
                       class="mt-3.5 inline-flex h-10 w-full items-center justify-center rounded-lg bg-burgundy text-sm font-semibold text-white transition hover:bg-burgundy-deep"
-                      (click)="closeMenus()"
+                      (click)="openProfileView($event)"
                     >
                       Complete profile
                     </a>
@@ -290,9 +297,13 @@
               (click)="toggleProfile($event)"
             >
               <span
-                class="inline-flex h-11 w-11 items-center justify-center rounded-full bg-burgundy-deep font-serif text-xs font-bold tracking-wide text-white"
+                class="inline-flex h-11 w-11 items-center justify-center overflow-hidden rounded-full bg-burgundy-deep font-serif text-xs font-bold tracking-wide text-white"
               >
-                {{ initials() }}
+                @if (profilePhotoUrl()) {
+                  <img [src]="profilePhotoUrl()" [alt]="fullName()" class="h-full w-full object-cover object-top" />
+                } @else {
+                  {{ initials() }}
+                }
               </span>
               <span
                 class="absolute top-1/2 right-0 inline-flex h-4 w-4 -translate-y-1/2 translate-x-[9px] items-center justify-center"
@@ -305,15 +316,11 @@
                 class="absolute right-0 mt-3 w-52 overflow-hidden rounded-lg border border-stone-200/70 bg-white text-charcoal shadow-lg"
                 (click)="keepOpen($event)"
               >
-                <a routerLink="/profile" class="block px-4 py-2.5 text-sm hover:bg-blush" (click)="closeMenus()">
+                <a routerLink="/profile" class="block px-4 py-2.5 text-sm hover:bg-blush" (click)="openProfileView($event)">
                   Profile
                 </a>
                 <div class="h-px bg-stone-200"></div>
-                <button
-                  type="button"
-                  class="flex w-full cursor-pointer items-center justify-between px-4 py-2.5 text-left text-sm hover:bg-blush"
-                  (click)="openActivity($event, 'shortlist')"
-                >
+                <a routerLink="/shortlist" class="flex items-center justify-between px-4 py-2.5 text-sm hover:bg-blush" (click)="closeMenus()">
                   Shortlist
                   @if (shortlistCount()) {
                     <span
@@ -322,7 +329,7 @@
                       {{ shortlistCount() }}
                     </span>
                   }
-                </button>
+                </a>
                 <div class="h-px bg-stone-200"></div>
                 <a routerLink="/settings" class="block px-4 py-2.5 text-sm hover:bg-blush" (click)="closeMenus()">
                   Settings
@@ -379,27 +386,27 @@
         <a routerLink="/about" class="py-1" (click)="closeMenus()">About Us</a>
         <a routerLink="/gallery" class="py-1" (click)="closeMenus()">Gallery</a>
         @if (isAuthenticated()) {
-          <button type="button" class="py-1 text-left" (click)="openActivity($event, 'interest')">
+          <a routerLink="/interest" class="py-1" (click)="closeMenus()">
             My Interest
             @if (interestCount()) {
               <span class="ml-1 text-gold">({{ interestCount() }})</span>
             }
-          </button>
+          </a>
         }
         <a routerLink="/contact" class="py-1" (click)="closeMenus()">Contact Us</a>
         @if (isAuthenticated()) {
           @if (!profileComplete()) {
-            <a routerLink="/profile" class="py-1 text-gold" (click)="closeMenus()">
+            <a routerLink="/profile" class="py-1 text-gold" (click)="openProfileView($event)">
               Profile {{ completion().percent }}% · Complete
             </a>
           }
-          <a routerLink="/profile" class="py-1" (click)="closeMenus()">Profile</a>
-          <button type="button" class="py-1 text-left" (click)="openActivity($event, 'shortlist')">
+          <a routerLink="/profile" class="py-1" (click)="openProfileView($event)">Profile</a>
+          <a routerLink="/shortlist" class="py-1" (click)="closeMenus()">
             Shortlist
             @if (shortlistCount()) {
               <span class="ml-1 text-gold">({{ shortlistCount() }})</span>
             }
-          </button>
+          </a>
           <button type="button" class="py-1 text-left" (click)="openInbox($event)">Messages</button>
           <a routerLink="/settings" class="py-1" (click)="closeMenus()">Settings</a>
           <button type="button" class="py-1 text-left text-gold" (click)="logout()">Logout</button>
