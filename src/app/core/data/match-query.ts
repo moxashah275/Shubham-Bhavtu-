@@ -1,6 +1,6 @@
 import type { SearchSelectOption } from '../../shared/search/search-select.component';
 import type { MemberMatch } from '../../shared/matches/match-profile.model';
-import { genderForLookingFor, lookingForLabel } from './partner-search-options';
+import { genderForLookingFor, lookingForLabel, profilesTypeForLookingFor } from './partner-search-options';
 
 export interface MatchQuery {
   lookingFor: string;
@@ -207,7 +207,11 @@ export interface MatchSummaryItem {
 export function matchSummaryItems(query: MatchQuery): MatchSummaryItem[] {
   const items: MatchSummaryItem[] = [];
   if (query.lookingFor) {
+    const profilesType = profilesTypeForLookingFor(query.lookingFor);
     items.push({ label: 'Looking for', value: lookingForLabel(query.lookingFor) || query.lookingFor });
+    if (profilesType) {
+      items.push({ label: 'Profiles', value: profilesType });
+    }
   }
   if (query.ageFrom || query.ageTo) {
     const from = query.ageFrom;

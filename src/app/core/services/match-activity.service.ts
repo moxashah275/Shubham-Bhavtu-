@@ -39,19 +39,13 @@ export class MatchActivityService {
     return this.interestedIds().includes(id);
   }
 
-  /** A member sits in one list only, so the shortlist and interest panels never repeat a profile. */
-  toggleShortlist(member: MemberMatch): { added: boolean; name: string; movedFromInterest: boolean } {
+  toggleShortlist(member: MemberMatch): { added: boolean; name: string } {
     const added = !this.isShortlisted(member.id);
-    const movedFromInterest = added && this.isInterested(member.id);
     this.shortlistedIds.update((ids) =>
       added ? [...ids, member.id] : ids.filter((id) => id !== member.id),
     );
     this.writeIds(SHORTLIST_KEY, this.shortlistedIds());
-    if (movedFromInterest) {
-      this.interestedIds.update((ids) => ids.filter((id) => id !== member.id));
-      this.writeIds(INTEREST_KEY, this.interestedIds());
-    }
-    return { added, name: member.name, movedFromInterest };
+    return { added, name: member.name };
   }
 
   expressInterest(member: MemberMatch): { already: boolean; name: string } {
@@ -60,10 +54,6 @@ export class MatchActivityService {
     }
     this.interestedIds.update((ids) => [...ids, member.id]);
     this.writeIds(INTEREST_KEY, this.interestedIds());
-    if (this.isShortlisted(member.id)) {
-      this.shortlistedIds.update((ids) => ids.filter((id) => id !== member.id));
-      this.writeIds(SHORTLIST_KEY, this.shortlistedIds());
-    }
     return { already: false, name: member.name };
   }
 

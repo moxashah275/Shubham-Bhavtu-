@@ -7,6 +7,7 @@ import {
   LOOKING_FOR_OPTIONS,
   MARITAL_OPTIONS,
   RELIGION_OPTIONS,
+  profilesTypeForLookingFor,
 } from '../../core/data/partner-search-options';
 import { AuthService } from '../../core/services/auth.service';
 import { MatchSearchService } from '../../core/services/match-search.service';
@@ -39,6 +40,11 @@ export class PartnerSearchComponent {
   readonly ageOptions = AGE_OPTIONS;
   readonly religionOptions = RELIGION_OPTIONS;
   readonly maritalOptions = MARITAL_OPTIONS;
+
+  profilesHint(): string {
+    const type = profilesTypeForLookingFor(this.lookingFor);
+    return type ? `Shows ${type} profiles` : '';
+  }
 
   search(): void {
     this.fieldError = {

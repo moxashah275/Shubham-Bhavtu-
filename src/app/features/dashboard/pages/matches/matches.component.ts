@@ -14,7 +14,7 @@ import {
   matchSummaryItems,
   parseMatchQuery,
 } from '../../../../core/data/match-query';
-import { lookingForLabel } from '../../../../core/data/partner-search-options';
+import { lookingForLabel, profilesTypeForLookingFor } from '../../../../core/data/partner-search-options';
 import { MatchActivityService } from '../../../../core/services/match-activity.service';
 import { InboxService } from '../../../../core/services/inbox.service';
 import { MatchSearchService } from '../../../../core/services/match-search.service';
@@ -104,6 +104,10 @@ export class MatchesPageComponent {
       return `${count} members`;
     }
     const label = lookingForLabel(this.query().lookingFor);
+    const profilesType = profilesTypeForLookingFor(this.query().lookingFor);
+    if (label && profilesType) {
+      return `${count} ${profilesType.toLowerCase()} for ${label}`;
+    }
     if (label) {
       return `${count} match${count === 1 ? '' : 'es'} for ${label}`;
     }
@@ -171,16 +175,12 @@ export class MatchesPageComponent {
   }
 
   toggleShortlist(member: MemberMatch): void {
-    const { added, name, movedFromInterest } = this.activity.toggleShortlist(member);
+    const { added, name } = this.activity.toggleShortlist(member);
     if (!added) {
       this.toast.show(`${name} removed from shortlist.`);
       return;
     }
-    this.toast.show(
-      movedFromInterest
-        ? `${name} moved back to your shortlist, and the interest was withdrawn.`
-        : `${name} added to your shortlist.`,
-    );
+    this.toast.show(`${name} added to your shortlist.`);
   }
 
   expressInterest(member: MemberMatch): void {

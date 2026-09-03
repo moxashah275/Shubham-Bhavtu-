@@ -1,38 +1,102 @@
-@if (filling()) {
-  <section class="relative overflow-hidden bg-burgundy">
-    <div class="absolute inset-0 bg-gradient-to-r from-charcoal/40 via-transparent to-gold/10"></div>
-    <div class="relative mx-auto max-w-5xl px-5 py-6 text-center lg:px-8">
-      <p class="text-[11px] font-semibold tracking-[0.22em] text-gold uppercase">
-        {{ hasSavedProfile() ? 'Edit profile' : 'Profile setup' }}
-      </p>
-      <h1 class="mt-1 font-serif text-2xl leading-tight text-white sm:text-3xl">
-        {{ hasSavedProfile() ? 'Keep your details up to date' : 'Tell us about yourself' }}
-      </h1>
-      <p class="mt-1.5 text-sm text-white/75">
-        A complete profile helps families find a genuine match for you.
-      </p>
+@if (hasSavedProfile() && filling()) {
+  <section class="profile-hero">
+    <div class="profile-hero__overlay" aria-hidden="true"></div>
+    <div class="profile-hero__inner">
+      <div class="profile-hero__layout">
+        <div class="profile-hero__avatar-wrap">
+          <div class="profile-hero__avatar">
+            @if (profilePhotoUrl()) {
+              <img [src]="profilePhotoUrl()" [alt]="heroFullName() || 'Profile photo'" class="profile-hero__avatar-img" />
+            } @else {
+              <span class="profile-hero__avatar-initials">{{ heroInitials() }}</span>
+            }
+          </div>
+
+          @if (filling()) {
+            <button
+              type="button"
+              class="profile-hero__avatar-upload"
+              aria-label="Upload profile photo"
+              (click)="triggerPhotoUpload($event)"
+            >
+              <svg lucideCamera [size]="14" aria-hidden="true"></svg>
+            </button>
+          }
+        </div>
+
+        @if (filling()) {
+          <input
+            #profilePhotoInput
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            class="sr-only"
+            (change)="onProfilePhotoSelected($event)"
+          />
+        }
+
+        <div class="profile-hero__content">
+          <div class="profile-hero__row">
+            <div class="profile-hero__meta">
+              <p class="profile-hero__id">Profile ID: {{ heroProfileId() }}</p>
+              @if (heroFullName()) {
+                <h1 class="profile-hero__name">{{ heroFullName() }}</h1>
+              }
+              @if (heroLocationLine()) {
+                <p class="profile-hero__detail">
+                  <svg lucideMapPin [size]="15" class="text-gold" aria-hidden="true"></svg>
+                  {{ heroLocationLine() }}
+                </p>
+              }
+              @if (heroOccupationLabel()) {
+                <p class="profile-hero__detail">
+                  <svg lucideBriefcase [size]="15" class="text-gold" aria-hidden="true"></svg>
+                  {{ heroOccupationLabel() }}
+                </p>
+              }
+            </div>
+
+            <button type="button" class="profile-view-header__edit profile-hero__back" (click)="backToProfileView()">
+              <svg lucideArrowLeft [size]="16" aria-hidden="true"></svg>
+              Back
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
   </section>
+}
 
-  <section class="bg-ivory pt-8 pb-16">
+@if (filling()) {
+  @if (!hasSavedProfile()) {
+    <section class="profile-hero profile-hero--setup">
+      <div class="profile-hero__overlay" aria-hidden="true"></div>
+      <div class="profile-hero__inner profile-hero__inner--center">
+        <p class="profile-hero__id">Profile setup</p>
+        <h1 class="profile-hero__name profile-hero__name--setup">Tell us about yourself</h1>
+        <p class="profile-hero__setup-copy">A complete profile helps families find a genuine match for you.</p>
+      </div>
+    </section>
+  }
+
+  <section class="profile-form-shell">
     <div class="mx-auto max-w-5xl px-5 lg:px-8">
       <form [formGroup]="form" (ngSubmit)="save()" autocomplete="on" novalidate>
-        <article class="rounded-2xl border border-gold/15 bg-white shadow-sm" data-select-boundary>
-          <div class="border-b border-gold/15 px-6 py-6 sm:px-10">
+        <article class="overflow-visible rounded-2xl border border-gold/15 bg-white shadow-sm" data-select-boundary>
+          <div class="border-b border-gold/15 px-6 pt-4 pb-2 sm:px-10 sm:pb-3">
             <div class="text-center">
               <p class="text-xs font-semibold tracking-[0.18em] text-gold uppercase">Your profile</p>
               <div class="mx-auto w-fit max-w-full">
-                <h2 class="mt-2 font-serif text-2xl text-charcoal sm:text-3xl">
+                <h2 class="mt-1 font-serif text-2xl text-charcoal sm:text-3xl">
                   {{ hasSavedProfile() ? 'Edit your profile' : 'Complete your profile' }}
                 </h2>
-                <span class="mx-auto mt-1.5 block h-px w-1/2 bg-gold"></span>
+                <span class="mx-auto mt-1 block h-px w-1/2 bg-gold"></span>
               </div>
             </div>
 
-            <div class="relative mt-8 px-1 sm:px-4">
-              <div class="absolute top-5 right-6 left-10 h-0.5 overflow-hidden rounded-full bg-blush sm:right-10 sm:left-12">
+            <div class="relative mt-3 px-1 sm:px-4">
+              <div class="profile-step-track">
                 <div
-                  class="h-full rounded-full bg-gold transition-[width] duration-500 ease-out"
+                  class="profile-step-track__fill"
                   [style.width.%]="linePercent()"
                 ></div>
               </div>
@@ -40,10 +104,7 @@
                 @for (step of steps; track step.id; let index = $index) {
                   <button
                     type="button"
-                    class="flex w-14 flex-col items-center text-center sm:w-24"
-                    [disabled]="!canOpenStep(index)"
-                    [class.cursor-not-allowed]="!canOpenStep(index)"
-                    [class.opacity-50]="!canOpenStep(index)"
+                    class="flex w-16 flex-col items-center text-center sm:w-28"
                     (click)="goToStep(index)"
                   >
                     <span
@@ -65,7 +126,7 @@
                       }
                     </span>
                     <span
-                      class="mt-2 text-xs font-semibold sm:text-sm"
+                      class="mt-1 text-[11px] font-semibold leading-tight sm:text-xs"
                       [class.text-burgundy]="stepIndex() === index || isStepDone(index)"
                       [class.text-stone-400]="stepIndex() !== index && !isStepDone(index)"
                     >
@@ -77,69 +138,176 @@
             </div>
           </div>
 
-          <div class="p-6 sm:p-8">
-            @if (currentStep().id === 'basics') {
-              <div class="w-fit">
-                <h3 class="font-serif text-2xl text-charcoal">Basic details</h3>
-                <span class="mt-1.5 block h-px w-1/2 bg-gold"></span>
-              </div>
-              <div class="mt-6 grid gap-4 sm:grid-cols-2">
-                <label class="block text-sm font-medium text-charcoal sm:col-span-2">
-                  Name <span class="text-burgundy">*</span>
+          <div class="overflow-visible px-5 pt-1 pb-5 sm:px-7 sm:pt-2 sm:pb-6">
+            @if (currentStep().id === 'personal') {
+              <section class="profile-form-section">
+                <div class="profile-subsection">
+                  <h3 class="font-serif text-xl text-charcoal">Basic details</h3>
+                  <span class="mt-1.5 block h-px w-1/2 bg-gold"></span>
+                </div>
+              <div class="profile-form-rows">
+                <div class="profile-form-row">
+                <label class="profile-field-label">
+                  Full Name
                   <input
                     formControlName="fullName"
                     maxlength="60"
                     autocomplete="name"
-                    class="mt-2 h-12 w-full rounded-lg border border-stone-300 bg-ivory px-3 text-sm text-charcoal outline-none focus:border-burgundy"
+                    class="profile-field-input"
                     placeholder="Your full name"
+                    (input)="stepError.set('')"
                   />
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Email
+                <label class="profile-field-label">
+                  Religion
+                  <app-search-select
+                    name="religion"
+                    placeholder="Select"
+                    [options]="religionOptions"
+                    [value]="form.controls.religion.value"
+                    (valueChange)="setField('religion', $event)"
+                  />
+                </label>
+                </div>
+                <div class="profile-form-row">
+                <label class="profile-field-label">
+                  Date of birth
                   <input
-                    formControlName="email"
-                    type="email"
-                    readonly
-                    autocomplete="email"
-                    class="mt-2 h-12 w-full rounded-lg border border-stone-300 bg-blush/40 px-3 text-sm text-charcoal outline-none"
-                    placeholder="Your email"
+                    formControlName="dateOfBirth"
+                    type="date"
+                    [max]="todayMax"
+                    class="profile-field-input cursor-pointer"
+                    (input)="stepError.set('')"
                   />
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Mobile no <span class="text-burgundy">*</span>
-                <div class="relative z-20 mt-2" [class.z-50]="countryMenuOpen()">
-                  <div
-                    class="relative flex h-12 items-center overflow-visible rounded-lg border border-stone-400 bg-white transition-colors focus-within:border-burgundy focus-within:ring-1 focus-within:ring-burgundy/20"
-                  >
-                    <button
-                      type="button"
-                      class="flex h-full w-[4.75rem] shrink-0 items-center justify-between gap-1 bg-transparent py-0 pr-1.5 pl-3 text-sm leading-5 text-charcoal outline-none"
-                      [attr.aria-expanded]="countryMenuOpen()"
-                      aria-haspopup="listbox"
-                      aria-label="Country code"
-                      (click)="toggleCountryMenu($event)"
+                <div class="profile-field-label profile-field-label--inline-radio profile-field-label--gender-offset">
+                  <div class="profile-radio-field profile-radio-field--inline" role="radiogroup" aria-label="Gender">
+                    <span class="profile-radio-field__label">Gender:</span>
+                    <div class="profile-radio-group">
+                      @for (option of genderRadioOptions; track option) {
+                        <label class="profile-radio-label">
+                          <input
+                            type="radio"
+                            class="profile-radio-input"
+                            name="gender"
+                            [value]="option"
+                            [checked]="isRadioSelected('gender', option)"
+                            (change)="setRadio('gender', option)"
+                          />
+                          <span>{{ option }}</span>
+                        </label>
+                      }
+                    </div>
+                  </div>
+                </div>
+                </div>
+                <div class="profile-form-row">
+                <label class="profile-field-label">
+                  Weight
+                  <app-search-select
+                    name="weight"
+                    placeholder="Select"
+                    [options]="weightOptions"
+                    [value]="form.controls.weight.value"
+                    (valueChange)="setField('weight', $event)"
+                  />
+                </label>
+                <label class="profile-field-label">
+                  Blood group
+                  <app-search-select
+                    name="bloodGroup"
+                    placeholder="Select"
+                    [options]="bloodGroupOptions"
+                    [value]="form.controls.bloodGroup.value"
+                    (valueChange)="setField('bloodGroup', $event)"
+                  />
+                </label>
+                </div>
+                <div class="profile-form-row">
+                <div class="profile-field-label profile-field-label--inline-radio profile-field-label--inline-radio-compact">
+                  <div class="profile-radio-field profile-radio-field--inline" role="radiogroup" aria-label="Willing to relocate">
+                    <span class="profile-radio-field__label">Willing to relocate:</span>
+                    <div class="profile-radio-group">
+                      @for (option of willingToRelocateOptions; track option) {
+                        <label class="profile-radio-label">
+                          <input
+                            type="radio"
+                            class="profile-radio-input"
+                            name="willingToRelocate"
+                            [value]="option"
+                            [checked]="isRadioSelected('willingToRelocate', option)"
+                            (change)="setRadio('willingToRelocate', option)"
+                          />
+                          <span>{{ option }}</span>
+                        </label>
+                      }
+                    </div>
+                  </div>
+                </div>
+                <div class="profile-field-label profile-field-label--inline-radio profile-field-label--inline-radio-compact">
+                  <div class="profile-radio-field profile-radio-field--inline" role="radiogroup" aria-label="Any disability">
+                    <span class="profile-radio-field__label">Any disability:</span>
+                    <div class="profile-radio-group">
+                      @for (option of disabilityRadioOptions; track option) {
+                        <label class="profile-radio-label">
+                          <input
+                            type="radio"
+                            class="profile-radio-input"
+                            name="disability"
+                            [value]="option"
+                            [checked]="isRadioSelected('disability', option)"
+                            (change)="setRadio('disability', option)"
+                          />
+                          <span>{{ option }}</span>
+                        </label>
+                      }
+                    </div>
+                  </div>
+                </div>
+                </div>
+              </div>
+              </section>
+              <section class="profile-form-section">
+                <div class="profile-subsection">
+                  <h3 class="font-serif text-xl text-charcoal">Contact details</h3>
+                  <span class="mt-1.5 block h-px w-1/2 bg-gold"></span>
+                </div>
+              <div class="profile-form-grid">
+                <label class="profile-field-label">
+                  Mobile
+                  <div class="relative mt-1.5 overflow-visible" [class.z-50]="countryMenuOpen()">
+                    <div
+                      class="flex h-11 w-full items-center rounded-lg border border-stone-400 bg-white transition-colors focus-within:border-burgundy focus-within:ring-1 focus-within:ring-burgundy/20"
                     >
-                      <span>{{ form.controls.countryCode.value }}</span>
-                      <svg
-                        lucideChevronDown
-                        [size]="14"
-                        class="shrink-0 text-stone-500 transition-transform"
-                        [class.rotate-180]="countryMenuOpen()"
-                        aria-hidden="true"
-                      ></svg>
-                    </button>
-                    <span class="h-5 w-px shrink-0 bg-stone-400" aria-hidden="true"></span>
-                    <input
-                      formControlName="mobile"
-                      type="tel"
-                      inputmode="numeric"
-                      [attr.maxlength]="mobileMaxLength()"
-                      autocomplete="tel-national"
-                      class="h-full min-w-0 flex-1 bg-transparent px-3 py-0 text-sm leading-5 text-charcoal outline-none placeholder:text-sm placeholder:leading-5 placeholder:text-stone-400"
-                      placeholder="Enter mobile number"
-                      (input)="onMobileInput($event)"
-                    />
-
+                      <button
+                        type="button"
+                        class="flex h-full w-[4.75rem] shrink-0 cursor-pointer items-center justify-between gap-1 bg-transparent py-0 pr-1.5 pl-3 text-sm leading-5 text-charcoal outline-none"
+                        [attr.aria-expanded]="countryMenuOpen()"
+                        aria-haspopup="listbox"
+                        aria-label="Country code"
+                        (click)="toggleCountryMenu($event)"
+                      >
+                        <span>{{ form.controls.countryCode.value }}</span>
+                        <svg
+                          lucideChevronDown
+                          [size]="14"
+                          class="shrink-0 text-stone-500 transition-transform"
+                          [class.rotate-180]="countryMenuOpen()"
+                          aria-hidden="true"
+                        ></svg>
+                      </button>
+                      <span class="h-5 w-px shrink-0 bg-stone-400" aria-hidden="true"></span>
+                      <input
+                        formControlName="mobile"
+                        type="tel"
+                        inputmode="numeric"
+                        [attr.maxlength]="mobileMaxLength()"
+                        autocomplete="tel-national"
+                        class="h-full min-w-0 flex-1 bg-transparent px-3 py-0 text-sm leading-5 text-charcoal outline-none placeholder:text-sm placeholder:leading-5 placeholder:text-stone-400"
+                        placeholder="Enter mobile number"
+                        (input)="onMobileInput($event)"
+                      />
+                    </div>
                     @if (countryMenuOpen()) {
                       <ul
                         role="listbox"
@@ -151,7 +319,7 @@
                             <button
                               type="button"
                               role="option"
-                              class="flex w-full px-3 py-1.5 text-left text-sm text-charcoal hover:bg-blush"
+                              class="flex w-full cursor-pointer px-3 py-1.5 text-left text-sm text-charcoal outline-none hover:bg-blush focus:bg-blush focus:outline-none"
                               [class.bg-blush]="option.code === form.controls.countryCode.value"
                               [class.font-medium]="option.code === form.controls.countryCode.value"
                               [attr.aria-selected]="option.code === form.controls.countryCode.value"
@@ -164,89 +332,30 @@
                       </ul>
                     }
                   </div>
-                </div>
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Gender <span class="text-burgundy">*</span>
+                <label class="profile-field-label">
+                  Email
+                  <input
+                    formControlName="email"
+                    type="email"
+                    readonly
+                    autocomplete="email"
+                    class="profile-field-input bg-stone-50"
+                    placeholder="Your email"
+                  />
+                </label>
+                <label class="profile-field-label">
+                  Country
                   <app-search-select
-                    name="gender"
+                    name="country"
                     placeholder="Select"
-                    [options]="genderOptions"
-                    [value]="form.controls.gender.value"
-                    (valueChange)="setField('gender', $event)"
+                    [options]="countryOptions"
+                    [value]="form.controls.country.value"
+                    (valueChange)="setField('country', $event)"
                   />
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Age <span class="text-burgundy">*</span>
-                  <app-search-select
-                    name="age"
-                    placeholder="Select Age"
-                    [options]="ageOptions"
-                    [value]="form.controls.age.value"
-                    (valueChange)="setField('age', $event)"
-                  />
-                </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Religion <span class="text-burgundy">*</span>
-                  <app-search-select
-                    name="religion"
-                    placeholder="Select"
-                    [options]="religionOptions"
-                    [value]="form.controls.religion.value"
-                    (valueChange)="setField('religion', $event)"
-                  />
-                </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Married status <span class="text-burgundy">*</span>
-                  <app-search-select
-                    name="maritalStatus"
-                    placeholder="Select"
-                    [options]="maritalOptions"
-                    [value]="form.controls.maritalStatus.value"
-                    (valueChange)="setField('maritalStatus', $event)"
-                  />
-                </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Mother tongue <span class="text-burgundy">*</span>
-                  <app-search-select
-                    name="motherTongue"
-                    placeholder="Select"
-                    [options]="motherTongueOptions"
-                    [value]="form.controls.motherTongue.value"
-                    (valueChange)="setField('motherTongue', $event)"
-                  />
-                </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Height
-                  <app-search-select
-                    name="height"
-                    placeholder="Select"
-                    [options]="heightOptions"
-                    [value]="form.controls.height.value"
-                    (valueChange)="setField('height', $event)"
-                  />
-                </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Manglik / Shani
-                  <app-search-select
-                    name="manglik"
-                    placeholder="Select"
-                    [options]="manglikOptions"
-                    [value]="form.controls.manglik.value"
-                    (valueChange)="setField('manglik', $event)"
-                  />
-                </label>
-              </div>
-            }
-
-            @if (currentStep().id === 'life') {
-              <div class="w-fit">
-                <h3 class="font-serif text-2xl text-charcoal">Family details</h3>
-                <span class="mt-1.5 block h-px w-1/2 bg-gold"></span>
-              </div>
-              <div class="mt-6 grid gap-4 sm:grid-cols-2">
-                <label class="block text-sm font-medium text-charcoal">
-                  State <span class="text-burgundy">*</span>
+                <label class="profile-field-label">
+                  State
                   <app-search-select
                     name="state"
                     placeholder="Select"
@@ -255,8 +364,8 @@
                     (valueChange)="onStateChange($event)"
                   />
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  City <span class="text-burgundy">*</span>
+                <label class="profile-field-label">
+                  City
                   <app-search-select
                     name="city"
                     placeholder="Select"
@@ -265,18 +374,82 @@
                     (valueChange)="setField('city', $event)"
                   />
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Community
-                  <app-search-select
-                    name="community"
-                    placeholder="Select"
-                    [options]="communityOptions"
-                    [value]="form.controls.community.value"
-                    (valueChange)="setField('community', $event)"
+                <label class="profile-field-label">
+                  Native place
+                  <input
+                    formControlName="nativePlace"
+                    maxlength="80"
+                    class="profile-field-input"
+                    placeholder="Your native place"
+                    (input)="stepError.set('')"
                   />
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Sub caste
+                <label class="profile-field-label sm:col-span-2">
+                  Current address
+                  <textarea
+                    formControlName="currentAddress"
+                    maxlength="300"
+                    rows="3"
+                    class="profile-field-textarea"
+                    placeholder="Your current residential address"
+                    (input)="onCurrentAddressInput()"
+                  ></textarea>
+                </label>
+                <label class="profile-checkbox-row sm:col-span-2">
+                  <input
+                    type="checkbox"
+                    class="profile-checkbox-input"
+                    [checked]="form.controls.sameAsPermanent.value"
+                    (change)="onSameAddressChange($any($event.target).checked)"
+                  />
+                  Same as current address
+                </label>
+                <label class="profile-field-label sm:col-span-2">
+                  Permanent address
+                  <textarea
+                    formControlName="permanentAddress"
+                    maxlength="300"
+                    rows="3"
+                    class="profile-field-textarea"
+                    placeholder="Your permanent address"
+                    [readonly]="form.controls.sameAsPermanent.value"
+                    [class.bg-stone-50]="form.controls.sameAsPermanent.value"
+                    (input)="stepError.set('')"
+                  ></textarea>
+                </label>
+              </div>
+              </section>
+            }
+
+            @if (currentStep().id === 'family') {
+              <section class="profile-form-section">
+                <div class="profile-subsection">
+                  <h3 class="font-serif text-xl text-charcoal">Family details</h3>
+                  <span class="mt-1.5 block h-px w-1/2 bg-gold"></span>
+                </div>
+              <div class="profile-form-grid">
+                <label class="profile-field-label">
+                  Jain sect
+                  <app-search-select
+                    name="jainSect"
+                    placeholder="Select"
+                    [options]="jainSectOptions"
+                    [value]="form.controls.jainSect.value"
+                    (valueChange)="setField('jainSect', $event)"
+                  />
+                </label>
+                <label class="profile-field-label">
+                  Jain caste
+                  <app-search-select
+                    name="jainCaste"
+                    placeholder="Select"
+                    [options]="jainCasteOptions"
+                    [value]="form.controls.jainCaste.value"
+                    (valueChange)="setField('jainCaste', $event)"
+                  />
+                </label>
+                <label class="profile-field-label">
+                  Jain sub caste
                   <app-search-select
                     name="subCaste"
                     placeholder="Select"
@@ -285,7 +458,17 @@
                     (valueChange)="setField('subCaste', $event)"
                   />
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
+                <label class="profile-field-label">
+                  Gotra
+                  <app-search-select
+                    name="gotra"
+                    placeholder="Select"
+                    [options]="gotraOptions"
+                    [value]="form.controls.gotra.value"
+                    (valueChange)="setField('gotra', $event)"
+                  />
+                </label>
+                <label class="profile-field-label">
                   Diet
                   <app-search-select
                     name="diet"
@@ -295,37 +478,131 @@
                     (valueChange)="setField('diet', $event)"
                   />
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Family type
+                <label class="profile-field-label">
+                  Father name
+                  <input formControlName="fatherName" maxlength="60" class="profile-field-input" placeholder="Father's name" />
+                </label>
+                <label class="profile-field-label">
+                  Mother name
+                  <input formControlName="motherName" maxlength="60" class="profile-field-input" placeholder="Mother's name" />
+                </label>
+                <label class="profile-field-label">
+                  Father occupation
+                  <input formControlName="fatherOccupation" maxlength="80" class="profile-field-input" placeholder="Father's occupation" />
+                </label>
+                <label class="profile-field-label">
+                  Mother occupation
+                  <input formControlName="motherOccupation" maxlength="80" class="profile-field-input" placeholder="Mother's occupation" />
+                </label>
+                <div class="profile-field-label profile-field-label--inline-radio profile-field-label--gender-offset">
+                  <div class="profile-radio-field profile-radio-field--inline" role="radiogroup" aria-label="Family type">
+                    <span class="profile-radio-field__label">Family type:</span>
+                    <div class="profile-radio-group">
+                    @for (option of familyTypeRadioOptions; track option) {
+                      <label class="profile-radio-label">
+                        <input
+                          type="radio"
+                          class="profile-radio-input"
+                          name="familyType"
+                          [value]="option"
+                          [checked]="isRadioSelected('familyType', option)"
+                          (change)="setRadio('familyType', option)"
+                        />
+                        <span>{{ option }}</span>
+                      </label>
+                    }
+                    </div>
+                  </div>
+                </div>
+                <label class="profile-field-label">
+                  Brothers
                   <app-search-select
-                    name="familyType"
+                    name="brothers"
                     placeholder="Select"
-                    [options]="familyTypeOptions"
-                    [value]="form.controls.familyType.value"
-                    (valueChange)="setField('familyType', $event)"
+                    [options]="siblingCountOptions"
+                    [value]="form.controls.brothers.value"
+                    (valueChange)="setField('brothers', $event)"
+                  />
+                </label>
+                <label class="profile-field-label">
+                  Sisters
+                  <app-search-select
+                    name="sisters"
+                    placeholder="Select"
+                    [options]="siblingCountOptions"
+                    [value]="form.controls.sisters.value"
+                    (valueChange)="setField('sisters', $event)"
                   />
                 </label>
               </div>
+              </section>
+              <section class="profile-form-section">
+                <div class="profile-subsection">
+                  <h3 class="font-serif text-xl text-charcoal">Horoscope details</h3>
+                  <span class="mt-1.5 block h-px w-1/2 bg-gold"></span>
+                </div>
+              <div class="profile-form-grid">
+                <label class="profile-field-label">
+                  Birth time
+                  <input formControlName="birthTime" type="time" class="profile-field-input cursor-pointer" />
+                </label>
+                <label class="profile-field-label">
+                  Birth place
+                  <input formControlName="birthPlace" maxlength="80" class="profile-field-input" placeholder="Place of birth" />
+                </label>
+                <label class="profile-field-label">
+                  Rasi
+                  <app-search-select
+                    name="rasi"
+                    placeholder="Select"
+                    [options]="rasiOptions"
+                    [value]="form.controls.rasi.value"
+                    (valueChange)="setField('rasi', $event)"
+                  />
+                </label>
+                <label class="profile-field-label">
+                  Nakshatra
+                  <app-search-select
+                    name="nakshatra"
+                    placeholder="Select"
+                    [options]="nakshatraOptions"
+                    [value]="form.controls.nakshatra.value"
+                    (valueChange)="setField('nakshatra', $event)"
+                  />
+                </label>
+                <div class="profile-field-label profile-field-label--inline-radio profile-field-label--inline-radio-compact profile-field-label--manglik-up">
+                  <div class="profile-radio-field profile-radio-field--inline" role="radiogroup" aria-label="Manglik or Shani">
+                    <span class="profile-radio-field__label">Manglik / Shani:</span>
+                    <div class="profile-radio-group">
+                    @for (option of manglikRadioOptions; track option) {
+                      <label class="profile-radio-label">
+                        <input
+                          type="radio"
+                          class="profile-radio-input"
+                          name="manglik"
+                          [value]="option"
+                          [checked]="isRadioSelected('manglik', option)"
+                          (change)="setRadio('manglik', option)"
+                        />
+                        <span>{{ option }}</span>
+                      </label>
+                    }
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </section>
             }
 
             @if (currentStep().id === 'education') {
-              <div class="w-fit">
-                <h3 class="font-serif text-2xl text-charcoal">Education details</h3>
-                <span class="mt-1.5 block h-px w-1/2 bg-gold"></span>
-              </div>
-              <div class="mt-6 grid gap-4 sm:grid-cols-2">
-                <label class="block text-sm font-medium text-charcoal">
-                  Highest education <span class="text-burgundy">*</span>
-                  <app-search-select
-                    name="education"
-                    placeholder="Select"
-                    [options]="educationOptions"
-                    [value]="form.controls.education.value"
-                    (valueChange)="setField('education', $event)"
-                  />
-                </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Education specification
+              <section class="profile-form-section">
+                <div class="profile-subsection">
+                  <h3 class="font-serif text-xl text-charcoal">Education details</h3>
+                  <span class="mt-1.5 block h-px w-1/2 bg-gold"></span>
+                </div>
+              <div class="profile-form-grid">
+                <label class="profile-field-label">
+                  Highest education
                   <app-search-select
                     name="educationSpec"
                     placeholder="Select"
@@ -334,37 +611,65 @@
                     (valueChange)="setField('educationSpec', $event)"
                   />
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Other education
-                  <input
-                    formControlName="otherEducation"
-                    maxlength="80"
-                    class="mt-2 h-12 w-full rounded-lg border border-stone-300 bg-ivory px-3 text-sm text-charcoal outline-none focus:border-burgundy"
-                    placeholder="Any other qualification"
-                    (input)="stepError.set('')"
+                <label class="profile-field-label">
+                  Degree
+                  <input formControlName="degree" maxlength="80" class="profile-field-input" placeholder="e.g. B.Tech, MBA" />
+                </label>
+                <label class="profile-field-label">
+                  Specialization
+                  <input formControlName="specialization" maxlength="80" class="profile-field-input" placeholder="e.g. Computer Science" />
+                </label>
+                <label class="profile-field-label">
+                  University / College
+                  <input formControlName="university" maxlength="120" class="profile-field-input" placeholder="Institution name" />
+                </label>
+              </div>
+              </section>
+              <section class="profile-form-section">
+                <div class="profile-subsection">
+                  <h3 class="font-serif text-xl text-charcoal">Career details</h3>
+                  <span class="mt-1.5 block h-px w-1/2 bg-gold"></span>
+                </div>
+              <div class="profile-form-grid">
+                <label class="profile-field-label">
+                  Employment status
+                  <app-search-select
+                    name="employmentStatus"
+                    placeholder="Select"
+                    [options]="employmentStatusOptions"
+                    [value]="form.controls.employmentStatus.value"
+                    (valueChange)="setField('employmentStatus', $event)"
                   />
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Occupation <span class="text-burgundy">*</span>
+                <label class="profile-field-label">
+                  Occupation
                   <input
                     formControlName="occupation"
                     maxlength="80"
-                    class="mt-2 h-12 w-full rounded-lg border border-stone-300 bg-ivory px-3 text-sm text-charcoal outline-none focus:border-burgundy"
-                    placeholder="Job / salaried"
+                    class="profile-field-input"
+                    placeholder="Your occupation"
                     (input)="stepError.set('')"
                   />
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Occupation details
-                  <input
-                    formControlName="occupationDetails"
-                    maxlength="80"
-                    class="mt-2 h-12 w-full rounded-lg border border-stone-300 bg-ivory px-3 text-sm text-charcoal outline-none focus:border-burgundy"
-                    placeholder="Role or field of work"
-                    (input)="stepError.set('')"
+                <label class="profile-field-label">
+                  Company name
+                  <input formControlName="companyName" maxlength="80" class="profile-field-input" placeholder="Company / organisation" />
+                </label>
+                <label class="profile-field-label">
+                  Designation
+                  <input formControlName="designation" maxlength="80" class="profile-field-input" placeholder="Your designation" />
+                </label>
+                <label class="profile-field-label">
+                  Work experience
+                  <app-search-select
+                    name="workExperience"
+                    placeholder="Select"
+                    [options]="workExperienceOptions"
+                    [value]="form.controls.workExperience.value"
+                    (valueChange)="setField('workExperience', $event)"
                   />
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
+                <label class="profile-field-label">
                   Annual income
                   <app-search-select
                     name="income"
@@ -374,47 +679,257 @@
                     (valueChange)="setField('income', $event)"
                   />
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Work address
-                  <input
-                    formControlName="workAddress"
-                    maxlength="80"
-                    class="mt-2 h-12 w-full rounded-lg border border-stone-300 bg-ivory px-3 text-sm text-charcoal outline-none focus:border-burgundy"
-                    placeholder="City you work in"
-                    (input)="stepError.set('')"
-                  />
-                </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Religious education
-                  <input
-                    formControlName="religiousEducation"
-                    maxlength="80"
-                    class="mt-2 h-12 w-full rounded-lg border border-stone-300 bg-ivory px-3 text-sm text-charcoal outline-none focus:border-burgundy"
-                    placeholder="Optional"
-                    (input)="stepError.set('')"
-                  />
+                <label class="profile-field-label sm:col-span-2">
+                  Work location
+                  <input formControlName="workLocation" maxlength="120" class="profile-field-input" placeholder="City or office location" />
                 </label>
               </div>
+              </section>
+              <section class="profile-form-section">
+                <div class="profile-subsection">
+                  <h3 class="font-serif text-xl text-charcoal">Lifestyle</h3>
+                  <span class="mt-1.5 block h-px w-1/2 bg-gold"></span>
+                </div>
+              <div class="profile-form-grid">
+                <label class="profile-field-label">
+                  Hobbies
+                  <input formControlName="hobbies" maxlength="120" class="profile-field-input" placeholder="Reading, music, travel" />
+                </label>
+                <div class="profile-checkbox-block sm:col-span-2">
+                  <span class="profile-checkbox-block__label">Languages known</span>
+                  <div
+                    class="profile-languages-input"
+                    [class.profile-languages-input--empty]="!selectedLanguages().length"
+                    aria-live="polite"
+                  >
+                    @if (selectedLanguages().length) {
+                      @for (language of selectedLanguages(); track language) {
+                        <span class="profile-language-tag">
+                          {{ language }}
+                          <button
+                            type="button"
+                            class="profile-language-tag__remove"
+                            [attr.aria-label]="'Remove ' + language"
+                            (click)="removeLanguage(language)"
+                          >
+                            ×
+                          </button>
+                        </span>
+                      }
+                    } @else {
+                      <span class="profile-languages-input__placeholder">Select languages below</span>
+                    }
+                  </div>
+                  <input type="hidden" formControlName="languagesKnown" />
+                  <div class="profile-checkbox-grid profile-checkbox-grid--languages">
+                    @for (language of languageOptions; track language) {
+                      <label class="profile-checkbox-label profile-checkbox-label--compact">
+                        <input
+                          type="checkbox"
+                          class="profile-checkbox-input"
+                          [checked]="isLanguageSelected(language)"
+                          (change)="toggleLanguage(language, $any($event.target).checked)"
+                        />
+                        <span>{{ language }}</span>
+                      </label>
+                    }
+                  </div>
+                </div>
+                <div class="profile-field-label profile-field-label--inline-radio profile-field-label--lifestyle-up">
+                  <div class="profile-radio-field profile-radio-field--inline" role="radiogroup" aria-label="Exercise frequency">
+                    <span class="profile-radio-field__label">Exercise:</span>
+                    <div class="profile-radio-group">
+                    @for (option of exerciseFrequencyOptions; track option) {
+                      <label class="profile-radio-label">
+                        <input
+                          type="radio"
+                          class="profile-radio-input"
+                          name="exerciseFrequency"
+                          [value]="option"
+                          [checked]="isRadioSelected('exerciseFrequency', option)"
+                          (change)="setRadio('exerciseFrequency', option)"
+                        />
+                        <span>{{ option }}</span>
+                      </label>
+                    }
+                    </div>
+                  </div>
+                </div>
+                <div class="profile-field-label profile-field-label--inline-radio profile-field-label--lifestyle-up">
+                  <div class="profile-radio-field profile-radio-field--inline" role="radiogroup" aria-label="Travel frequency">
+                    <span class="profile-radio-field__label">Travel:</span>
+                    <div class="profile-radio-group">
+                    @for (option of travelFrequencyOptions; track option) {
+                      <label class="profile-radio-label">
+                        <input
+                          type="radio"
+                          class="profile-radio-input"
+                          name="travelFrequency"
+                          [value]="option"
+                          [checked]="isRadioSelected('travelFrequency', option)"
+                          (change)="setRadio('travelFrequency', option)"
+                        />
+                        <span>{{ option }}</span>
+                      </label>
+                    }
+                    </div>
+                  </div>
+                </div>
+              </div>
+              </section>
             }
 
-            @if (currentStep().id === 'partner') {
-              <div class="w-fit">
-                <h3 class="font-serif text-2xl text-charcoal">Partner expectation</h3>
-                <span class="mt-1.5 block h-px w-1/2 bg-gold"></span>
-              </div>
-              <div class="mt-6 grid gap-4 sm:grid-cols-2">
-                <label class="block text-sm font-medium text-charcoal sm:col-span-2">
-                  General requirement <span class="text-burgundy">*</span>
+            @if (currentStep().id === 'about') {
+              <section class="profile-form-section">
+                <div class="profile-subsection">
+                  <h3 class="font-serif text-xl text-charcoal">About me</h3>
+                  <span class="mt-1.5 block h-px w-1/2 bg-gold"></span>
+                </div>
+              <div class="profile-about-layout">
+                <div class="profile-about-gallery">
+                  @if (mainProfilePhoto()) {
+                    <div class="profile-about-gallery__main">
+                      <img
+                        [src]="mainProfilePhoto()"
+                        alt="Main profile photo"
+                        class="profile-about-gallery__main-img"
+                      />
+                      <button
+                        type="button"
+                        class="profile-about-gallery__remove"
+                        aria-label="Remove main photo"
+                        (click)="removeProfilePhotoAt(0, $event)"
+                      >
+                        ×
+                      </button>
+                    </div>
+                  } @else {
+                    <div class="profile-about-gallery__add-wrap profile-about-gallery__add-wrap--main">
+                      <button
+                        type="button"
+                        class="profile-about-browse"
+                        aria-label="Browse image"
+                        (click)="openGalleryUpload($event)"
+                      >
+                        <span class="profile-about-browse__icon">
+                          <svg lucideUpload [size]="22" aria-hidden="true"></svg>
+                        </span>
+                        <span class="profile-about-browse__title">Browse Image</span>
+                        <span class="profile-about-browse__hint">JPG, PNG supported</span>
+                      </button>
+                    </div>
+                  }
+
+                  @if (mainProfilePhoto()) {
+                    <div class="profile-about-gallery__thumbs">
+                      <div class="profile-about-gallery__thumb-list">
+                        @for (photo of otherProfilePhotos(); track $index) {
+                          <div class="profile-about-gallery__thumb">
+                            <button
+                              type="button"
+                              class="profile-about-gallery__thumb-btn"
+                              [attr.aria-label]="'Set photo ' + ($index + 2) + ' as main'"
+                              (click)="setMainProfilePhoto($index + 1, $event)"
+                            >
+                              <img [src]="photo" alt="" class="profile-about-gallery__thumb-img" />
+                            </button>
+                            <button
+                              type="button"
+                              class="profile-about-gallery__remove profile-about-gallery__remove--thumb"
+                              [attr.aria-label]="'Remove photo ' + ($index + 2)"
+                              (click)="removeProfilePhotoAt($index + 1, $event)"
+                            >
+                              ×
+                            </button>
+                          </div>
+                        }
+                      </div>
+
+                      @if (canAddProfilePhoto()) {
+                        <div class="profile-about-gallery__add-wrap profile-about-gallery__add-wrap--thumb">
+                          <button
+                            type="button"
+                            class="profile-about-gallery__add"
+                            aria-label="Add photo"
+                            (click)="togglePhotoUploadMenu($event)"
+                          >
+                            <svg lucidePlus [size]="16" aria-hidden="true"></svg>
+                          </button>
+                          @if (photoUploadMenuOpen()) {
+                            <div class="profile-about-gallery__menu profile-about-gallery__menu--thumb" (click)="$event.stopPropagation()">
+                              <button type="button" class="profile-about-gallery__menu-item" (click)="openGalleryUpload($event)">
+                                <span class="profile-about-gallery__menu-icon profile-about-gallery__menu-icon--gallery">
+                                  <svg lucideImage [size]="18" aria-hidden="true"></svg>
+                                </span>
+                                <span class="profile-about-gallery__menu-copy">
+                                  <strong>Gallery</strong>
+                                  <span>Upload from device</span>
+                                </span>
+                              </button>
+                              <button type="button" class="profile-about-gallery__menu-item" (click)="openCameraUpload($event)">
+                                <span class="profile-about-gallery__menu-icon profile-about-gallery__menu-icon--camera">
+                                  <svg lucideCamera [size]="18" aria-hidden="true"></svg>
+                                </span>
+                                <span class="profile-about-gallery__menu-copy">
+                                  <strong>Camera</strong>
+                                  <span>Take a photo</span>
+                                </span>
+                              </button>
+                            </div>
+                          }
+                        </div>
+                      }
+                    </div>
+                  }
+
                   <input
-                    formControlName="partnerRequirement"
-                    maxlength="120"
-                    class="mt-2 h-12 w-full rounded-lg border border-stone-300 bg-ivory px-3 text-sm text-charcoal outline-none focus:border-burgundy"
-                    placeholder="Educated, well settled and religious"
-                    (input)="stepError.set('')"
+                    #aboutGalleryInput
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp"
+                    class="sr-only"
+                    (change)="onGalleryPhotoSelected($event)"
                   />
-                </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Age from <span class="text-burgundy">*</span>
+                  <input
+                    #aboutCameraInput
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    class="sr-only"
+                    (change)="onGalleryPhotoSelected($event)"
+                  />
+                </div>
+
+                <div class="profile-about-fields">
+                  <label class="profile-field-label">
+                    About me
+                    <textarea
+                      formControlName="about"
+                      maxlength="500"
+                      rows="4"
+                      class="profile-field-textarea"
+                      placeholder="Write about yourself"
+                      (input)="stepError.set('')"
+                    ></textarea>
+                  </label>
+                  <label class="profile-field-label">
+                    My personality
+                    <input formControlName="personality" maxlength="200" class="profile-field-input" placeholder="Describe your personality" />
+                  </label>
+                  <label class="profile-field-label">
+                    Future goals
+                    <input formControlName="futureGoals" maxlength="200" class="profile-field-input" placeholder="Share your future goals" />
+                  </label>
+                </div>
+              </div>
+              </section>
+              <section class="profile-form-section">
+                <div class="profile-subsection">
+                  <h3 class="font-serif text-xl text-charcoal">Partner preference</h3>
+                  <span class="mt-1.5 block h-px w-1/2 bg-gold"></span>
+                </div>
+              <div class="profile-form-grid">
+                <label class="profile-field-label">
+                  Age min
                   <app-search-select
                     name="partnerAgeFrom"
                     placeholder="Min"
@@ -423,8 +938,8 @@
                     (valueChange)="setField('partnerAgeFrom', $event)"
                   />
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Age to <span class="text-burgundy">*</span>
+                <label class="profile-field-label">
+                  Age max
                   <app-search-select
                     name="partnerAgeTo"
                     placeholder="Max"
@@ -433,8 +948,8 @@
                     (valueChange)="setField('partnerAgeTo', $event)"
                   />
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Height from <span class="text-burgundy">*</span>
+                <label class="profile-field-label">
+                  Height min
                   <app-search-select
                     name="partnerHeightFrom"
                     placeholder="Select"
@@ -443,8 +958,8 @@
                     (valueChange)="setField('partnerHeightFrom', $event)"
                   />
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Height to <span class="text-burgundy">*</span>
+                <label class="profile-field-label">
+                  Height max
                   <app-search-select
                     name="partnerHeightTo"
                     placeholder="Select"
@@ -453,8 +968,8 @@
                     (valueChange)="setField('partnerHeightTo', $event)"
                   />
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Marital status <span class="text-burgundy">*</span>
+                <label class="profile-field-label">
+                  Prefer marital status
                   <app-search-select
                     name="partnerMaritalStatus"
                     placeholder="Select"
@@ -463,8 +978,62 @@
                     (valueChange)="setField('partnerMaritalStatus', $event)"
                   />
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  With children acceptable
+                <label class="profile-field-label">
+                  Prefer education
+                  <app-search-select
+                    name="partnerEducation"
+                    placeholder="Select"
+                    [options]="educationSpecOptions"
+                    [value]="form.controls.partnerEducation.value"
+                    (valueChange)="setField('partnerEducation', $event)"
+                  />
+                </label>
+                <label class="profile-field-label">
+                  Prefer occupation
+                  <input formControlName="partnerOccupation" maxlength="80" class="profile-field-input" placeholder="Preferred occupation" />
+                </label>
+                <label class="profile-field-label">
+                  Jain sect preference
+                  <app-search-select
+                    name="jainSectPreference"
+                    placeholder="Select"
+                    [options]="jainSectOptions"
+                    [value]="form.controls.jainSectPreference.value"
+                    (valueChange)="setField('jainSectPreference', $event)"
+                  />
+                </label>
+                <label class="profile-field-label">
+                  Prefer state
+                  <app-search-select
+                    name="partnerState"
+                    placeholder="Select"
+                    [options]="stateOptions"
+                    [value]="form.controls.partnerState.value"
+                    (valueChange)="onPartnerStateChange($event)"
+                  />
+                </label>
+                <label class="profile-field-label">
+                  Prefer city
+                  <app-search-select
+                    name="partnerCity"
+                    placeholder="Select"
+                    [options]="partnerCityOptions()"
+                    [value]="form.controls.partnerCity.value"
+                    (valueChange)="setField('partnerCity', $event)"
+                  />
+                </label>
+                <label class="profile-field-label">
+                  Diet preference
+                  <app-search-select
+                    name="partnerDiet"
+                    placeholder="Select"
+                    [options]="dietOptions"
+                    [value]="form.controls.partnerDiet.value"
+                    (valueChange)="setField('partnerDiet', $event)"
+                  />
+                </label>
+                <label class="profile-field-label">
+                  Children acceptable
                   <app-search-select
                     name="partnerChildren"
                     placeholder="Select"
@@ -473,17 +1042,17 @@
                     (valueChange)="setField('partnerChildren', $event)"
                   />
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Education <span class="text-burgundy">*</span>
+                <label class="profile-field-label">
+                  Horoscope matching requirement
                   <app-search-select
-                    name="partnerEducation"
+                    name="horoscopeMatching"
                     placeholder="Select"
-                    [options]="educationOptions"
-                    [value]="form.controls.partnerEducation.value"
-                    (valueChange)="setField('partnerEducation', $event)"
+                    [options]="yesNoOptions"
+                    [value]="form.controls.horoscopeMatching.value"
+                    (valueChange)="setField('horoscopeMatching', $event)"
                   />
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
+                <label class="profile-field-label">
                   Any disability
                   <app-search-select
                     name="partnerDisability"
@@ -493,17 +1062,7 @@
                     (valueChange)="setField('partnerDisability', $event)"
                   />
                 </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  Diet <span class="text-burgundy">*</span>
-                  <app-search-select
-                    name="partnerDiet"
-                    placeholder="Select"
-                    [options]="dietOptions"
-                    [value]="form.controls.partnerDiet.value"
-                    (valueChange)="setField('partnerDiet', $event)"
-                  />
-                </label>
-                <label class="block text-sm font-medium text-charcoal">
+                <label class="profile-field-label">
                   Manglik / Shani
                   <app-search-select
                     name="partnerManglik"
@@ -514,36 +1073,7 @@
                   />
                 </label>
               </div>
-            }
-
-            @if (currentStep().id === 'about') {
-              <div class="w-fit">
-                <h3 class="font-serif text-2xl text-charcoal">About you</h3>
-                <span class="mt-1.5 block h-px w-1/2 bg-gold"></span>
-              </div>
-              <div class="mt-6 grid gap-4">
-                <label class="block text-sm font-medium text-charcoal">
-                  Hobbies
-                  <input
-                    formControlName="hobbies"
-                    maxlength="120"
-                    class="mt-2 h-12 w-full rounded-lg border border-stone-300 bg-ivory px-3 text-sm text-charcoal outline-none focus:border-burgundy"
-                    placeholder="Reading, music, travel"
-                    (input)="stepError.set('')"
-                  />
-                </label>
-                <label class="block text-sm font-medium text-charcoal">
-                  About you <span class="text-burgundy">*</span>
-                  <textarea
-                    formControlName="about"
-                    maxlength="500"
-                    rows="4"
-                    class="mt-2 w-full rounded-lg border border-stone-300 bg-ivory px-3 py-3 text-sm text-charcoal outline-none focus:border-burgundy"
-                    placeholder="A few lines about you and the partner you hope to meet"
-                    (input)="stepError.set('')"
-                  ></textarea>
-                </label>
-              </div>
+              </section>
             }
 
             @if (stepError()) {
@@ -582,254 +1112,5 @@
     </div>
   </section>
 } @else if (hasSavedProfile()) {
-  <section class="relative overflow-hidden bg-charcoal">
-    <div class="absolute inset-0 bg-[linear-gradient(135deg,rgba(201,162,39,0.12)_0%,transparent_45%,rgba(122,30,43,0.25)_100%)]"></div>
-    <div class="relative mx-auto max-w-6xl px-5 py-7 lg:px-8 lg:py-8">
-      <div class="flex flex-col gap-5 sm:flex-row sm:items-end">
-        <div
-          class="inline-flex h-28 w-28 shrink-0 items-center justify-center rounded-2xl bg-burgundy-deep font-serif text-3xl tracking-wide text-white shadow-xl ring-1 ring-gold/30 sm:h-32 sm:w-32 sm:text-4xl"
-        >
-          {{ initials() }}
-        </div>
-
-        <div class="min-w-0 flex-1 pb-0.5">
-          <div class="flex flex-wrap items-start justify-between gap-3">
-            <div class="min-w-0">
-              <p class="text-[11px] font-semibold tracking-[0.2em] text-gold uppercase">
-                Profile ID: {{ profileId() }}
-              </p>
-              <h1 class="mt-1.5 font-serif text-3xl text-white sm:text-4xl">{{ display(user()?.fullName) }}</h1>
-              <div class="mt-3 flex flex-wrap gap-2">
-                <span class="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-white">
-                  {{ displayAge() }} · {{ display(user()?.height) }}
-                </span>
-                <span class="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-white">
-                  {{ display(user()?.religion) }} · {{ display(user()?.community) }}
-                </span>
-                <span class="rounded-full border border-white/15 bg-white/10 px-3 py-1 text-xs font-medium text-white">
-                  {{ display(user()?.maritalStatus) }}
-                </span>
-              </div>
-              <div class="mt-3 flex flex-wrap gap-x-5 gap-y-1.5 text-sm text-white/80">
-                @if (locationLine()) {
-                  <p class="inline-flex items-center gap-2">
-                    <svg lucideMapPin [size]="15" class="text-gold" aria-hidden="true"></svg>
-                    {{ locationLine() }}
-                  </p>
-                }
-                @if (user()?.occupation) {
-                  <p class="inline-flex items-center gap-2">
-                    <svg lucideBriefcase [size]="15" class="text-gold" aria-hidden="true"></svg>
-                    {{ display(user()?.occupation) }}
-                  </p>
-                }
-              </div>
-            </div>
-
-            <button
-              type="button"
-              class="inline-flex h-10 items-center gap-2 rounded-lg border border-gold/40 bg-white/5 px-4 text-sm font-semibold text-white transition hover:bg-white/10"
-              (click)="editProfile()"
-            >
-              <svg lucidePencil [size]="16" aria-hidden="true"></svg>
-              Edit profile
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  </section>
-
-  <section class="bg-white pb-10">
-    <div class="mx-auto max-w-6xl px-5 py-7 lg:px-8 lg:py-8">
-      <div>
-        <div class="w-fit">
-          <h2 class="font-serif text-xl text-charcoal">About</h2>
-          <span class="mt-1.5 block h-px w-1/2 bg-gold"></span>
-        </div>
-        <p class="mt-3 border-l-2 border-gold/60 pl-4 text-sm leading-6 text-stone-600 italic">
-          {{ display(user()?.about) }}
-        </p>
-      </div>
-
-      <div class="mt-7 grid gap-4 sm:grid-cols-2">
-        <article class="rounded-xl border border-gold/10 bg-ivory/60 p-4">
-          <h3 class="flex items-center gap-2 font-serif text-lg text-charcoal">
-            <svg lucideGraduationCap [size]="16" class="text-gold-deep" aria-hidden="true"></svg>
-            Education & Career
-          </h3>
-          <dl class="mt-3 space-y-2.5">
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Highest education</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.education) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Education specification</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.educationSpec) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Other education</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.otherEducation) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Occupation</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.occupation) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Occupation details</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.occupationDetails) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Annual income</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.income) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Work address</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.workAddress) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Religious education</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.religiousEducation) }}</dd>
-            </div>
-          </dl>
-        </article>
-
-        <article class="rounded-xl border border-gold/10 bg-ivory/60 p-4">
-          <h3 class="flex items-center gap-2 font-serif text-lg text-charcoal">
-            <svg lucideUsers [size]="16" class="text-gold-deep" aria-hidden="true"></svg>
-            Family Background
-          </h3>
-          <dl class="mt-3 space-y-2.5">
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Family type</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.familyType) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Community</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.community) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Sub caste</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.subCaste) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Gender</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.gender) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Married status</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.maritalStatus) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Lives in</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ locationLine() || '—' }}</dd>
-            </div>
-          </dl>
-        </article>
-
-        <article class="rounded-xl border border-gold/10 bg-ivory/60 p-4">
-          <h3 class="flex items-center gap-2 font-serif text-lg text-charcoal">
-            <svg lucideHeart [size]="16" class="text-gold-deep" aria-hidden="true"></svg>
-            Lifestyle & Habits
-          </h3>
-          <dl class="mt-3 space-y-2.5">
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Age</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ displayAge() }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Height</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.height) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Diet</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.diet) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Manglik / Shani</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.manglik) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Hobbies</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.hobbies) }}</dd>
-            </div>
-          </dl>
-        </article>
-
-        <article class="rounded-xl border border-gold/10 bg-ivory/60 p-4">
-          <h3 class="flex items-center gap-2 font-serif text-lg text-charcoal">
-            <svg lucideMessagesSquare [size]="16" class="text-gold-deep" aria-hidden="true"></svg>
-            Communication
-          </h3>
-          <dl class="mt-3 space-y-2.5">
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Mother tongue</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.motherTongue) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Religion</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.religion) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Email</dt>
-              <dd class="break-all text-right text-sm font-medium text-charcoal">{{ display(user()?.email) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Mobile</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ displayMobile() }}</dd>
-            </div>
-          </dl>
-        </article>
-
-        <article class="rounded-xl border border-gold/10 bg-ivory/60 p-4 sm:col-span-2">
-          <h3 class="flex items-center gap-2 font-serif text-lg text-charcoal">
-            <svg lucideSparkles [size]="16" class="text-gold-deep" aria-hidden="true"></svg>
-            Partner expectation
-          </h3>
-          <dl class="mt-3 grid gap-x-8 gap-y-2.5 sm:grid-cols-2">
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2 sm:col-span-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">General requirement</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.partnerRequirement) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Age</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ displayPartnerAge() }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Height from</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.partnerHeightFrom || user()?.partnerHeight) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Height to</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.partnerHeightTo) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Marital status</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.partnerMaritalStatus) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">With children acceptable</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.partnerChildren) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Education</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.partnerEducation) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Any disability</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.partnerDisability) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4 border-b border-gold/10 pb-2">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Diet</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.partnerDiet) }}</dd>
-            </div>
-            <div class="flex items-start justify-between gap-4">
-              <dt class="shrink-0 text-[11px] font-semibold tracking-[0.14em] text-gold uppercase">Manglik / Shani</dt>
-              <dd class="text-right text-sm font-medium text-charcoal">{{ display(user()?.partnerManglik) }}</dd>
-            </div>
-          </dl>
-        </article>
-      </div>
-    </div>
-  </section>
+  <app-profile-saved-view (editRequested)="editProfile()" />
 }

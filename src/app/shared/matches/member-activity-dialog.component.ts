@@ -58,6 +58,27 @@ export class MemberActivityDialogComponent {
     return this.activity.isInterested(id);
   }
 
+  openProfile(member: MemberMatch): void {
+    this.selected.set(member);
+  }
+
+  onToggleShortlist(member: MemberMatch): void {
+    if (this.isShortlisted(member.id)) {
+      this.askRemove(member);
+    }
+  }
+
+  onExpressInterest(member: MemberMatch): void {
+    const { already, name } = this.activity.expressInterest(member);
+    if (already) {
+      return;
+    }
+    this.showNotice(`Interest sent to ${name}.`);
+    if (this.selected()?.id === member.id) {
+      this.selected.set(null);
+    }
+  }
+
   askRemove(member: MemberMatch): void {
     this.pendingRemove.set(member);
   }

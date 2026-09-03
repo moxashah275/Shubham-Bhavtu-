@@ -20,6 +20,7 @@ import {
 } from '../models/auth.model';
 import { DEFAULT_COUNTRY_CODE } from '../data/country-codes';
 import { getProfileCompletion } from '../profile/profile-completion';
+import { emptyProfileData, pickProfileData, profileFromStored } from '../profile/profile-data';
 
 const TOKEN_KEY = 'gathbandhan.auth.token';
 const USER_KEY = 'gathbandhan.auth.user';
@@ -57,94 +58,10 @@ function resetLegacyAuthData(): void {
 
 resetLegacyAuthData();
 
-function emptyProfile(): Pick<
-  StoredAccount,
-  | 'mobile'
-  | 'countryCode'
-  | 'age'
-  | 'gender'
-  | 'maritalStatus'
-  | 'motherTongue'
-  | 'education'
-  | 'hobbies'
-  | 'state'
-  | 'city'
-  | 'religion'
-  | 'occupation'
-  | 'about'
-  | 'height'
-  | 'community'
-  | 'subCaste'
-  | 'manglik'
-  | 'diet'
-  | 'familyType'
-  | 'income'
-  | 'partnerLookingFor'
-  | 'partnerAgeFrom'
-  | 'partnerAgeTo'
-  | 'partnerReligion'
-  | 'partnerMaritalStatus'
-  | 'partnerEducation'
-  | 'partnerHeight'
-  | 'partnerDiet'
-  | 'partnerManglik'
-  | 'partnerState'
-  | 'partnerCity'
-  | 'educationSpec'
-  | 'otherEducation'
-  | 'occupationDetails'
-  | 'workAddress'
-  | 'religiousEducation'
-  | 'partnerRequirement'
-  | 'partnerHeightFrom'
-  | 'partnerHeightTo'
-  | 'partnerChildren'
-  | 'partnerDisability'
-  | 'profileSaved'
-> {
+function emptyProfile() {
   return {
-    mobile: '',
+    ...emptyProfileData(),
     countryCode: DEFAULT_COUNTRY_CODE,
-    age: '',
-    gender: '',
-    maritalStatus: '',
-    motherTongue: '',
-    education: '',
-    hobbies: '',
-    state: '',
-    city: '',
-    religion: '',
-    occupation: '',
-    about: '',
-    height: '',
-    community: '',
-    subCaste: '',
-    manglik: '',
-    diet: '',
-    familyType: '',
-    income: '',
-    partnerLookingFor: '',
-    partnerAgeFrom: '',
-    partnerAgeTo: '',
-    partnerReligion: '',
-    partnerMaritalStatus: '',
-    partnerEducation: '',
-    partnerHeight: '',
-    partnerDiet: '',
-    partnerManglik: '',
-    partnerState: '',
-    partnerCity: '',
-    educationSpec: '',
-    otherEducation: '',
-    occupationDetails: '',
-    workAddress: '',
-    religiousEducation: '',
-    partnerRequirement: '',
-    partnerHeightFrom: '',
-    partnerHeightTo: '',
-    partnerChildren: '',
-    partnerDisability: '',
-    profileSaved: false,
   };
 }
 
@@ -311,49 +228,11 @@ export class AuthService {
       account.id === current.id
         ? {
             ...account,
+            ...pickProfileData(next),
             fullName: next.fullName,
-            countryCode: next.countryCode,
             mobile: next.mobile,
-            age: next.age,
-            gender: next.gender,
-            maritalStatus: next.maritalStatus,
-            motherTongue: next.motherTongue,
-            education: next.education,
-            hobbies: next.hobbies,
-            state: next.state,
-            city: next.city,
-            religion: next.religion,
-            occupation: next.occupation,
-            about: next.about,
-            height: next.height,
-            community: next.community,
-            subCaste: next.subCaste,
-            manglik: next.manglik,
-            diet: next.diet,
-            familyType: next.familyType,
-            income: next.income,
-            partnerLookingFor: next.partnerLookingFor,
-            partnerAgeFrom: next.partnerAgeFrom,
-            partnerAgeTo: next.partnerAgeTo,
-            partnerReligion: next.partnerReligion,
-            partnerMaritalStatus: next.partnerMaritalStatus,
-            partnerEducation: next.partnerEducation,
-            partnerHeight: next.partnerHeight,
-            partnerDiet: next.partnerDiet,
-            partnerManglik: next.partnerManglik,
-            partnerState: next.partnerState,
-            partnerCity: next.partnerCity,
-            educationSpec: next.educationSpec,
-            otherEducation: next.otherEducation,
-            occupationDetails: next.occupationDetails,
-            workAddress: next.workAddress,
-            religiousEducation: next.religiousEducation,
-            partnerRequirement: next.partnerRequirement,
-            partnerHeightFrom: next.partnerHeightFrom,
-            partnerHeightTo: next.partnerHeightTo,
-            partnerChildren: next.partnerChildren,
-            partnerDisability: next.partnerDisability,
-            profileSaved: next.profileSaved,
+            countryCode: next.countryCode,
+            profileSaved: Boolean(next.profileSaved),
           }
         : account,
     );
@@ -845,48 +724,8 @@ export class AuthService {
       fullName: account.fullName,
       username: account.username,
       email: account.email,
-      mobile: account.mobile ?? '',
+      ...profileFromStored(account),
       countryCode: account.countryCode || DEFAULT_COUNTRY_CODE,
-      age: account.age ?? '',
-      gender: account.gender ?? '',
-      maritalStatus: account.maritalStatus ?? '',
-      motherTongue: account.motherTongue ?? '',
-      education: account.education ?? '',
-      hobbies: account.hobbies ?? '',
-      state: account.state ?? '',
-      city: account.city ?? '',
-      religion: account.religion ?? '',
-      occupation: account.occupation ?? '',
-      about: account.about ?? '',
-      height: account.height ?? '',
-      community: account.community ?? '',
-      subCaste: account.subCaste ?? '',
-      manglik: account.manglik ?? '',
-      diet: account.diet ?? '',
-      familyType: account.familyType ?? '',
-      income: account.income ?? '',
-      partnerLookingFor: account.partnerLookingFor ?? '',
-      partnerAgeFrom: account.partnerAgeFrom ?? '',
-      partnerAgeTo: account.partnerAgeTo ?? '',
-      partnerReligion: account.partnerReligion ?? '',
-      partnerMaritalStatus: account.partnerMaritalStatus ?? '',
-      partnerEducation: account.partnerEducation ?? '',
-      partnerHeight: account.partnerHeight ?? '',
-      partnerDiet: account.partnerDiet ?? '',
-      partnerManglik: account.partnerManglik ?? '',
-      partnerState: account.partnerState ?? '',
-      partnerCity: account.partnerCity ?? '',
-      educationSpec: account.educationSpec ?? '',
-      otherEducation: account.otherEducation ?? '',
-      occupationDetails: account.occupationDetails ?? '',
-      workAddress: account.workAddress ?? '',
-      religiousEducation: account.religiousEducation ?? '',
-      partnerRequirement: account.partnerRequirement ?? '',
-      partnerHeightFrom: account.partnerHeightFrom ?? '',
-      partnerHeightTo: account.partnerHeightTo ?? '',
-      partnerChildren: account.partnerChildren ?? '',
-      partnerDisability: account.partnerDisability ?? '',
-      profileSaved: account.profileSaved ?? false,
     };
 
     return {

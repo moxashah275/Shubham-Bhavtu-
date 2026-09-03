@@ -110,6 +110,18 @@ export function lookingForLabel(value: string): string {
   return LOOKING_FOR_OPTIONS.find((option) => option.value === value)?.label ?? '';
 }
 
+/** Human label for the profile gender shown (e.g. Son → Girls). */
+export function profilesTypeForLookingFor(lookingFor: string): 'Girls' | 'Boys' | '' {
+  const gender = genderForLookingFor(lookingFor);
+  if (gender === 'Female') {
+    return 'Girls';
+  }
+  if (gender === 'Male') {
+    return 'Boys';
+  }
+  return '';
+}
+
 /** Partner gender to show for a Looking For choice (match for son/brother = girls, etc.). */
 export function genderForLookingFor(lookingFor: string): 'Male' | 'Female' | '' {
   switch (lookingFor) {

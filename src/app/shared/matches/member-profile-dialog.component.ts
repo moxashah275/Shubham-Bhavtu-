@@ -1,10 +1,11 @@
 import { Component, DestroyRef, inject, input, output } from '@angular/core';
-import { LucideBadgeCheck, LucideDynamicIcon, LucideHeart, LucideX } from '@lucide/angular';
+import { LucideDynamicIcon, LucideX } from '@lucide/angular';
 import { MemberMatch } from './match-profile.model';
+import { MemberProfileCardComponent } from './member-profile-card.component';
 
 @Component({
   selector: 'app-member-profile-dialog',
-  imports: [LucideBadgeCheck, LucideDynamicIcon, LucideHeart],
+  imports: [LucideDynamicIcon, MemberProfileCardComponent],
   templateUrl: './member-profile-dialog.component.html',
   host: {
     '(document:keydown.escape)': 'closed.emit()',

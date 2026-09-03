@@ -1,0 +1,239 @@
+<section class="profile-view-page">
+  <div class="mx-auto max-w-5xl px-4 pb-8 lg:px-8">
+    <div class="profile-view-header">
+      <div class="profile-view-header__overlay" aria-hidden="true"></div>
+      <div class="profile-view-header__content">
+      <div class="profile-view-header__main">
+        <div class="profile-view-header__avatar">
+          @if (profilePhotoUrl()) {
+            <img [src]="profilePhotoUrl()" [alt]="heroFullName() || 'Profile photo'" class="h-full w-full object-cover object-top" />
+          } @else {
+            <span class="font-serif text-3xl text-white">{{ heroInitials() }}</span>
+          }
+        </div>
+
+        <div class="profile-view-header__info">
+          <h1 class="profile-view-header__name">{{ heroFullName() || 'Member' }}</h1>
+          @if (viewSubline()) {
+            <p class="profile-view-header__subline">{{ viewSubline() }}</p>
+          }
+          @if (viewJainChip() || viewMaritalChip()) {
+            <div class="profile-view-chips">
+              @if (viewJainChip()) {
+                <span class="profile-view-chip">{{ viewJainChip() }}</span>
+              }
+              @if (viewMaritalChip()) {
+                <span class="profile-view-chip">{{ viewMaritalChip() }}</span>
+              }
+            </div>
+          }
+        </div>
+
+        <button type="button" class="profile-view-header__edit" (click)="editRequested.emit()">
+          <svg lucidePencil [size]="16" aria-hidden="true"></svg>
+          Edit Profile
+        </button>
+      </div>
+
+      <div class="profile-view-facts">
+        @if (viewEducationLine()) {
+          <div class="profile-view-facts__item">
+            <svg lucideGraduationCap [size]="18" class="profile-view-facts__icon" aria-hidden="true"></svg>
+            <span>{{ viewEducationLine() }}</span>
+          </div>
+        }
+        @if (viewOccupationLine()) {
+          <div class="profile-view-facts__item">
+            <svg lucideBriefcase [size]="18" class="profile-view-facts__icon" aria-hidden="true"></svg>
+            <span>{{ viewOccupationLine() }}</span>
+          </div>
+        }
+        @if (viewLocationFullLine()) {
+          <div class="profile-view-facts__item">
+            <svg lucideMapPin [size]="18" class="profile-view-facts__icon" aria-hidden="true"></svg>
+            <span>{{ viewLocationFullLine() }}</span>
+          </div>
+        }
+        @if (viewDietLine()) {
+          <div class="profile-view-facts__item">
+            <svg lucideUtensils [size]="18" class="profile-view-facts__icon" aria-hidden="true"></svg>
+            <span>{{ viewDietLine() }}</span>
+          </div>
+        }
+      </div>
+      </div>
+    </div>
+
+    <div class="profile-view-stack">
+      <article class="profile-view-card">
+        <div class="profile-view-card__head">
+          <span class="profile-view-card__icon"><svg lucideUser [size]="16" aria-hidden="true"></svg></span>
+          <h2 class="font-serif text-base text-burgundy">Personal</h2>
+        </div>
+
+        <div class="profile-view-subsection">
+          <h3 class="profile-view-subsection__title">Basic details</h3>
+          <span class="profile-view-subsection__line" aria-hidden="true"></span>
+          <dl class="profile-view-fields">
+            <div class="profile-view-field"><dt>Full Name</dt><dd>{{ display(user()?.fullName) }}</dd></div>
+            <div class="profile-view-field"><dt>Religion</dt><dd>{{ display(user()?.religion) }}</dd></div>
+            <div class="profile-view-field"><dt>Date of Birth</dt><dd>{{ displayDateOfBirth() }}</dd></div>
+            <div class="profile-view-field"><dt>Gender</dt><dd>{{ display(user()?.gender) }}</dd></div>
+            <div class="profile-view-field"><dt>Weight</dt><dd>{{ display(user()?.weight) }}</dd></div>
+            <div class="profile-view-field"><dt>Blood Group</dt><dd>{{ display(user()?.bloodGroup) }}</dd></div>
+            <div class="profile-view-field"><dt>Willing to Relocate</dt><dd>{{ display(user()?.willingToRelocate) }}</dd></div>
+            <div class="profile-view-field profile-view-field--last"><dt>Any Disability</dt><dd>{{ display(user()?.disability) }}</dd></div>
+          </dl>
+        </div>
+
+        <div class="profile-view-subsection">
+          <h3 class="profile-view-subsection__title">Contact details</h3>
+          <span class="profile-view-subsection__line" aria-hidden="true"></span>
+          <dl class="profile-view-fields">
+            <div class="profile-view-field"><dt>Mobile</dt><dd>{{ displayMobile() }}</dd></div>
+            <div class="profile-view-field"><dt>Email</dt><dd>{{ display(user()?.email) }}</dd></div>
+            <div class="profile-view-field"><dt>Country</dt><dd>{{ display(user()?.country) }}</dd></div>
+            <div class="profile-view-field"><dt>State</dt><dd>{{ display(user()?.state) }}</dd></div>
+            <div class="profile-view-field"><dt>City</dt><dd>{{ display(user()?.city) }}</dd></div>
+            <div class="profile-view-field"><dt>Native Place</dt><dd>{{ display(user()?.nativePlace) }}</dd></div>
+            <div class="profile-view-field profile-view-field--block">
+              <dt>Current Address</dt>
+              <dd>{{ displayMultiline(user()?.currentAddress) }}</dd>
+            </div>
+            <div class="profile-view-field profile-view-field--block profile-view-field--last">
+              <dt>Permanent Address</dt>
+              <dd>{{ displayMultiline(user()?.permanentAddress) }}</dd>
+            </div>
+          </dl>
+        </div>
+      </article>
+
+      <article class="profile-view-card">
+        <div class="profile-view-card__head">
+          <span class="profile-view-card__icon"><svg lucideUsers [size]="16" aria-hidden="true"></svg></span>
+          <h2 class="font-serif text-base text-burgundy">Family</h2>
+        </div>
+
+        <div class="profile-view-subsection">
+          <h3 class="profile-view-subsection__title">Family details</h3>
+          <span class="profile-view-subsection__line" aria-hidden="true"></span>
+          <dl class="profile-view-fields">
+            <div class="profile-view-field"><dt>Jain Sect</dt><dd>{{ display(user()?.jainSect) }}</dd></div>
+            <div class="profile-view-field"><dt>Jain Caste</dt><dd>{{ display(user()?.jainCaste) }}</dd></div>
+            <div class="profile-view-field"><dt>Jain Sub Caste</dt><dd>{{ display(user()?.subCaste) }}</dd></div>
+            <div class="profile-view-field"><dt>Gotra</dt><dd>{{ display(user()?.gotra) }}</dd></div>
+            <div class="profile-view-field"><dt>Diet</dt><dd>{{ display(user()?.diet) }}</dd></div>
+            <div class="profile-view-field"><dt>Father Name</dt><dd>{{ display(user()?.fatherName) }}</dd></div>
+            <div class="profile-view-field"><dt>Mother Name</dt><dd>{{ display(user()?.motherName) }}</dd></div>
+            <div class="profile-view-field"><dt>Father Occupation</dt><dd>{{ display(user()?.fatherOccupation) }}</dd></div>
+            <div class="profile-view-field"><dt>Mother Occupation</dt><dd>{{ display(user()?.motherOccupation) }}</dd></div>
+            <div class="profile-view-field"><dt>Brothers</dt><dd>{{ display(user()?.brothers) }}</dd></div>
+            <div class="profile-view-field"><dt>Sisters</dt><dd>{{ display(user()?.sisters) }}</dd></div>
+            <div class="profile-view-field profile-view-field--last"><dt>Family Type</dt><dd>{{ display(user()?.familyType) }}</dd></div>
+          </dl>
+        </div>
+
+        <div class="profile-view-subsection">
+          <h3 class="profile-view-subsection__title">Horoscope details</h3>
+          <span class="profile-view-subsection__line" aria-hidden="true"></span>
+          <dl class="profile-view-fields">
+            <div class="profile-view-field"><dt>Birth Time</dt><dd>{{ displayBirthTime() }}</dd></div>
+            <div class="profile-view-field"><dt>Birth Place</dt><dd>{{ display(user()?.birthPlace) }}</dd></div>
+            <div class="profile-view-field"><dt>Rasi</dt><dd>{{ display(user()?.rasi) }}</dd></div>
+            <div class="profile-view-field"><dt>Nakshatra</dt><dd>{{ display(user()?.nakshatra) }}</dd></div>
+            <div class="profile-view-field profile-view-field--last"><dt>Manglik / Shani</dt><dd>{{ display(user()?.manglik) }}</dd></div>
+          </dl>
+        </div>
+      </article>
+
+      <article class="profile-view-card">
+        <div class="profile-view-card__head">
+          <span class="profile-view-card__icon"><svg lucideGraduationCap [size]="16" aria-hidden="true"></svg></span>
+          <h2 class="font-serif text-base text-burgundy">Education &amp; Career</h2>
+        </div>
+
+        <div class="profile-view-subsection">
+          <h3 class="profile-view-subsection__title">Education details</h3>
+          <span class="profile-view-subsection__line" aria-hidden="true"></span>
+          <dl class="profile-view-fields">
+            <div class="profile-view-field"><dt>Highest Education</dt><dd>{{ display(user()?.educationSpec) }}</dd></div>
+            <div class="profile-view-field"><dt>Degree</dt><dd>{{ display(user()?.degree) }}</dd></div>
+            <div class="profile-view-field"><dt>Specialization</dt><dd>{{ display(user()?.specialization) }}</dd></div>
+            <div class="profile-view-field profile-view-field--last"><dt>University / College</dt><dd>{{ display(user()?.university) }}</dd></div>
+          </dl>
+        </div>
+
+        <div class="profile-view-subsection">
+          <h3 class="profile-view-subsection__title">Career details</h3>
+          <span class="profile-view-subsection__line" aria-hidden="true"></span>
+          <dl class="profile-view-fields">
+            <div class="profile-view-field"><dt>Employment Status</dt><dd>{{ display(user()?.employmentStatus) }}</dd></div>
+            <div class="profile-view-field"><dt>Occupation</dt><dd>{{ display(user()?.occupation) }}</dd></div>
+            <div class="profile-view-field"><dt>Company Name</dt><dd>{{ display(user()?.companyName) }}</dd></div>
+            <div class="profile-view-field"><dt>Designation</dt><dd>{{ display(user()?.designation) }}</dd></div>
+            <div class="profile-view-field"><dt>Work Experience</dt><dd>{{ displayWorkExperience() }}</dd></div>
+            <div class="profile-view-field"><dt>Annual Income</dt><dd>{{ display(user()?.income) }}</dd></div>
+            <div class="profile-view-field profile-view-field--last"><dt>Work Location</dt><dd>{{ display(user()?.workLocation) }}</dd></div>
+          </dl>
+        </div>
+
+        <div class="profile-view-subsection">
+          <h3 class="profile-view-subsection__title">Lifestyle</h3>
+          <span class="profile-view-subsection__line" aria-hidden="true"></span>
+          <dl class="profile-view-fields">
+            <div class="profile-view-field"><dt>Hobbies</dt><dd>{{ display(user()?.hobbies) }}</dd></div>
+            <div class="profile-view-field">
+              <dt>Languages Known</dt>
+              <dd>
+                @if (displayLanguageList().length) {
+                  {{ displayLanguageList().join(', ') }}
+                } @else {
+                  —
+                }
+              </dd>
+            </div>
+            <div class="profile-view-field"><dt>Exercise</dt><dd>{{ display(user()?.exerciseFrequency) }}</dd></div>
+            <div class="profile-view-field profile-view-field--last"><dt>Travel</dt><dd>{{ display(user()?.travelFrequency) }}</dd></div>
+          </dl>
+        </div>
+      </article>
+
+      <article class="profile-view-card">
+        <div class="profile-view-card__head">
+          <span class="profile-view-card__icon"><svg lucideUser [size]="16" aria-hidden="true"></svg></span>
+          <h2 class="font-serif text-base text-burgundy">About Me</h2>
+        </div>
+
+        <div class="profile-view-subsection">
+          <h3 class="profile-view-subsection__title">About me</h3>
+          <span class="profile-view-subsection__line" aria-hidden="true"></span>
+          <p class="profile-view-about__text">{{ displayMultiline(user()?.about) }}</p>
+          <dl class="profile-view-fields profile-view-fields--compact">
+            <div class="profile-view-field"><dt>My Personality</dt><dd>{{ display(user()?.personality) }}</dd></div>
+            <div class="profile-view-field profile-view-field--last"><dt>Future Goals</dt><dd>{{ display(user()?.futureGoals) }}</dd></div>
+          </dl>
+        </div>
+
+        <div class="profile-view-subsection">
+          <h3 class="profile-view-subsection__title">Partner preference</h3>
+          <span class="profile-view-subsection__line" aria-hidden="true"></span>
+          <dl class="profile-view-partner">
+            <div class="profile-view-field"><dt>Age Range</dt><dd>{{ displayPartnerAge() }}</dd></div>
+            <div class="profile-view-field"><dt>Height Range</dt><dd>{{ displayPartnerHeight() }}</dd></div>
+            <div class="profile-view-field"><dt>Prefer Marital Status</dt><dd>{{ display(user()?.partnerMaritalStatus) }}</dd></div>
+            <div class="profile-view-field"><dt>Prefer Education</dt><dd>{{ display(user()?.partnerEducation) }}</dd></div>
+            <div class="profile-view-field"><dt>Prefer Occupation</dt><dd>{{ display(user()?.partnerOccupation) }}</dd></div>
+            <div class="profile-view-field"><dt>Jain Sect Preference</dt><dd>{{ display(user()?.jainSectPreference) }}</dd></div>
+            <div class="profile-view-field"><dt>Prefer State</dt><dd>{{ display(user()?.partnerState) }}</dd></div>
+            <div class="profile-view-field"><dt>Prefer City</dt><dd>{{ display(user()?.partnerCity) }}</dd></div>
+            <div class="profile-view-field"><dt>Diet Preference</dt><dd>{{ display(user()?.partnerDiet) }}</dd></div>
+            <div class="profile-view-field"><dt>Children Acceptable</dt><dd>{{ display(user()?.partnerChildren) }}</dd></div>
+            <div class="profile-view-field"><dt>Horoscope Matching</dt><dd>{{ display(user()?.horoscopeMatching) }}</dd></div>
+            <div class="profile-view-field"><dt>Any Disability</dt><dd>{{ display(user()?.partnerDisability) }}</dd></div>
+            <div class="profile-view-field profile-view-field--last"><dt>Manglik / Shani</dt><dd>{{ display(user()?.partnerManglik) }}</dd></div>
+          </dl>
+        </div>
+      </article>
+    </div>
+  </div>
+</section>

@@ -7,6 +7,7 @@ import {
   LOOKING_FOR_OPTIONS,
   MARITAL_OPTIONS,
   RELIGION_OPTIONS,
+  profilesTypeForLookingFor,
 } from '../../core/data/partner-search-options';
 import { AuthService } from '../../core/services/auth.service';
 import { MatchSearchService } from '../../core/services/match-search.service';
@@ -43,6 +44,11 @@ export class SearchDialogComponent {
   readonly religionOptions = RELIGION_OPTIONS;
   readonly maritalOptions = MARITAL_OPTIONS;
   readonly open = this.searchDialog.open;
+
+  profilesHint(): string {
+    const type = profilesTypeForLookingFor(this.lookingFor);
+    return type ? `Shows ${type} profiles` : '';
+  }
 
   constructor() {
     const previous = document.body.style.overflow;
