@@ -31,6 +31,7 @@ type ProfileStringField =
   | 'mobile'
   | 'dateOfBirth'
   | 'gender'
+  | 'height'
   | 'weight'
   | 'willingToRelocate'
   | 'bloodGroup'
@@ -200,6 +201,7 @@ export class ProfilePageComponent {
   }));
   readonly incomeOptions = this.toOptions(profileOptions.incomes);
   readonly partnerAgeOptions = AGE_OPTIONS;
+  readonly ageOptions = AGE_OPTIONS;
   readonly heightOptions = this.toOptions(profileOptions.heights);
   readonly maritalOptions = this.toOptions(profileOptions.maritalStatuses);
 
@@ -210,6 +212,8 @@ export class ProfilePageComponent {
     mobile: [this.auth.user()?.mobile ?? ''],
     dateOfBirth: [this.auth.user()?.dateOfBirth ?? ''],
     gender: [this.auth.user()?.gender ?? ''],
+    height: [this.auth.user()?.height ?? ''],
+    age: [this.auth.user()?.age ?? ''],
     weight: [this.auth.user()?.weight ?? ''],
     willingToRelocate: [this.auth.user()?.willingToRelocate ?? ''],
     bloodGroup: [this.auth.user()?.bloodGroup ?? ''],
@@ -333,6 +337,19 @@ export class ProfilePageComponent {
     this.stepError.set('');
   }
 
+  setAge(value: string): void {
+    this.form.controls.age.setValue(value);
+    this.stepError.set('');
+  }
+
+  onDateOfBirthInput(): void {
+    this.stepError.set('');
+    const fromDob = this.ageForStorage(this.form.controls.dateOfBirth.value);
+    if (fromDob && fromDob !== 'below-18') {
+      this.form.controls.age.setValue(fromDob);
+    }
+  }
+
   setRadio(field: ProfileRadioField, value: string): void {
     this.form.controls[field].setValue(value);
     this.stepError.set('');
@@ -451,7 +468,9 @@ export class ProfilePageComponent {
   heroAgeWeightChip(): string {
     const dob = this.heroDateOfBirth();
     const weight = this.heroWeight();
-    const age = this.ageTextFromDob(dob) || this.ageTextFromStoredAge(this.user()?.age);
+    const age =
+      this.ageTextFromStoredAge(this.filling() ? this.form.controls.age.value : this.user()?.age) ||
+      this.ageTextFromDob(dob);
     if (age && weight) {
       return `${age} · ${weight}`;
     }
@@ -603,12 +622,11 @@ export class ProfilePageComponent {
   }
 
   displayAge(): string {
-    const dob = this.user()?.dateOfBirth?.trim();
-    const fromDob = this.ageTextFromDob(dob);
-    if (fromDob) {
-      return fromDob;
+    const fromStored = this.ageTextFromStoredAge(this.user()?.age);
+    if (fromStored) {
+      return fromStored;
     }
-    return this.ageTextFromStoredAge(this.user()?.age) || '—';
+    return this.ageTextFromDob(this.user()?.dateOfBirth) || '—';
   }
 
   displayMobile(): string {
@@ -679,7 +697,7 @@ export class ProfilePageComponent {
     const firstSave = !current.profileSaved;
     const { email: _email, ...value } = this.form.getRawValue();
     const { id: _id, email: _userEmail, username: _username, ...currentProfile } = current;
-    const storedAge = this.ageForStorage(value.dateOfBirth) || current.age;
+    const storedAge = value.age.trim() || this.ageForStorage(value.dateOfBirth) || current.age;
     this.auth.updateProfile({
       ...currentProfile,
       ...value,
@@ -689,6 +707,7 @@ export class ProfilePageComponent {
       hobbies: value.hobbies.trim(),
       occupation: value.occupation.trim(),
       education: value.educationSpec,
+      height: value.height.trim(),
       age: storedAge,
       profileSaved: true,
     });
@@ -849,6 +868,8 @@ export class ProfilePageComponent {
       mobile: user.mobile ?? '',
       dateOfBirth: user.dateOfBirth ?? '',
       gender: user.gender ?? '',
+      height: user.height ?? '',
+      age: user.age ?? '',
       weight: user.weight ?? '',
       willingToRelocate: user.willingToRelocate ?? '',
       bloodGroup: user.bloodGroup ?? '',

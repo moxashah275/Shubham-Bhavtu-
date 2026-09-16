@@ -6,6 +6,7 @@ import { SuccessMatch } from '../../../../shared/matches/match-profile.model';
 import { SuccessMatchCardComponent } from '../../../../shared/matches/success-match-card.component';
 import { SuccessMatchDialogComponent } from '../../../../shared/matches/success-match-dialog.component';
 import { SiteHighlightsComponent } from '../../../../shared/trust/site-highlights.component';
+import { FaqSectionComponent } from '../../../../shared/ui/faq-section/faq-section.component';
 import successMatchesData from '../../../../../assets/data/success-matches.json';
 
 const SLIDE_SIZE = 4;
@@ -19,6 +20,7 @@ const SLIDE_INTERVAL = 5000;
     SiteHighlightsComponent,
     SuccessMatchCardComponent,
     SuccessMatchDialogComponent,
+    FaqSectionComponent,
   ],
   templateUrl: './dashboard.component.html',
 })

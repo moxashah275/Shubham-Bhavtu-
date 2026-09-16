@@ -177,7 +177,7 @@
                     type="date"
                     [max]="todayMax"
                     class="profile-field-input cursor-pointer"
-                    (input)="stepError.set('')"
+                    (input)="onDateOfBirthInput()"
                   />
                 </label>
                 <div class="profile-field-label profile-field-label--inline-radio profile-field-label--gender-offset">
@@ -200,6 +200,28 @@
                     </div>
                   </div>
                 </div>
+                </div>
+                <div class="profile-form-row">
+                <label class="profile-field-label">
+                  Height
+                  <app-search-select
+                    name="height"
+                    placeholder="Select"
+                    [options]="heightOptions"
+                    [value]="form.controls.height.value"
+                    (valueChange)="setField('height', $event)"
+                  />
+                </label>
+                <label class="profile-field-label">
+                  Age
+                  <app-search-select
+                    name="age"
+                    placeholder="Select"
+                    [options]="ageOptions"
+                    [value]="form.controls.age.value"
+                    (valueChange)="setAge($event)"
+                  />
+                </label>
                 </div>
                 <div class="profile-form-row">
                 <label class="profile-field-label">

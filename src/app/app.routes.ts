@@ -13,7 +13,9 @@ import { ContactPageComponent } from './features/home/pages/contact/contact.comp
 import { EventsPageComponent } from './features/home/pages/events/events.component';
 import { GalleryPageComponent } from './features/home/pages/gallery/gallery.component';
 import { HomePageComponent } from './features/home/pages/home/home.component';
+import { FaqPageComponent } from './features/home/pages/faq/faq.component';
 import { MembershipPageComponent } from './features/home/pages/membership/membership.component';
+import { SubscriptionPageComponent } from './features/home/pages/subscription/subscription.component';
 import { SiteShellComponent } from './shared/layout/site-shell/site-shell.component';
 
 export const routes: Routes = [
@@ -50,6 +52,16 @@ export const routes: Routes = [
       {
         path: 'membership',
         component: MembershipPageComponent,
+        title: 'Gathbandhan',
+      },
+      {
+        path: 'subscription',
+        component: SubscriptionPageComponent,
+        title: 'Gathbandhan',
+      },
+      {
+        path: 'faq',
+        component: FaqPageComponent,
         title: 'Gathbandhan',
       },
       {

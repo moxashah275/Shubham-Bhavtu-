@@ -7,9 +7,11 @@ import {
   LucideChevronDown,
   LucideDynamicIcon,
   LucideHeart,
+  LucideLayoutTemplate,
   LucideLogOut,
   LucideMenu,
   LucideMessageCircle,
+  LucideSparkles,
   LucideUsers,
   LucideX,
   type LucideIcon,
@@ -40,9 +42,11 @@ interface NoticeItem {
     LucideCheck,
     LucideChevronDown,
     LucideDynamicIcon,
+    LucideLayoutTemplate,
     LucideLogOut,
     LucideMenu,
     LucideMessageCircle,
+    LucideSparkles,
     LucideX,
   ],
   templateUrl: './site-navbar.component.html',
@@ -74,6 +78,7 @@ export class SiteNavbarComponent {
   readonly noticesOpen = signal(false);
   readonly messagesOpen = signal(false);
   readonly healthOpen = signal(false);
+  readonly biodataOpen = signal(false);
   readonly completion = this.auth.profileCompletion;
   readonly profileComplete = computed(() => this.completion().percent >= 100);
   readonly unreadCount = computed(() => this.notifications().filter((item) => !item.read).length);
@@ -123,6 +128,7 @@ export class SiteNavbarComponent {
     this.noticesOpen.set(false);
     this.messagesOpen.set(false);
     this.healthOpen.set(false);
+    this.biodataOpen.set(false);
   }
 
   toggleNotices(event: Event): void {
@@ -131,6 +137,7 @@ export class SiteNavbarComponent {
     this.profileOpen.set(false);
     this.messagesOpen.set(false);
     this.healthOpen.set(false);
+    this.biodataOpen.set(false);
   }
 
   toggleMessages(event: Event): void {
@@ -139,6 +146,7 @@ export class SiteNavbarComponent {
     this.profileOpen.set(false);
     this.noticesOpen.set(false);
     this.healthOpen.set(false);
+    this.biodataOpen.set(false);
   }
 
   toggleHealth(event: Event): void {
@@ -147,6 +155,26 @@ export class SiteNavbarComponent {
     this.profileOpen.set(false);
     this.noticesOpen.set(false);
     this.messagesOpen.set(false);
+    this.biodataOpen.set(false);
+  }
+
+  toggleBiodata(event: Event): void {
+    event.stopPropagation();
+    this.biodataOpen.update((open) => !open);
+    this.profileOpen.set(false);
+    this.noticesOpen.set(false);
+    this.messagesOpen.set(false);
+    this.healthOpen.set(false);
+  }
+
+  openBiodata(event: Event, mode: 'default' | 'ai'): void {
+    event.stopPropagation();
+    this.closeMenus();
+    void this.router.navigate(['/biodata'], { queryParams: { mode } });
+  }
+
+  isBiodataActive(): boolean {
+    return this.router.url.startsWith('/biodata');
   }
 
   openInbox(event: Event, memberId?: string): void {
@@ -204,5 +232,6 @@ export class SiteNavbarComponent {
     this.noticesOpen.set(false);
     this.messagesOpen.set(false);
     this.healthOpen.set(false);
+    this.biodataOpen.set(false);
   }
 }
