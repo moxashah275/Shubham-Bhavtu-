@@ -1,6 +1,8 @@
 import {
   LucideBriefcase,
+  LucideBuilding2,
   LucideCake,
+  LucideCalendar,
   LucideGlobe,
   LucideGraduationCap,
   LucideHeart,
@@ -19,7 +21,7 @@ import {
 } from '@lucide/angular';
 import type { AuthUser } from '../../core/models/auth.model';
 import { DEFAULT_COUNTRY_CODE } from '../../core/data/country-codes';
-import type { BiodataContent, BiodataField } from './biodata.model';
+import type { BiodataContent, BiodataField, BiodataSection } from './biodata.model';
 
 const PLACEHOLDER = '—';
 
@@ -42,24 +44,41 @@ function initialsOf(name: string): string {
   return `${first}${second}`.toUpperCase();
 }
 
+function line(
+  label: string,
+  value: string | undefined | null,
+  icon: BiodataField['icon'],
+  extra?: Partial<BiodataField>,
+): BiodataField {
+  return { label, value: text(value), icon, ...extra };
+}
+
 /** Maps the saved profile onto the fields a marriage biodata usually prints. */
-export function buildBiodataContent(user: AuthUser | null): BiodataContent {
+export function buildBiodataContent(
+  user: AuthUser | null,
+  options?: { aboutOverride?: string; photoSrc?: string },
+): BiodataContent {
   const name = user?.fullName?.trim() || 'Your Name';
   const location = [user?.city, user?.state].filter(Boolean).join(', ');
+  const education = user?.education || user?.educationSpec || user?.degree;
+  const nativePlace = user?.nativePlace || user?.city || user?.state;
 
   const profileInfo: BiodataField[] = [
-    { label: 'Gender', value: text(user?.gender), icon: LucideUser },
-    { label: 'Marital status', value: text(user?.maritalStatus), icon: LucideHeart },
+    line('Gender', user?.gender, LucideUser),
+    line('Marital status', user?.maritalStatus, LucideHeart),
     { label: 'Age', value: ageText(user?.age), icon: LucideCake },
-    { label: 'Height', value: text(user?.height), icon: LucideRuler },
-    { label: 'Manglik / Shani', value: text(user?.manglik), icon: LucideStar },
-    { label: 'Religion', value: text(user?.religion), icon: LucideSparkles },
-    { label: 'Community', value: text(user?.community), icon: LucideUsers },
-    { label: 'Sub caste', value: text(user?.subCaste), icon: LucideUsers },
-    { label: 'Mother tongue', value: text(user?.motherTongue), icon: LucideGlobe },
-    { label: 'Diet', value: text(user?.diet), icon: LucideUtensils },
-    { label: 'Native place', value: text(user?.state), icon: LucideMapPin },
-    { label: 'Hobbies', value: text(user?.hobbies), icon: LucideMoveVertical },
+    line('Date of birth', user?.dateOfBirth, LucideCalendar),
+    line('Height', user?.height, LucideRuler),
+    line('Manglik / Shani', user?.manglik, LucideStar),
+    line('Religion', user?.religion, LucideSparkles),
+    line('Jain sect', user?.jainSect, LucideSparkles),
+    line('Community', user?.community || user?.jainCaste, LucideUsers),
+    line('Sub caste', user?.subCaste, LucideUsers),
+    line('Gotra', user?.gotra, LucideUsers),
+    line('Mother tongue', user?.motherTongue || user?.languagesKnown, LucideGlobe),
+    line('Diet', user?.diet, LucideUtensils),
+    line('Native place', nativePlace, LucideMapPin),
+    line('Hobbies', user?.hobbies, LucideMoveVertical),
   ];
 
   const contact: BiodataField[] = [
@@ -73,36 +92,85 @@ export function buildBiodataContent(user: AuthUser | null): BiodataContent {
     { label: 'Address', value: location || PLACEHOLDER, icon: LucideHome },
   ];
 
+  const sections: BiodataSection[] = [
+    {
+      id: 'career',
+      title: 'Education / Professional details',
+      fields: [
+        line('Education', education, LucideGraduationCap),
+        line('Specialization', user?.specialization, LucideGraduationCap),
+        line('University', user?.university, LucideBuilding2),
+        line('Occupation', user?.occupation, LucideBriefcase),
+        line('Designation', user?.designation, LucideBriefcase),
+        line('Company', user?.companyName, LucideBuilding2),
+        line('Employment status', user?.employmentStatus, LucideBriefcase),
+        line('Work experience', user?.workExperience, LucideBriefcase),
+        line('Annual income', user?.income, LucideWallet),
+      ],
+    },
+    {
+      id: 'family',
+      title: 'Family details',
+      fields: [
+        line('Family type', user?.familyType, LucideUsers),
+        line('Father name', user?.fatherName, LucideUser),
+        line('Father occupation', user?.fatherOccupation, LucideBriefcase),
+        line('Mother name', user?.motherName, LucideUser),
+        line('Mother occupation', user?.motherOccupation, LucideBriefcase),
+        line('Brothers', user?.brothers, LucideUsers),
+        line('Sisters', user?.sisters, LucideUsers),
+        line('Native place', nativePlace, LucideMapPin),
+        line('Lives in', location || PLACEHOLDER, LucideHome),
+      ],
+    },
+  ];
+
+  const partnerBits = [
+    user?.partnerAgeFrom && user?.partnerAgeTo
+      ? `${user.partnerAgeFrom}–${user.partnerAgeTo}`
+      : user?.partnerAgeFrom || user?.partnerAgeTo || '',
+    user?.partnerEducation,
+    user?.partnerOccupation,
+    [user?.partnerCity, user?.partnerState].filter(Boolean).join(', '),
+    user?.partnerDiet,
+  ].filter((part) => part && String(part).trim());
+
+  if (partnerBits.length) {
+    sections.push({
+      id: 'partner',
+      title: 'Partner expectations',
+      fields: [
+        line(
+          'Preferred age',
+          user?.partnerAgeFrom && user?.partnerAgeTo
+            ? `${user.partnerAgeFrom}–${user.partnerAgeTo}`
+            : user?.partnerAgeFrom || user?.partnerAgeTo,
+          LucideCake,
+        ),
+        line('Preferred education', user?.partnerEducation, LucideGraduationCap),
+        line('Preferred occupation', user?.partnerOccupation, LucideBriefcase),
+        line('Preferred city', user?.partnerCity, LucideMapPin),
+        line('Preferred state', user?.partnerState, LucideMapPin),
+        line('Preferred diet', user?.partnerDiet, LucideUtensils),
+      ],
+    });
+  }
+
+  const aboutOverride = options?.aboutOverride?.trim();
+  const photoSrc = options?.photoSrc?.trim() || user?.profilePhoto?.trim() || '';
+
   return {
     name,
     headline: [user?.occupation?.trim(), location].filter(Boolean).join(' · ') || 'Marriage biodata',
     initials: initialsOf(name),
-    photoSrc: '',
+    photoSrc,
     profession: text(user?.occupation),
     about:
+      aboutOverride ||
       user?.about?.trim() ||
       'Add a few lines about yourself in your profile — they will appear here automatically.',
     profileInfo,
-    sections: [
-      {
-        id: 'career',
-        title: 'Education / Professional details',
-        fields: [
-          { label: 'Education', value: text(user?.education), icon: LucideGraduationCap },
-          { label: 'Occupation', value: text(user?.occupation), icon: LucideBriefcase },
-          { label: 'Annual income', value: text(user?.income), icon: LucideWallet },
-        ],
-      },
-      {
-        id: 'family',
-        title: 'Family details',
-        fields: [
-          { label: 'Family type', value: text(user?.familyType), icon: LucideUsers },
-          { label: 'Native place', value: text(user?.state), icon: LucideMapPin },
-          { label: 'Lives in', value: location || PLACEHOLDER, icon: LucideHome },
-        ],
-      },
-    ],
+    sections,
     contact,
   };
 }

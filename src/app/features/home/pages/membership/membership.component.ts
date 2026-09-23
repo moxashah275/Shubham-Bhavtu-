@@ -1,54 +1,99 @@
-import { Component, computed, inject } from '@angular/core';
-import { RouterLink } from '@angular/router';
-import {
-  LucideCrown,
-  LucideDynamicIcon,
-  LucideHeart,
-  LucideSparkles,
-  type LucideIcon,
-} from '@lucide/angular';
+import { Component, computed, inject, signal } from '@angular/core';
+import { Router } from '@angular/router';
+import { LucideCheck, LucideDynamicIcon, LucideIndianRupee, LucideX } from '@lucide/angular';
 import { AuthService } from '../../../../core/services/auth.service';
+import { ToastService } from '../../../../core/services/toast.service';
+import { MembershipPaymentDialogComponent } from '../../../../shared/membership/membership-payment-dialog.component';
+import {
+  MEMBERSHIP_PLANS,
+  featuresForPlan,
+  type MembershipPlan,
+  type PlanId,
+} from '../../../../shared/membership/membership-plans';
+import { MembershipStateService } from '../../../../shared/membership/membership-state.service';
 import { PageHeroComponent } from '../../../../shared/ui/page-hero/page-hero.component';
 
 @Component({
   selector: 'app-membership-page',
-  imports: [RouterLink, PageHeroComponent, LucideDynamicIcon],
+  imports: [
+    PageHeroComponent,
+    LucideDynamicIcon,
+    LucideCheck,
+    LucideIndianRupee,
+    LucideX,
+    MembershipPaymentDialogComponent,
+  ],
   templateUrl: './membership.component.html',
 })
 export class MembershipPageComponent {
   private readonly auth = inject(AuthService);
-  readonly startLink = computed(() => (this.auth.isAuthenticated() ? '/contact' : '/register'));
-  readonly plans: {
-    icon: LucideIcon;
-    name: string;
-    price: string;
-    copy: string;
-    features: string[];
-    featured: boolean;
-  }[] = [
-    {
-      icon: LucideHeart,
-      name: 'Complimentary',
-      price: 'Free',
-      copy: 'Begin with a verified profile and a calm, private search.',
-      features: ['Create and edit your profile', 'Browse verified members', 'Save matches you like'],
-      featured: false,
-    },
-    {
-      icon: LucideSparkles,
-      name: 'Gold',
-      price: '₹2,199 / 3 months',
-      copy: 'A subscription for families who want introductions to move with care.',
-      features: ['See who viewed your profile', 'Send interests with context', 'Priority profile review'],
-      featured: true,
-    },
-    {
-      icon: LucideCrown,
-      name: 'Premium',
-      price: '₹4,499 / 6 months',
-      copy: 'The fullest Gathbandhan membership — highlighted, personal, and unhurried.',
-      features: ['Highlighted in search', 'Dedicated care support', 'Guided family introductions'],
-      featured: false,
-    },
-  ];
+  private readonly membership = inject(MembershipStateService);
+  private readonly toast = inject(ToastService);
+  private readonly router = inject(Router);
+
+  readonly plans = MEMBERSHIP_PLANS;
+  readonly checkoutPlan = signal<MembershipPlan | null>(null);
+
+  readonly currentPlanId = computed(() => this.membership.currentPlanId());
+
+  features(planId: PlanId) {
+    return featuresForPlan(planId);
+  }
+
+  statusFor(planId: PlanId): string {
+    return this.currentPlanId() === planId ? 'Current plan' : 'Available';
+  }
+
+  isCurrent(planId: PlanId): boolean {
+    return this.currentPlanId() === planId;
+  }
+
+  /** Free is always "Current plan" and disabled. Gold/Premium stay clickable. */
+  isChooseDisabled(plan: MembershipPlan): boolean {
+    return plan.id === 'free';
+  }
+
+  chooseLabel(plan: MembershipPlan): string {
+    return plan.id === 'free' ? 'Current plan' : plan.actionLabel;
+  }
+
+  viewSubscription(plan: MembershipPlan): void {
+    if (!this.auth.isAuthenticated()) {
+      void this.router.navigateByUrl('/login');
+      return;
+    }
+    this.membership.setPlan(plan.id);
+    void this.router.navigateByUrl('/subscription');
+  }
+
+  choosePlan(plan: MembershipPlan): void {
+    if (this.isChooseDisabled(plan)) {
+      return;
+    }
+
+    if (!this.auth.isAuthenticated()) {
+      void this.router.navigateByUrl('/register');
+      return;
+    }
+
+    if (plan.amount <= 0) {
+      this.membership.setPlan('free');
+      this.toast.show('Free plan is active on your account.');
+      void this.router.navigateByUrl('/subscription');
+      return;
+    }
+
+    this.checkoutPlan.set(plan);
+  }
+
+  closeCheckout(): void {
+    this.checkoutPlan.set(null);
+  }
+
+  confirmPayment(plan: MembershipPlan): void {
+    this.membership.setPlan(plan.id);
+    this.checkoutPlan.set(null);
+    this.toast.show(`${plan.name} payment of ${plan.priceLabel} is confirmed. Thank you.`);
+    void this.router.navigateByUrl('/subscription');
+  }
 }

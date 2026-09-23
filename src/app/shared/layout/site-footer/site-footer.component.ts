@@ -22,12 +22,13 @@ export class SiteFooterComponent {
   readonly resourceLinks = computed(() => [
     { label: 'How It Works', path: this.homeLink() },
     { label: 'Success Stories', path: this.homeLink() },
+    { label: 'Subscription', path: '/subscription' },
     { label: 'Safety Center', path: '/about' },
     { label: 'Community', path: '/contact' },
   ]);
   readonly supportLinks: { label: string; path: string; fragment?: string }[] = [
     { label: 'Help Center', path: '/contact' },
-    { label: 'FAQ', path: '/contact' },
+    { label: 'FAQ', path: '/faq' },
     { label: 'Report an Issue', path: '/contact' },
     { label: 'Contact Support', path: '/contact' },
   ];

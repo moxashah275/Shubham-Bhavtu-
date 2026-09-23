@@ -1,59 +1,219 @@
-<section class="bg-ivory pb-16">
-  <div class="bg-burgundy px-5 py-6 text-white lg:px-8">
-    <div class="mx-auto max-w-7xl text-center">
-      <p class="text-xs font-semibold tracking-[0.22em] text-gold uppercase">Ready-made biodata</p>
-      <h1 class="mt-1 font-serif text-2xl leading-tight sm:text-3xl">Your marriage biodata, in one click</h1>
-    </div>
-  </div>
+@if (mode() === 'ai') {
+  <section class="biodata-ai-shell">
+    <div class="biodata-ai-chat">
+      <aside class="biodata-ai-chat__sidebar" aria-label="Chat history">
+        <button type="button" class="biodata-ai-chat__new" (click)="newAiChat()">
+          <svg lucideSquarePen [size]="16" aria-hidden="true"></svg>
+          New chat
+        </button>
 
-  <div class="mx-auto w-full max-w-6xl px-4 pt-8 sm:px-6">
-    <div class="flex items-center gap-2">
-      <svg lucideSparkles [size]="18" class="text-gold-deep" aria-hidden="true"></svg>
-      <h2 class="font-serif text-2xl text-charcoal">Choose a design</h2>
-    </div>
-    <p class="mt-1 text-sm text-stone-500">
-      Tap any design to open it full size with your own details filled in.
-    </p>
+        <div class="biodata-ai-chat__history">
+          @if (todayChats().length) {
+            <p class="biodata-ai-chat__group">Today</p>
+            @for (chat of todayChats(); track chat.id) {
+              <button
+                type="button"
+                class="biodata-ai-chat__item"
+                [class.biodata-ai-chat__item--active]="activeChatId() === chat.id"
+                (click)="openAiChat(chat.id)"
+              >
+                <svg lucideMessageSquare [size]="15" aria-hidden="true"></svg>
+                <span>{{ chat.title }}</span>
+              </button>
+            }
+          }
+          @if (earlierChats().length) {
+            <p class="biodata-ai-chat__group">Earlier</p>
+            @for (chat of earlierChats(); track chat.id) {
+              <button
+                type="button"
+                class="biodata-ai-chat__item"
+                [class.biodata-ai-chat__item--active]="activeChatId() === chat.id"
+                (click)="openAiChat(chat.id)"
+              >
+                <svg lucideMessageSquare [size]="15" aria-hidden="true"></svg>
+                <span>{{ chat.title }}</span>
+              </button>
+            }
+          }
+          @if (!chatHistory().length) {
+            <p class="biodata-ai-chat__empty-hint">Sent prompts appear here.</p>
+          }
+        </div>
+      </aside>
 
-    <div class="mt-6 grid grid-cols-1 justify-items-start gap-5 sm:grid-cols-2 lg:grid-cols-4">
-      @for (template of pageTemplates(); track template.id) {
-        <app-biodata-template-card
-          [template]="template"
-          [content]="content()"
-          [label]="templateNumber(template.id)"
-          [selected]="template.id === selectedId()"
-          (chosen)="select($event)"
-        />
+      <div class="biodata-ai-chat__main">
+        <div class="biodata-ai-chat__thread">
+          @if (!hasGenerated() && !generating()) {
+            <div class="biodata-ai-chat__welcome">
+              <h2 class="font-serif text-2xl text-charcoal sm:text-3xl">
+                Hi — ready to craft your marriage biodata?
+              </h2>
+              <p class="mt-3 text-sm leading-6 text-stone-500">
+                Edit the prompt below, then send with the arrow to generate.
+              </p>
+            </div>
+          } @else {
+            <div class="biodata-ai-chat__result">
+              @if (sentPrompt()) {
+                <div class="biodata-ai-chat__prompt-row">
+                  <div class="biodata-ai-chat__prompt" aria-label="Your prompt">
+                    {{ sentPrompt() }}
+                  </div>
+                </div>
+              }
+
+              @if (generating()) {
+                <div class="biodata-ai-live__loading">
+                  <svg lucideLoaderCircle [size]="28" class="animate-spin text-burgundy" aria-hidden="true"></svg>
+                  <p class="mt-2 font-serif text-lg text-charcoal">Updating biodata…</p>
+                </div>
+              } @else {
+                <h3 class="biodata-ai-chat__result-title">{{ generatedName() }} biodata</h3>
+
+                <div class="biodata-ai-live__frame">
+                  <div class="overflow-x-auto">
+                    <div class="biodata-default-print relative w-[794px] shadow-2xl" data-biodata-pdf-sheet="ai">
+                      <app-biodata-document [template]="aiTemplate()" [content]="aiPreviewContent()" />
+                    </div>
+                  </div>
+                </div>
+
+                <button
+                  type="button"
+                  class="biodata-ai-chat__download"
+                  [disabled]="!canDownloadAi() || pdfDownloading()"
+                  (click)="onDownloadPdfClick($event)"
+                >
+                  <svg lucideDownload [size]="16" aria-hidden="true"></svg>
+                  Download PDF
+                </button>
+              }
+            </div>
+          }
+        </div>
+
+        <div class="biodata-ai-chat__composer">
+          <div class="biodata-ai-chat__input">
+            <textarea
+              class="biodata-ai-chat__textarea"
+              rows="1"
+              [value]="prompt()"
+              (input)="onPromptInput($event)"
+              (keydown)="onPromptKeydown($event)"
+              aria-label="AI biodata prompt"
+              placeholder="Ask me anything about your biodata…"
+            ></textarea>
+            <button
+              type="button"
+              class="biodata-ai-chat__send"
+              [disabled]="generating()"
+              aria-label="Send and generate biodata"
+              (click)="generateBiodata()"
+            >
+              @if (generating()) {
+                <svg lucideLoaderCircle [size]="18" class="animate-spin" aria-hidden="true"></svg>
+              } @else {
+                <svg lucideArrowUp [size]="18" aria-hidden="true"></svg>
+              }
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+} @else {
+  <section class="bg-ivory pb-16">
+    <div class="bg-burgundy px-5 py-6 text-white lg:px-8">
+      <div class="mx-auto max-w-7xl text-center">
+        <p class="text-xs font-semibold tracking-[0.22em] text-gold uppercase">Biodata Maker</p>
+        <h1 class="mt-1 font-serif text-2xl leading-tight sm:text-3xl">Your marriage biodata, ready with care</h1>
+      </div>
+    </div>
+
+    <div class="mx-auto w-full max-w-6xl px-4 pt-7 sm:px-6">
+      @if (mode() === 'default') {
+        <div>
+          <div class="flex items-center gap-2">
+            <svg lucideLayoutTemplate [size]="18" class="text-gold-deep" aria-hidden="true"></svg>
+            <h2 class="font-serif text-2xl text-charcoal">Choose a design</h2>
+          </div>
+          <p class="mt-1 text-sm text-stone-500">
+            All your profile details fill automatically. Tap a design to open it.
+          </p>
+
+          <div class="mt-6 grid grid-cols-1 justify-items-start gap-5 sm:grid-cols-2 lg:grid-cols-4">
+            @for (template of pageTemplates(); track template.id) {
+              <app-biodata-template-card
+                [template]="template"
+                [content]="defaultContent()"
+                [label]="templateNumber(template.id)"
+                [selected]="template.id === selectedId()"
+                (chosen)="select($event)"
+              />
+            }
+          </div>
+
+          <div class="mt-8">
+            <app-pagination
+              [page]="page()"
+              [totalPages]="totalPages"
+              label="Biodata design pages"
+              (changed)="goToPage($event)"
+            />
+          </div>
+        </div>
+      } @else {
+        <div class="mx-auto max-w-lg rounded-2xl border border-gold/20 bg-white px-6 py-10 text-center shadow-sm">
+          <p class="text-xs font-semibold tracking-[0.18em] text-gold uppercase">Biodata Maker</p>
+          <div class="mx-auto mt-2 w-fit">
+            <h2 class="font-serif text-2xl text-charcoal">Pick from the menu</h2>
+            <span class="mx-auto mt-1.5 block h-px w-1/2 bg-gold"></span>
+          </div>
+          <p class="mt-3 text-sm leading-6 text-stone-500">
+            Open <span class="font-semibold text-charcoal">Biodata Maker</span> in the navbar, then choose
+            Default biodata or AI biodata.
+          </p>
+        </div>
       }
     </div>
-
-    <div class="mt-8">
-      <app-pagination
-        [page]="page()"
-        [totalPages]="totalPages"
-        label="Biodata design pages"
-        (changed)="goToPage($event)"
-      />
-    </div>
-  </div>
-</section>
+  </section>
+}
 
 @if (previewOpen()) {
-  <div class="fixed inset-0 z-50 overflow-y-auto bg-charcoal/70 px-3 py-8" (click)="closePreview()">
-    <div class="mx-auto w-fit" (click)="keepOpen($event)">
+  <div
+    class="biodata-default-print-root fixed inset-0 z-50 overflow-y-auto bg-charcoal/70 px-3 py-8"
+    (click)="closePreview()"
+  >
+    <div class="mx-auto flex w-fit flex-col items-center gap-4" (click)="keepOpen($event)">
       <div class="overflow-x-auto">
-        <div class="relative w-[794px] shadow-2xl">
+        <div
+          #defaultPdfSheet
+          class="biodata-default-print relative w-[794px] shadow-2xl"
+          data-biodata-pdf-sheet="default"
+        >
           <button
             type="button"
-            class="absolute top-4 right-4 z-30 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-charcoal shadow-lg transition hover:bg-blush"
+            class="biodata-preview-chrome absolute top-4 right-4 z-30 inline-flex h-9 w-9 items-center justify-center rounded-full bg-white/95 text-charcoal shadow-lg transition hover:bg-blush"
             aria-label="Close biodata"
             (click)="closePreview()"
           >
             <svg lucideX [size]="18" aria-hidden="true"></svg>
           </button>
-          <app-biodata-document [template]="selectedTemplate()" [content]="content()" />
+          <app-biodata-document [template]="selectedTemplate()" [content]="defaultContent()" />
         </div>
       </div>
+
+      <button
+        type="button"
+        class="biodata-preview-chrome biodata-default-download"
+        [disabled]="pdfDownloading()"
+        [attr.aria-busy]="pdfDownloading()"
+        (click)="onDownloadPdfClick($event)"
+      >
+        <svg lucideDownload [size]="16" aria-hidden="true"></svg>
+        Download PDF
+      </button>
     </div>
   </div>
 }

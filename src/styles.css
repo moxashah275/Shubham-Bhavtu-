@@ -19,6 +19,15 @@ body {
   overflow-x: clip;
 }
 
+body.biodata-ai-active {
+  overflow: hidden;
+  height: 100dvh;
+}
+
+body.biodata-ai-active app-site-footer {
+  display: none;
+}
+
 app-root {
   display: block;
   min-height: 100%;
@@ -1669,4 +1678,567 @@ select optgroup {
   width: 1.25rem;
   font-size: 0.875rem;
   box-shadow: 0 2px 6px rgba(43, 36, 32, 0.2);
+}
+
+.biodata-ai-shell {
+  position: fixed;
+  top: 72px;
+  right: 0;
+  bottom: 0;
+  left: 0;
+  z-index: 20;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse 70% 45% at 12% 0%, rgba(201, 164, 92, 0.16), transparent 55%),
+    radial-gradient(ellipse 55% 40% at 100% 0%, rgba(107, 24, 49, 0.08), transparent 50%),
+    #faf7f2;
+}
+
+.biodata-ai-chat {
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: minmax(0, 1fr);
+  flex: 1 1 auto;
+  width: 100%;
+  height: 100%;
+  min-height: 0;
+  overflow: hidden;
+}
+
+.biodata-ai-chat > * {
+  min-height: 0;
+}
+
+@media (min-width: 900px) {
+  .biodata-ai-chat {
+    grid-template-columns: 14.5rem 1fr;
+  }
+}
+
+.biodata-ai-chat__sidebar {
+  display: none;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+  gap: 0.75rem;
+  padding: 1rem 0.75rem;
+  background: rgba(255, 255, 255, 0.72);
+  border-right: 1px solid rgba(196, 154, 74, 0.18);
+}
+
+@media (min-width: 900px) {
+  .biodata-ai-chat__sidebar {
+    display: flex;
+  }
+}
+
+.biodata-ai-chat__new {
+  display: inline-flex;
+  height: 2.5rem;
+  width: 100%;
+  flex-shrink: 0;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(196, 154, 74, 0.28);
+  background: #ffffff;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #2b2420;
+  transition: background 0.15s ease, border-color 0.15s ease;
+}
+
+.biodata-ai-chat__new:hover {
+  background: #f3e6e8;
+  border-color: rgba(107, 24, 49, 0.25);
+}
+
+.biodata-ai-chat__history {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 0.25rem;
+  min-height: 0;
+  overflow-y: auto;
+}
+
+.biodata-ai-chat__group {
+  margin: 0.5rem 0 0.3rem;
+  padding: 0 0.35rem;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: #c9a45c;
+}
+
+.biodata-ai-chat__item {
+  display: flex;
+  width: 100%;
+  cursor: pointer;
+  align-items: center;
+  gap: 0.55rem;
+  border-radius: 0.65rem;
+  border: 0;
+  background: transparent;
+  padding: 0.5rem 0.55rem;
+  text-align: left;
+  font-size: 0.8125rem;
+  font-weight: 500;
+  color: #2b2420;
+  transition: background 0.15s ease;
+}
+
+.biodata-ai-chat__item span {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.biodata-ai-chat__item:hover {
+  background: rgba(243, 230, 232, 0.8);
+}
+
+.biodata-ai-chat__item--active {
+  background: #f3e6e8;
+  color: #6b1831;
+}
+
+.biodata-ai-chat__empty-hint {
+  margin: 0.5rem 0.35rem 0;
+  font-size: 0.75rem;
+  line-height: 1.45;
+  color: #a8a29e;
+}
+
+.biodata-ai-chat__main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  min-height: 0;
+  height: 100%;
+  max-height: 100%;
+  overflow: hidden;
+}
+
+.biodata-ai-chat__thread {
+  display: block;
+  flex: 1 1 0;
+  min-height: 0;
+  height: 0;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  padding: 1rem 0.65rem 2.75rem 1rem;
+  scroll-behavior: smooth;
+  scrollbar-width: thin;
+  scrollbar-color: rgba(107, 24, 49, 0.38) rgba(43, 36, 32, 0.1);
+}
+
+.biodata-ai-chat__thread::-webkit-scrollbar {
+  width: 11px;
+}
+
+.biodata-ai-chat__thread::-webkit-scrollbar-track {
+  background: rgba(43, 36, 32, 0.1);
+  border-radius: 0;
+}
+
+.biodata-ai-chat__thread::-webkit-scrollbar-thumb {
+  background: rgba(107, 24, 49, 0.38);
+  border-radius: 999px;
+  border: 2px solid rgba(250, 247, 242, 0.85);
+  min-height: 48px;
+}
+
+@media (min-width: 640px) {
+  .biodata-ai-chat__thread {
+    padding: 1.15rem 0.85rem 1.5rem 1.5rem;
+  }
+}
+
+.biodata-ai-chat__thread:has(.biodata-ai-chat__welcome) {
+  display: flex;
+  flex-direction: column;
+}
+
+.biodata-ai-chat__welcome {
+  margin: auto;
+  max-width: 32rem;
+  width: 100%;
+  padding: 0 0.35rem;
+  text-align: center;
+}
+
+.biodata-ai-chat__result {
+  display: flex;
+  width: 100%;
+  max-width: 56rem;
+  margin: 0 auto;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 0.85rem;
+  flex-shrink: 0;
+  padding: 0 0.35rem 1.5rem;
+}
+
+.biodata-ai-chat__result > * {
+  flex-shrink: 0;
+}
+
+.biodata-ai-chat__prompt-row {
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+}
+
+.biodata-ai-chat__prompt {
+  max-width: min(26rem, 78%);
+  max-height: 10.5rem;
+  overflow-x: hidden;
+  overflow-y: auto;
+  border-radius: 1rem;
+  border: 1px solid rgba(196, 154, 74, 0.28);
+  background: #ffffff;
+  padding: 0.85rem 1.05rem;
+  font-size: 0.875rem;
+  line-height: 1.55;
+  color: #2b2420;
+  white-space: pre-wrap;
+  word-break: break-word;
+  box-shadow: 0 10px 28px rgba(43, 36, 32, 0.07);
+  scrollbar-width: thin;
+  scrollbar-color: rgba(107, 24, 49, 0.28) transparent;
+}
+
+.biodata-ai-chat__prompt::-webkit-scrollbar {
+  width: 6px;
+}
+
+.biodata-ai-chat__prompt::-webkit-scrollbar-thumb {
+  background: rgba(107, 24, 49, 0.28);
+  border-radius: 999px;
+}
+
+.biodata-ai-chat__result-title,
+.biodata-ai-live__frame,
+.biodata-ai-live__loading,
+.biodata-ai-chat__download {
+  align-self: center;
+}
+
+.biodata-ai-chat__result-title {
+  margin: 0;
+  text-align: center;
+  font-family: var(--font-serif, Georgia, 'Times New Roman', serif);
+  font-size: 1.25rem;
+  font-weight: 500;
+  line-height: 1.3;
+  color: #2b2420;
+}
+
+.biodata-ai-chat__download {
+  display: inline-flex;
+  height: 2.75rem;
+  flex-shrink: 0;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.7rem;
+  border: 0;
+  background: #6b1831;
+  padding: 0 1.35rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(107, 24, 49, 0.22);
+  transition: background 0.15s ease;
+}
+
+.biodata-ai-chat__download:hover:not(:disabled) {
+  background: #541226;
+}
+
+.biodata-ai-chat__download:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.biodata-ai-chat__composer {
+  position: relative;
+  z-index: 2;
+  flex-shrink: 0;
+  padding: 0.65rem 1.25rem 1rem;
+  background: linear-gradient(180deg, transparent 0%, rgba(250, 247, 242, 0.95) 28%, #faf7f2 100%);
+}
+
+@media (min-width: 640px) {
+  .biodata-ai-chat__composer {
+    padding: 0.75rem 2rem 1.15rem;
+  }
+}
+
+.biodata-ai-chat__input {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.55rem;
+  width: 100%;
+  max-width: 56rem;
+  margin: 0 auto;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(196, 154, 74, 0.28);
+  background: #ffffff;
+  padding: 0.6rem 0.7rem 0.6rem 1rem;
+  box-shadow: 0 10px 28px rgba(43, 36, 32, 0.07);
+}
+
+.biodata-ai-chat__textarea {
+  flex: 1;
+  box-sizing: border-box;
+  min-height: 2.75rem;
+  max-height: 13.75rem;
+  height: 2.75rem;
+  resize: none;
+  border: 0;
+  background: transparent;
+  padding: 0.5rem 0.15rem;
+  font-size: 0.875rem;
+  line-height: 1.5;
+  color: #2b2420;
+  outline: none;
+  overflow-y: auto;
+  field-sizing: content;
+}
+
+.biodata-ai-chat__textarea::placeholder {
+  color: #a8a29e;
+}
+
+.biodata-ai-chat__send {
+  display: inline-flex;
+  height: 2.5rem;
+  width: 2.5rem;
+  flex-shrink: 0;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  border-radius: 9999px;
+  border: 0;
+  background: #6b1831;
+  color: #fff;
+  box-shadow: 0 6px 14px rgba(107, 24, 49, 0.28);
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.biodata-ai-chat__send:hover:not(:disabled) {
+  background: #541226;
+  transform: translateY(-1px);
+}
+
+.biodata-ai-chat__send:disabled {
+  cursor: not-allowed;
+  opacity: 0.6;
+}
+
+.biodata-ai-live__frame {
+  position: relative;
+  display: block;
+  width: 100%;
+  max-width: 794px;
+  line-height: normal;
+  overflow-x: auto;
+  overflow-y: visible;
+  flex-shrink: 0;
+}
+
+.biodata-ai-live__frame .biodata-default-print > app-biodata-document {
+  display: block;
+}
+
+.biodata-ai-live__loading {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 8rem;
+  width: 100%;
+  pointer-events: none;
+}
+
+.biodata-default-download {
+  display: inline-flex;
+  height: 2.75rem;
+  flex-shrink: 0;
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  border-radius: 0.7rem;
+  border: 0;
+  background: #6b1831;
+  padding: 0 1.35rem;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #fff;
+  box-shadow: 0 8px 18px rgba(107, 24, 49, 0.22);
+  transition: background 0.15s ease;
+}
+
+.biodata-default-download:hover {
+  background: #541226;
+}
+
+/* PDF export: capture live sheet (no layout jump on screen after download). */
+body.biodata-pdf-export-active .biodata-preview-chrome {
+  visibility: hidden !important;
+  pointer-events: none !important;
+}
+
+body.biodata-pdf-export-active .biodata-default-print-root.biodata-pdf-export-overlay {
+  overflow: visible !important;
+}
+
+body.biodata-pdf-export-active .biodata-pdf-export-sheet {
+  box-shadow: none !important;
+}
+
+.biodata-pdf-print-portal {
+  position: fixed;
+  left: -9999px;
+  top: 0;
+  width: 794px;
+  pointer-events: none;
+  visibility: hidden;
+}
+
+@media print {
+  @page {
+    size: A4 portrait;
+    margin: 0;
+  }
+
+  html,
+  body {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body * {
+    visibility: hidden !important;
+  }
+
+  .biodata-preview-chrome {
+    display: none !important;
+  }
+
+  /* Default + AI PDF: cloned sheet in .biodata-pdf-print-portal (see printBiodataPdf). */
+  body.biodata-default-pdf-print {
+    margin: 0 !important;
+    padding: 0 !important;
+    width: auto !important;
+    height: auto !important;
+    min-height: 0 !important;
+    overflow: visible !important;
+    background: #ffffff !important;
+  }
+
+  body.biodata-default-pdf-print * {
+    visibility: hidden !important;
+  }
+
+  body.biodata-default-pdf-print .biodata-pdf-print-portal,
+  body.biodata-default-pdf-print .biodata-pdf-print-portal * {
+    visibility: visible !important;
+  }
+
+  body.biodata-default-pdf-print .biodata-pdf-print-portal {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 794px !important;
+    height: auto !important;
+    overflow: visible !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    background: #ffffff !important;
+    visibility: visible !important;
+    pointer-events: none !important;
+  }
+
+  body.biodata-default-pdf-print .biodata-pdf-print-portal .biodata-default-print,
+  body.biodata-default-pdf-print .biodata-pdf-print-portal .biodata-print-document {
+    position: relative !important;
+    left: auto !important;
+    top: auto !important;
+    width: 794px !important;
+    max-width: none !important;
+    height: auto !important;
+    min-height: 1123px !important;
+    box-shadow: none !important;
+    background: #ffffff !important;
+    overflow: visible !important;
+  }
+
+  body.biodata-default-pdf-print app-biodata-document {
+    display: block !important;
+    overflow: visible !important;
+  }
+
+  body.biodata-default-pdf-print .biodata-default-print > app-biodata-document > div,
+  body.biodata-default-pdf-print .biodata-print-document > div {
+    display: flex !important;
+    flex-direction: column !important;
+    width: 794px !important;
+    min-height: 1123px !important;
+    height: auto !important;
+    overflow: visible !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body.biodata-default-pdf-print .biodata-pdf-print-portal,
+  body.biodata-default-pdf-print .biodata-pdf-print-portal * {
+    max-height: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  body.biodata-default-pdf-print .biodata-pdf-print-portal .biodata-default-print,
+  body.biodata-default-pdf-print .biodata-pdf-print-portal .biodata-default-print *,
+  body.biodata-default-pdf-print .biodata-pdf-print-portal .biodata-print-document,
+  body.biodata-default-pdf-print .biodata-pdf-print-portal .biodata-print-document * {
+    overflow: visible !important;
+  }
+
+  body.biodata-default-pdf-print .biodata-default-print .flex-1,
+  body.biodata-default-pdf-print .biodata-print-document .flex-1 {
+    flex: 1 1 auto !important;
+    min-height: auto !important;
+    height: auto !important;
+  }
+
+  body.biodata-default-pdf-print .biodata-default-print .flex,
+  body.biodata-default-pdf-print .biodata-print-document .flex {
+    height: auto !important;
+    min-height: 0 !important;
+  }
+
+  body.biodata-default-pdf-print .biodata-default-print svg,
+  body.biodata-default-pdf-print .biodata-print-document svg {
+    visibility: visible !important;
+    overflow: visible !important;
+  }
 }

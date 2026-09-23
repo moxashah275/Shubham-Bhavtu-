@@ -103,12 +103,11 @@ export class ProfileSavedViewComponent {
   }
 
   displayAge(): string {
-    const dob = this.user()?.dateOfBirth?.trim();
-    const fromDob = this.ageTextFromDob(dob);
-    if (fromDob) {
-      return fromDob;
+    const fromStored = this.ageTextFromStoredAge(this.user()?.age);
+    if (fromStored) {
+      return fromStored;
     }
-    return this.ageTextFromStoredAge(this.user()?.age) || '—';
+    return this.ageTextFromDob(this.user()?.dateOfBirth) || '—';
   }
 
   displayPartnerAge(): string {

@@ -5,71 +5,115 @@
   [showLine]="false"
 />
 
-<section class="bg-blush/40 py-12 sm:py-16">
+<section class="bg-blush/40 py-10 sm:py-12">
   <div class="mx-auto max-w-7xl px-5 lg:px-8">
     <div class="mx-auto max-w-2xl text-center">
-      <p class="text-xs font-semibold tracking-[0.18em] text-gold uppercase">Subscription plans</p>
+      <p class="text-xs font-semibold tracking-[0.18em] text-gold uppercase">Choose your plan</p>
       <div class="mx-auto w-fit max-w-full">
-        <h2 class="mt-3 font-serif text-2xl leading-tight text-charcoal sm:text-3xl lg:text-4xl">
-          Simple plans, the same warmth
+        <h2 class="mt-2 font-serif text-2xl leading-tight text-charcoal sm:text-3xl">
+          Membership made for families
         </h2>
         <span class="mx-auto mt-1.5 block h-px w-1/2 bg-gold"></span>
       </div>
-      <p class="mt-4 text-sm leading-7 text-stone-500">
-        Every plan includes verified profiles and private introductions. Gold and Premium add the extra care families often
-        ask for.
+      <p class="mt-3 text-sm leading-6 text-stone-500">
+        Compare Free, Gold, and Premium. Tick means included — X means not in that plan.
       </p>
     </div>
 
-    <div class="mt-10 grid items-stretch gap-5 lg:grid-cols-3 lg:gap-6">
-      @for (plan of plans; track plan.name) {
+    <div class="mt-8 grid items-stretch gap-4 lg:grid-cols-3 lg:gap-5">
+      @for (plan of plans; track plan.id) {
         <article
-          class="relative flex h-full flex-col rounded-2xl border bg-white p-6 shadow-sm sm:p-8"
+          class="relative flex h-full flex-col rounded-2xl border bg-white p-5 shadow-sm sm:p-6"
           [class.border-gold/50]="plan.featured"
           [class.bg-ivory]="plan.featured"
-          [class.shadow-[0_22px_50px_rgba(107,24,49,0.1)]]="plan.featured"
-          [class.lg:-translate-y-2]="plan.featured"
+          [class.shadow-[0_18px_40px_rgba(107,24,49,0.1)]]="plan.featured"
           [class.border-gold/15]="!plan.featured"
         >
-          @if (plan.featured) {
-            <span
-              class="absolute top-5 right-5 rounded-full bg-burgundy px-2.5 py-1 text-[10px] font-semibold tracking-[0.16em] text-white uppercase"
-            >
-              Most chosen
+          <div class="flex items-start justify-between gap-3">
+            <span class="inline-flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-blush text-burgundy">
+              <svg [lucideIcon]="plan.icon" [size]="17" aria-hidden="true"></svg>
             </span>
-          }
-          <span class="inline-flex h-12 w-12 items-center justify-center rounded-full bg-blush text-burgundy">
-            <svg [lucideIcon]="plan.icon" [size]="20" aria-hidden="true"></svg>
-          </span>
-          <h3
-            class="mt-5 font-serif text-2xl text-charcoal"
-            [class.pr-24]="plan.featured"
-          >{{ plan.name }}</h3>
-          <p class="mt-2 font-serif text-2xl text-burgundy">{{ plan.price }}</p>
-          <p class="mt-3 text-sm leading-6 text-stone-500">{{ plan.copy }}</p>
-          <ul class="mt-5 flex-1 space-y-2.5 text-sm leading-6 text-stone-500">
-            @for (feature of plan.features; track feature) {
-              <li class="flex gap-2">
-                <span class="mt-2 h-1.5 w-1.5 shrink-0 rounded-full bg-gold"></span>
-                <span>{{ feature }}</span>
+            <span
+              class="shrink-0 rounded-full px-2.5 py-1 text-[10px] font-semibold tracking-[0.14em] uppercase"
+              [class.bg-burgundy]="isCurrent(plan.id)"
+              [class.text-white]="isCurrent(plan.id)"
+              [class.bg-blush]="!isCurrent(plan.id)"
+              [class.text-burgundy]="!isCurrent(plan.id)"
+            >
+              {{ statusFor(plan.id) }}
+            </span>
+          </div>
+
+          <div class="mt-3 flex flex-wrap items-center gap-2">
+            <h3 class="font-serif text-xl leading-none text-charcoal">{{ plan.name }}</h3>
+            @if (plan.id !== 'free') {
+              <span class="inline-flex items-center gap-1.5 text-burgundy">
+                <span class="inline-flex h-6 w-6 shrink-0 items-center justify-center rounded-full bg-burgundy/10">
+                  <svg lucideIndianRupee [size]="13" aria-hidden="true"></svg>
+                </span>
+                <span class="font-serif text-xl leading-none">{{ plan.priceLabel.replace('₹', '') }}</span>
+                <span class="mx-0.5 text-base leading-none text-burgundy" aria-hidden="true">·</span>
+                <span class="text-sm font-semibold leading-none text-burgundy">{{ plan.duration }}</span>
+              </span>
+            }
+          </div>
+          <p class="mt-2 text-sm leading-5 text-stone-500">{{ plan.description }}</p>
+
+          <ul class="mt-4 flex-1 space-y-1.5 text-sm leading-5">
+            @for (row of features(plan.id); track row.label) {
+              <li class="flex items-start gap-2">
+                @if (row.included) {
+                  <span
+                    class="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-burgundy text-white"
+                    aria-label="Included"
+                  >
+                    <svg lucideCheck [size]="11" aria-hidden="true"></svg>
+                  </span>
+                  <span class="text-charcoal">{{ row.label }}</span>
+                } @else {
+                  <span
+                    class="mt-0.5 inline-flex h-4 w-4 shrink-0 items-center justify-center rounded-full bg-stone-200 text-stone-500"
+                    aria-label="Not included"
+                  >
+                    <svg lucideX [size]="11" aria-hidden="true"></svg>
+                  </span>
+                  <span class="text-stone-400">{{ row.label }}</span>
+                }
               </li>
             }
           </ul>
-          <a
-            [routerLink]="startLink()"
-            class="mt-7 inline-flex h-11 cursor-pointer items-center justify-center rounded-lg px-5 text-sm font-semibold transition"
-            [class.bg-burgundy]="plan.featured"
-            [class.text-white]="plan.featured"
-            [class.hover:bg-burgundy-deep]="plan.featured"
-            [class.border]="!plan.featured"
-            [class.border-gold/30]="!plan.featured"
-            [class.text-charcoal]="!plan.featured"
-            [class.hover:bg-blush]="!plan.featured"
-          >
-            Begin with {{ plan.name }}
-          </a>
+
+          <div class="mt-5 flex gap-2">
+            <button
+              type="button"
+              class="inline-flex h-10 min-w-0 flex-1 cursor-pointer items-center justify-center rounded-lg bg-burgundy px-2.5 text-center text-xs font-semibold text-white transition hover:bg-burgundy-deep sm:text-sm"
+              (click)="viewSubscription(plan)"
+            >
+              View subscription
+            </button>
+            <button
+              type="button"
+              class="inline-flex h-10 min-w-0 flex-1 items-center justify-center rounded-lg bg-burgundy px-2.5 text-center text-xs font-semibold text-white transition sm:text-sm"
+              [class.cursor-pointer]="!isChooseDisabled(plan)"
+              [class.hover:bg-burgundy-deep]="!isChooseDisabled(plan)"
+              [class.cursor-not-allowed]="isChooseDisabled(plan)"
+              [class.opacity-50]="isChooseDisabled(plan)"
+              [disabled]="isChooseDisabled(plan)"
+              (click)="choosePlan(plan)"
+            >
+              {{ chooseLabel(plan) }}
+            </button>
+          </div>
         </article>
       }
     </div>
   </div>
 </section>
+
+@if (checkoutPlan(); as plan) {
+  <app-membership-payment-dialog
+    [plan]="plan"
+    (closed)="closeCheckout()"
+    (confirmed)="confirmPayment($event)"
+  />
+}

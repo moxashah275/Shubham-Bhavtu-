@@ -8,7 +8,7 @@
 <app-partner-search />
 <app-site-highlights />
 
-<section class="mx-auto max-w-7xl px-5 py-12 sm:py-16 lg:px-8">
+<section class="mx-auto max-w-7xl px-5 pb-8 pt-12 sm:pb-10 sm:pt-16 lg:px-8">
   <div class="max-w-2xl">
     <p class="text-xs font-semibold tracking-[0.18em] text-gold uppercase">Matches made</p>
     <div class="w-fit">
@@ -50,6 +50,8 @@
     </div>
   }
 </section>
+
+<app-faq-section />
 
 @if (selectedMatch(); as match) {
   <app-success-match-dialog [story]="match" (closed)="closeMatch()" />
